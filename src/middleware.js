@@ -30,11 +30,11 @@ export async function middleware(request) {
   // }
 
   if (sessionCookie && signInPath) {
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/user/:path*", "/sign-in"],
+  matcher: ["/dashboard/:path*", "/user/:path*", "/sign-in"],
 };
