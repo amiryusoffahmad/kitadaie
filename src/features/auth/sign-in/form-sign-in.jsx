@@ -11,7 +11,6 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { signIn } from '@/lib/auth-client'
-import { Loader2 } from 'lucide-react'
 
 export function FormSignIn({ callbackUrl }) {
     const [isLoading, setIsLoading] = useState(false)
