@@ -33,4 +33,4 @@ jobs:
             fi
             bun install
             bun run build
-            pm2 restart Kitadaie
+            pm2 restart KitaDaie
