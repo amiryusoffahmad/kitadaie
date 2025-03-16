@@ -18,7 +18,7 @@ export default function Page() {
                     },
                 },
             })}>
-                Logout
+                Logoutf
             </Button>
         </div>
     )
