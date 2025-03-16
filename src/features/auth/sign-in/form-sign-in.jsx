@@ -22,7 +22,7 @@ export function FormSignIn({ callbackUrl }) {
             await signIn.social(
                 {
                     provider: 'google',
-                    callbackURL: callbackUrl || '/admin',
+                    callbackURL: callbackUrl || '/dashboard',
                 },
                 {
                     onSuccess: () => {
@@ -31,7 +31,7 @@ export function FormSignIn({ callbackUrl }) {
                         if (callbackUrl) {
                             window.location.href = callbackUrl
                         } else {
-                            window.location.href = '/admin'
+                            window.location.href = '/dashboard'
                         }
                     },
                 }
