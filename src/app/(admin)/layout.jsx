@@ -16,6 +16,7 @@ import {
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { getRole } from "@/server/mobile/user.server"
 
 export default async function Layout({ children }) {
     const session = await auth.api.getSession(
@@ -26,6 +27,11 @@ export default async function Layout({ children }) {
 
     if (!session) {
         redirect("/sign-in")
+    }
+
+    const data = await getRole(session.user.id)
+    if (data.role !== "admin") {
+        redirect("/user")
     }
 
     return (
