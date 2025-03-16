@@ -1,0 +1,36 @@
+name: CD
+on:
+  push:
+    branches: [main]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy using SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: 22
+          script: |
+            cd /home/kitadaie/webapps/kitadaie
+            git pull origin main
+
+             # Check if bun is installed; if not, install it
+            if ! command -v bun &> /dev/null
+            then
+              echo "Bun is not installed. Installing..."
+              curl -fsSL https://bun.sh/install | bash
+              export BUN_INSTALL="$HOME/.bun"
+              export PATH="$BUN_INSTALL/bin:$PATH"
+              echo 'export BUN_INSTALL="$HOME/.bun"' >> ~/.bashrc
+              echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> ~/.bashrc
+              source ~/.bashrc
+            else
+              echo "Bun is already installed."
+            fi
+            bun install
+            bun run build
+            pm2 restart Kitadaie
