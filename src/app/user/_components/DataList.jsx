@@ -2,6 +2,6 @@
 
 export default function DataList() {
     return (
-        <div>DataList</div>
+        <div>Homepage Data List</div>
     )
 }
