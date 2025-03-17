@@ -2,6 +2,6 @@
 
 export default function DataList() {
     return (
-        <div>TProg Data List</div>
+        <div>Profile Data List</div>
     )
 }

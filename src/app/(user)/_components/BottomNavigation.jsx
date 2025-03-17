@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Home, History, CirclePlus, Inbox, User } from "lucide-react";
+import UpdateDrawer from "./UpdateDrawer";
 
 export default function MobileNav() {
     return (
@@ -19,10 +19,7 @@ export default function MobileNav() {
                         <span className="text-xs">TProg</span>
                     </Link>
 
-                    <Link href="/updates" className="flex flex-col items-center gap-1">
-                        <CirclePlus size={23} />
-                        <span className="text-xs">Update</span>
-                    </Link>
+                    <UpdateDrawer />
 
                     <Link href="/inbox" className="flex flex-col items-center gap-1">
                         <Inbox size={23} />

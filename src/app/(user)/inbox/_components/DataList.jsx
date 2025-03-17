@@ -2,6 +2,6 @@
 
 export default function DataList() {
     return (
-        <div>TProg Data List</div>
+        <div>Inbox Data List</div>
     )
 }
