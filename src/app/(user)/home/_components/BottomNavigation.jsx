@@ -9,7 +9,7 @@ export default function MobileNav() {
         <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center">
             <nav className="border-t bg-background h-16 w-full max-w-md">
                 <div className="flex items-center justify-around pt-[17px] pb-[6px]">
-                    <Link href="/" className="flex flex-col items-center gap-1">
+                    <Link href="/home" className="flex flex-col items-center gap-1">
                         <Home size={23} />
                         <span className="text-xs">Home</span>
                     </Link>
@@ -21,7 +21,7 @@ export default function MobileNav() {
 
                     <Link href="/updates" className="flex flex-col items-center gap-1">
                         <CirclePlus size={23} />
-                        <span className="text-xs">Updates</span>
+                        <span className="text-xs">Update</span>
                     </Link>
 
                     <Link href="/inbox" className="flex flex-col items-center gap-1">

@@ -31,7 +31,7 @@ export default async function Layout({ children }) {
 
     const data = await getRole(session.user.id)
     if (data.role !== "admin") {
-        redirect("/user")
+        redirect("/home")
     }
 
     return (
