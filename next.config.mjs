@@ -16,10 +16,10 @@ const nextConfig = {
   //     },
   //   ],
   // },
-  output: "standalone",
-  trailingSlash: false,
-  assetPrefix:
-    process.env.NODE_ENV === "production" ? "https://dev.kitadaie.com" : "",
+  // output: "standalone",
+  // trailingSlash: false,
+  // assetPrefix:
+  //   process.env.NODE_ENV === "production" ? "https://dev.kitadaie.com" : "",
 };
 
 export default nextConfig;
