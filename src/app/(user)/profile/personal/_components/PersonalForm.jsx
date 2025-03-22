@@ -48,6 +48,7 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
             income_classification: "",
             marital_status: "",
             family_status: "",
+            murobbi_id: "",
             ic_no: "",
         }
     );
@@ -117,7 +118,7 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
+                    <Label htmlFor="address">Current Address</Label>
                     <Input
                         id="address"
                         value={formData.address}
@@ -130,11 +131,36 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
 
                 <div className="space-y-2">
                     <Label htmlFor="branch">Branch</Label>
-                    <Input
-                        id="branch"
+                    <Select
                         value={formData.branch}
+                        onValueChange={(value) =>
+                            setFormData((prev) => ({ ...prev, branch: value }))
+                        }
+                        disabled={isSubmitting}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select branch" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Malaysia - Central">Malaysia - Central</SelectItem>
+                            <SelectItem value="Malaysia - Northern">Malaysia - Northern</SelectItem>
+                            <SelectItem value="Malaysia - Eastern">Malaysia - Eastern</SelectItem>
+                            <SelectItem value="Malaysia - Borneo">Malaysia - Borneo</SelectItem>
+                            <SelectItem value="Europe">Europe</SelectItem>
+                            <SelectItem value="ANZ">ANZ</SelectItem>
+                            <SelectItem value="MEA">MEA</SelectItem>
+                            <SelectItem value="IDN">IDN</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="murobbi_id">Murobbi ID</Label>
+                    <Input
+                        id="murobbi_id"
+                        value={formData.murobbi_id || ""}
                         onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, branch: e.target.value }))
+                            setFormData((prev) => ({ ...prev, murobbi_id: e.target.value }))
                         }
                         disabled={isSubmitting}
                     />

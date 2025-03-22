@@ -40,6 +40,7 @@ export async function updatePersonalData(data, userId) {
         income_classification: data.income_classification,
         marital_status: data.marital_status,
         family_status: data.family_status,
+        murobbi_id: data.murobbi_id,
         // Don't update email here - it's in the main user table
       };
 
