@@ -46,6 +46,20 @@ const deleteHighSchoolAction = () =>
     (mod) => mod.deleteHighSchoolAction
   );
 
+// Dynamic imports for certification server actions
+const fetchCertificationDataAction = () =>
+  import("@/server/actions/certification-actions").then(
+    (mod) => mod.fetchCertificationDataAction
+  );
+const updateCertificationAction = () =>
+  import("@/server/actions/certification-actions").then(
+    (mod) => mod.updateCertificationAction
+  );
+const deleteCertificationAction = () =>
+  import("@/server/actions/certification-actions").then(
+    (mod) => mod.deleteCertificationAction
+  );
+
 /**
  * Hook to get the current user ID from Better Auth session
  */
@@ -190,6 +204,61 @@ export function useDeleteHighSchool() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch high school data after successful deletion
       queryClient.invalidateQueries({ queryKey: ["highSchoolData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to get certification data for a user
+ */
+export function useCertificationData(userId) {
+  return useQuery({
+    queryKey: ["certificationData", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const action = await fetchCertificationDataAction();
+      return action(userId);
+    },
+    enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to add or update certification data
+ */
+export function useUpdateCertification() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ data, userId }) => {
+      const action = await updateCertificationAction();
+      return action(data, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch certification data after successful update
+      queryClient.invalidateQueries({
+        queryKey: ["certificationData", userId],
+      });
+    },
+  });
+}
+
+/**
+ * Hook to delete certification entry
+ */
+export function useDeleteCertification() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ certificationId, userId }) => {
+      const action = await deleteCertificationAction();
+      return action(certificationId, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch certification data after successful deletion
+      queryClient.invalidateQueries({
+        queryKey: ["certificationData", userId],
+      });
     },
   });
 }

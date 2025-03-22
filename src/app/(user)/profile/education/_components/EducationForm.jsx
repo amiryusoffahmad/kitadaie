@@ -106,7 +106,6 @@ export default function EducationForm({
                                 <SelectItem value="PhD">PhD</SelectItem>
                                 <SelectItem value="Associate">Associate Degree</SelectItem>
                                 <SelectItem value="Diploma">Diploma</SelectItem>
-                                <SelectItem value="Certificate">Certificate</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -147,7 +146,6 @@ export default function EducationForm({
                             <SelectItem value="PhD">PhD</SelectItem>
                             <SelectItem value="Associate">Associate Degree</SelectItem>
                             <SelectItem value="Diploma">Diploma</SelectItem>
-                            <SelectItem value="Certificate">Certificate</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
