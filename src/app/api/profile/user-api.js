@@ -18,6 +18,20 @@ const updatePersonalDataAction = () =>
     (mod) => mod.updatePersonalDataAction
   );
 
+// Dynamic imports for education server actions
+const fetchEducationDataAction = () =>
+  import("@/server/actions/education-actions").then(
+    (mod) => mod.fetchEducationDataAction
+  );
+const updateEducationDataAction = () =>
+  import("@/server/actions/education-actions").then(
+    (mod) => mod.updateEducationDataAction
+  );
+const deleteEducationAction = () =>
+  import("@/server/actions/education-actions").then(
+    (mod) => mod.deleteEducationAction
+  );
+
 /**
  * Hook to get the current user ID from Better Auth session
  */
@@ -60,6 +74,57 @@ export function useUpdatePersonalData() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch personal data after successful update
       queryClient.invalidateQueries({ queryKey: ["personalData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to get education data for a user
+ */
+export function useEducationData(userId) {
+  return useQuery({
+    queryKey: ["educationData", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const action = await fetchEducationDataAction();
+      return action(userId);
+    },
+    enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to add or update education data
+ */
+export function useUpdateEducationData() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ data, userId }) => {
+      const action = await updateEducationDataAction();
+      return action(data, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch education data after successful update
+      queryClient.invalidateQueries({ queryKey: ["educationData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to delete education entry
+ */
+export function useDeleteEducation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ educationId, userId }) => {
+      const action = await deleteEducationAction();
+      return action(educationId, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch education data after successful deletion
+      queryClient.invalidateQueries({ queryKey: ["educationData", userId] });
     },
   });
 }
