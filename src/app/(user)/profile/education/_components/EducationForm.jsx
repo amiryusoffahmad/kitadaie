@@ -32,8 +32,15 @@ import { Label } from "@/components/ui/label";
  * @param {function(EducationFormData): void} props.onSubmit
  * @param {function(): void} props.onCancel
  * @param {boolean} [props.isSubmitting]
+ * @param {function(string): void} props.onDegreeChange 
  */
-export default function EducationForm({ initialData, onSubmit, onCancel, isSubmitting = false }) {
+export default function EducationForm({
+    initialData,
+    onSubmit,
+    onCancel,
+    isSubmitting = false,
+    onDegreeChange
+}) {
     const [formData, setFormData] = useState(
         initialData || {
             university: "",
@@ -50,6 +57,13 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
     const handleSubmit = async (e) => {
         e.preventDefault();
         onSubmit(formData);
+    };
+
+    const handleDegreeChange = (value) => {
+        setFormData((prev) => ({ ...prev, degree: value }));
+        if (onDegreeChange) {
+            onDegreeChange(value);
+        }
     };
 
     // Generate year options from 1950 to current year
@@ -70,9 +84,74 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
         "Others"
     ];
 
+    // This is just for degree selection at the top
+    if (!formData.degree) {
+        return (
+            <form className="space-y-6">
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="degree">Select Degree</Label>
+                        <Select
+                            value={formData.degree}
+                            onValueChange={handleDegreeChange}
+                            disabled={isSubmitting}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select degree" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="High School">High School</SelectItem>
+                                <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
+                                <SelectItem value="Master">Master's Degree</SelectItem>
+                                <SelectItem value="PhD">PhD</SelectItem>
+                                <SelectItem value="Associate">Associate Degree</SelectItem>
+                                <SelectItem value="Diploma">Diploma</SelectItem>
+                                <SelectItem value="Certificate">Certificate</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="flex gap-4">
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onCancel}
+                        className="flex-1"
+                        disabled={isSubmitting}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </form>
+        );
+    }
+
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label htmlFor="degree">Degree</Label>
+                    <Select
+                        value={formData.degree}
+                        onValueChange={handleDegreeChange}
+                        disabled={isSubmitting}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select degree" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="High School">High School</SelectItem>
+                            <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
+                            <SelectItem value="Master">Master's Degree</SelectItem>
+                            <SelectItem value="PhD">PhD</SelectItem>
+                            <SelectItem value="Associate">Associate Degree</SelectItem>
+                            <SelectItem value="Diploma">Diploma</SelectItem>
+                            <SelectItem value="Certificate">Certificate</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
                 <div className="space-y-2">
                     <Label htmlFor="university">University</Label>
                     <Input
@@ -117,30 +196,6 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
                         }
                         disabled={isSubmitting}
                     />
-                </div>
-
-                <div className="space-y-2">
-                    <Label htmlFor="degree">Degree</Label>
-                    <Select
-                        value={formData.degree}
-                        onValueChange={(value) =>
-                            setFormData((prev) => ({ ...prev, degree: value }))
-                        }
-                        disabled={isSubmitting}
-                    >
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select degree" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
-                            <SelectItem value="Master">Master's Degree</SelectItem>
-                            <SelectItem value="PhD">PhD</SelectItem>
-                            <SelectItem value="Associate">Associate Degree</SelectItem>
-                            <SelectItem value="Diploma">Diploma</SelectItem>
-                            <SelectItem value="Certificate">Certificate</SelectItem>
-                            <SelectItem value="High School">High School</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
 
                 <div className="space-y-2">

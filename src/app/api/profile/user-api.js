@@ -32,6 +32,20 @@ const deleteEducationAction = () =>
     (mod) => mod.deleteEducationAction
   );
 
+// Dynamic imports for high school server actions
+const fetchHighSchoolDataAction = () =>
+  import("@/server/actions/high-school-actions").then(
+    (mod) => mod.fetchHighSchoolDataAction
+  );
+const updateHighSchoolDataAction = () =>
+  import("@/server/actions/high-school-actions").then(
+    (mod) => mod.updateHighSchoolDataAction
+  );
+const deleteHighSchoolAction = () =>
+  import("@/server/actions/high-school-actions").then(
+    (mod) => mod.deleteHighSchoolAction
+  );
+
 /**
  * Hook to get the current user ID from Better Auth session
  */
@@ -125,6 +139,57 @@ export function useDeleteEducation() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch education data after successful deletion
       queryClient.invalidateQueries({ queryKey: ["educationData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to get high school data for a user
+ */
+export function useHighSchoolData(userId) {
+  return useQuery({
+    queryKey: ["highSchoolData", userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      const action = await fetchHighSchoolDataAction();
+      return action(userId);
+    },
+    enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to update high school data
+ */
+export function useUpdateHighSchoolData() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ data, userId }) => {
+      const action = await updateHighSchoolDataAction();
+      return action(data, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch high school data after successful update
+      queryClient.invalidateQueries({ queryKey: ["highSchoolData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to delete high school entry
+ */
+export function useDeleteHighSchool() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ highSchoolId, userId }) => {
+      const action = await deleteHighSchoolAction();
+      return action(highSchoolId, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch high school data after successful deletion
+      queryClient.invalidateQueries({ queryKey: ["highSchoolData", userId] });
     },
   });
 }

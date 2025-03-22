@@ -18,11 +18,15 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import EducationForm from './EducationForm'
+import HighSchoolForm from './HighSchoolForm'
 import {
     useCurrentUserId,
     useEducationData,
     useUpdateEducationData,
-    useDeleteEducation
+    useDeleteEducation,
+    useHighSchoolData,
+    useUpdateHighSchoolData,
+    useDeleteHighSchool
 } from '@/app/api/profile/user-api'
 
 export default function EducationList() {
@@ -30,6 +34,8 @@ export default function EducationList() {
     const [userId, setUserId] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [currentEducation, setCurrentEducation] = useState(null);
+    const [formType, setFormType] = useState(null); // null, 'education', 'high-school'
+    const [selectedDegree, setSelectedDegree] = useState(null);
 
     // Get the current user ID
     const { data: currentUserId, isLoading: isLoadingUserId, error: userIdError } = useCurrentUserId();
@@ -43,53 +49,95 @@ export default function EducationList() {
     // Fetch education data with TanStack Query
     const {
         data: educationData,
-        isLoading: isLoadingData,
-        error: dataError
+        isLoading: isLoadingEducation,
+        error: educationError
     } = useEducationData(userId);
 
-    // Handle form submission with useMutation
-    const updateMutation = useUpdateEducationData();
-    const deleteMutation = useDeleteEducation();
+    // Fetch high school data
+    const {
+        data: highSchoolData,
+        isLoading: isLoadingHighSchool,
+        error: highSchoolError
+    } = useHighSchoolData(userId);
+
+    // Handle form submissions with useMutation
+    const updateEducationMutation = useUpdateEducationData();
+    const deleteEducationMutation = useDeleteEducation();
+    const updateHighSchoolMutation = useUpdateHighSchoolData();
+    const deleteHighSchoolMutation = useDeleteHighSchool();
 
     const handleAdd = () => {
         setCurrentEducation(null);
+        setSelectedDegree(null);
+        setFormType(null);
         setIsFormOpen(true);
     };
 
-    const handleEdit = (education) => {
+    const handleEdit = (education, type = 'education') => {
         setCurrentEducation(education);
+        setFormType(type);
+        setSelectedDegree(type === 'high-school' ? 'High School' : education.degree);
         setIsFormOpen(true);
     };
 
-    const handleDelete = async (educationId) => {
+    const handleDelete = async (id, type = 'education') => {
         if (!userId) {
             alert("You must be logged in to delete education");
             return;
         }
 
-        deleteMutation.mutate({ educationId, userId });
+        if (type === 'high-school') {
+            deleteHighSchoolMutation.mutate({ highSchoolId: id, userId });
+        } else {
+            deleteEducationMutation.mutate({ educationId: id, userId });
+        }
     };
 
-    const handleSubmit = async (data) => {
+    const handleDegreeChange = (degree) => {
+        setSelectedDegree(degree);
+        if (degree === 'High School') {
+            setFormType('high-school');
+        } else {
+            setFormType('education');
+        }
+    };
+
+    const handleEducationSubmit = async (data) => {
         if (!userId) {
             alert("You must be logged in to update your education");
             return;
         }
 
-        updateMutation.mutate({ data, userId });
+        updateEducationMutation.mutate({ data, userId });
         setIsFormOpen(false);
+        setFormType(null);
+        setSelectedDegree(null);
+    };
+
+    const handleHighSchoolSubmit = async (data) => {
+        if (!userId) {
+            alert("You must be logged in to update your high school information");
+            return;
+        }
+
+        updateHighSchoolMutation.mutate({ data, userId });
+        setIsFormOpen(false);
+        setFormType(null);
+        setSelectedDegree(null);
     };
 
     const handleCancel = () => {
         setIsFormOpen(false);
         setCurrentEducation(null);
+        setFormType(null);
+        setSelectedDegree(null);
     };
 
     // Combined loading state
-    const isLoading = isLoadingUserId || isLoadingData;
+    const isLoading = isLoadingUserId || isLoadingEducation || isLoadingHighSchool;
 
     // Combined error state
-    const error = userIdError || dataError;
+    const error = userIdError || educationError || highSchoolError;
 
     if (isLoading) {
         return (
@@ -166,18 +214,32 @@ export default function EducationList() {
                                     />
                                 </Button>
                                 <h1 className="text-2xl font-bold">
-                                    {currentEducation ? "Edit Education" : "Add Education"}
+                                    {currentEducation
+                                        ? formType === 'high-school'
+                                            ? "Edit High School"
+                                            : "Edit Education"
+                                        : "Add Education"}
                                 </h1>
                             </div>
                         </header>
 
                         <main className="container max-w-md w-full px-4 py-4">
-                            <EducationForm
-                                initialData={currentEducation || undefined}
-                                onSubmit={handleSubmit}
-                                onCancel={handleCancel}
-                                isSubmitting={updateMutation.isPending}
-                            />
+                            {formType === 'high-school' ? (
+                                <HighSchoolForm
+                                    initialData={currentEducation}
+                                    onSubmit={handleHighSchoolSubmit}
+                                    onCancel={handleCancel}
+                                    isSubmitting={updateHighSchoolMutation.isPending}
+                                />
+                            ) : (
+                                <EducationForm
+                                    initialData={currentEducation}
+                                    onSubmit={handleEducationSubmit}
+                                    onCancel={handleCancel}
+                                    isSubmitting={updateEducationMutation.isPending}
+                                    onDegreeChange={handleDegreeChange}
+                                />
+                            )}
                         </main>
                     </div>
                 </div>
@@ -210,72 +272,142 @@ export default function EducationList() {
                     </header>
 
                     <main className="container max-w-md w-full px-4 py-4">
-                        {(!educationData || educationData.length === 0) && (
-                            <div className="p-4 text-gray-500 border border-gray-200 rounded-md bg-gray-50 text-center">
-                                No education entries found. Click "Add" to add your education.
-                            </div>
-                        )}
-
-                        {educationData && educationData.length > 0 && (
-                            <div className="space-y-4">
-                                {educationData.map((education) => (
-                                    <Card key={education.id}>
-                                        <CardHeader>
-                                            <CardTitle>{education.university}</CardTitle>
-                                            <CardDescription>
-                                                {education.degree} in {education.field_of_study}
-                                                {education.course && ` - ${education.course}`}
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="space-y-2">
-                                            <p>
-                                                {education.start_year} - {education.is_current
-                                                    ? "Present"
-                                                    : education.end_year}
+                        {/* High School Card */}
+                        {highSchoolData && (
+                            <div className="mb-6">
+                                <h2 className="text-lg font-semibold mb-2">High School Education</h2>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>{highSchoolData.school_name}</CardTitle>
+                                        <CardDescription>
+                                            {highSchoolData.type} - {highSchoolData.state}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-2">
+                                        <p>SPM Year: {highSchoolData.spm_year}</p>
+                                        {highSchoolData.spm_result && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">SPM Result:</span> {highSchoolData.spm_result}
                                             </p>
-                                            {education.scholarship && (
-                                                <p className="text-sm text-muted-foreground">
-                                                    <span className="font-medium">Scholarship:</span> {education.scholarship}
-                                                </p>
-                                            )}
-                                        </CardContent>
-                                        <CardFooter className="flex justify-end space-x-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => handleEdit(education)}
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
+                                        )}
+                                        {highSchoolData.position && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">Position:</span> {highSchoolData.position}
+                                            </p>
+                                        )}
+                                        {highSchoolData.highest_achievement && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">Achievement:</span> {highSchoolData.highest_achievement}
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                    <CardFooter className="flex justify-end space-x-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(highSchoolData, 'high-school')}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
 
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="outline" size="sm">
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            This will permanently delete this education entry.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction
-                                                            onClick={() => handleDelete(education.id)}
-                                                        >
-                                                            Delete
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </CardFooter>
-                                    </Card>
-                                ))}
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="outline" size="sm">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will permanently delete your high school information.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => handleDelete(highSchoolData.id, 'high-school')}
+                                                    >
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </CardFooter>
+                                </Card>
                             </div>
                         )}
+
+                        {/* Higher Education Cards */}
+                        <div>
+                            <h2 className="text-lg font-semibold mb-2">Higher Education</h2>
+                            {(!educationData || educationData.length === 0) && !highSchoolData && (
+                                <div className="p-4 text-gray-500 border border-gray-200 rounded-md bg-gray-50 text-center">
+                                    No education entries found. Click "Add" to add your education.
+                                </div>
+                            )}
+
+                            {educationData && educationData.length > 0 && (
+                                <div className="space-y-4">
+                                    {educationData.map((education) => (
+                                        <Card key={education.id}>
+                                            <CardHeader>
+                                                <CardTitle>{education.university}</CardTitle>
+                                                <CardDescription>
+                                                    {education.degree} in {education.field_of_study}
+                                                    {education.course && ` - ${education.course}`}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="space-y-2">
+                                                <p>
+                                                    {education.start_year} - {education.is_current
+                                                        ? "Present"
+                                                        : education.end_year}
+                                                </p>
+                                                {education.scholarship && (
+                                                    <p className="text-sm text-muted-foreground">
+                                                        <span className="font-medium">Scholarship:</span> {education.scholarship}
+                                                    </p>
+                                                )}
+                                            </CardContent>
+                                            <CardFooter className="flex justify-end space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleEdit(education)}
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+
+                                                <AlertDialog>
+                                                    <AlertDialogTrigger asChild>
+                                                        <Button variant="outline" size="sm">
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </Button>
+                                                    </AlertDialogTrigger>
+                                                    <AlertDialogContent>
+                                                        <AlertDialogHeader>
+                                                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                            <AlertDialogDescription>
+                                                                This will permanently delete this education entry.
+                                                            </AlertDialogDescription>
+                                                        </AlertDialogHeader>
+                                                        <AlertDialogFooter>
+                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                            <AlertDialogAction
+                                                                onClick={() => handleDelete(education.id)}
+                                                            >
+                                                                Delete
+                                                            </AlertDialogAction>
+                                                        </AlertDialogFooter>
+                                                    </AlertDialogContent>
+                                                </AlertDialog>
+                                            </CardFooter>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </main>
                 </div>
             </div>
