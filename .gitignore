@@ -42,3 +42,4 @@ bun.lockb
 *.tsbuildinfo
 next-env.d.ts
 /better-auth_migrations
+kd-rule.mdc
