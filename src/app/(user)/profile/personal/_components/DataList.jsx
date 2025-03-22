@@ -6,6 +6,7 @@ import { ChevronLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import PersonalForm from './PersonalForm'
 import { useCurrentUserId, usePersonalData, useUpdatePersonalData } from '@/app/api/profile/user-api'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function DataList() {
     const router = useRouter();
@@ -47,9 +48,9 @@ export default function DataList() {
 
     if (isLoading) {
         return (
-            <div className="fixed inset-0 bg-background overflow-y-auto">
+            <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
-                    <header className="sticky top-0 z-50 bg-background w-full flex justify-center">
+                    <header className="bg-background w-full flex justify-center">
                         <div className="container flex flex-col max-w-md items-start gap-3 px-4">
                             <Button
                                 variant="ghost"
@@ -77,9 +78,9 @@ export default function DataList() {
             : `Error loading profile data: ${error?.message || "Unknown error"}`;
 
         return (
-            <div className="fixed inset-0 bg-background overflow-y-auto">
+            <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
-                    <header className="sticky top-0 z-50 bg-background w-full flex justify-center">
+                    <header className="bg-background w-full flex justify-center">
                         <div className="container flex flex-col max-w-md items-start gap-3 px-4">
                             <Button
                                 variant="ghost"
@@ -104,35 +105,35 @@ export default function DataList() {
     }
 
     return (
-        <div className="fixed inset-0 bg-background overflow-y-auto">
-            <div className="flex flex-col items-center w-full">
-                <header className="sticky top-0 z-50 bg-background w-full flex justify-center">
-                    <div className="container flex flex-col max-w-md items-start gap-3 px-4">
-                        <Button
-                            variant="ghost"
-                            className="p-0"
-                            onClick={() => router.back()}
-                        >
-                            <ChevronLeft
-                                style={{ width: "25px", height: "25px", padding: "0" }}
-                            />
-                        </Button>
-                        <h1 className="text-2xl font-bold">Personal Information</h1>
-                    </div>
-                </header>
+        <ScrollArea>
+            <div className="flex flex-col max-w-md mx-auto pb-16">
+                <div className="flex flex-col items-center w-full">
+                    <header className="bg-background w-full flex justify-center">
+                        <div className="container flex flex-col max-w-md items-start gap-3 px-4">
+                            <Button
+                                variant="ghost"
+                                className="p-0"
+                                onClick={() => router.back()}
+                            >
+                                <ChevronLeft
+                                    style={{ width: "25px", height: "25px", padding: "0" }}
+                                />
+                            </Button>
+                            <h1 className="text-2xl font-bold">Personal Information</h1>
+                        </div>
+                    </header>
 
-                <main className="container max-w-md w-full px-4 py-4">
-                    <PersonalForm
-                        initialData={personalData || undefined}
-                        onSubmit={handleSubmit}
-                        onCancel={() => router.back()}
-                        isSubmitting={mutation.isPending}
-                    />
-                </main>
-                <div className='min-h-screen'>
-
+                    <main className="container max-w-md w-full px-4 py-4">
+                        <PersonalForm
+                            initialData={personalData || undefined}
+                            onSubmit={handleSubmit}
+                            onCancel={() => router.back()}
+                            isSubmitting={mutation.isPending}
+                        />
+                    </main>
                 </div>
             </div>
-        </div>
+        </ScrollArea>
+
     );
 }
