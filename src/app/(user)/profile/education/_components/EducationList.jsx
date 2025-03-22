@@ -224,14 +224,20 @@ export default function EducationList() {
                                             <CardTitle>{education.university}</CardTitle>
                                             <CardDescription>
                                                 {education.degree} in {education.field_of_study}
+                                                {education.course && ` - ${education.course}`}
                                             </CardDescription>
                                         </CardHeader>
-                                        <CardContent>
+                                        <CardContent className="space-y-2">
                                             <p>
                                                 {education.start_year} - {education.is_current
                                                     ? "Present"
                                                     : education.end_year}
                                             </p>
+                                            {education.scholarship && (
+                                                <p className="text-sm text-muted-foreground">
+                                                    <span className="font-medium">Scholarship:</span> {education.scholarship}
+                                                </p>
+                                            )}
                                         </CardContent>
                                         <CardFooter className="flex justify-end space-x-2">
                                             <Button

@@ -21,10 +21,12 @@ export async function fetchEducationData(userId) {
         "id",
         "university",
         "field_of_study",
+        "course",
         "degree",
         "start_year",
         "end_year",
-        "is_current"
+        "is_current",
+        "scholarship"
       )
       .where({ user_id: userId });
 

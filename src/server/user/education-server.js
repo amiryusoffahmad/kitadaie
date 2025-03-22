@@ -30,10 +30,12 @@ export async function updateEducationData(data, userId) {
         user_id: userId,
         university: data.university,
         field_of_study: data.field_of_study,
+        course: data.course,
         degree: data.degree,
         start_year: data.start_year,
         end_year: data.end_year,
         is_current: data.is_current || false,
+        scholarship: data.scholarship,
       };
 
       let result;

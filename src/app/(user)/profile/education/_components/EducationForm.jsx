@@ -18,10 +18,12 @@ import { Label } from "@/components/ui/label";
  * @property {string} [id]
  * @property {string} university
  * @property {string} field_of_study
+ * @property {string} course
  * @property {string} degree
  * @property {string} start_year
  * @property {string} end_year
  * @property {boolean} is_current
+ * @property {string} scholarship
  */
 
 /**
@@ -36,10 +38,12 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
         initialData || {
             university: "",
             field_of_study: "",
+            course: "",
             degree: "",
             start_year: "",
             end_year: "",
             is_current: false,
+            scholarship: "",
         }
     );
 
@@ -51,6 +55,20 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
     // Generate year options from 1950 to current year
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: currentYear - 1950 + 1 }, (_, i) => (currentYear - i).toString());
+
+    // Field of study options
+    const fieldOfStudyOptions = [
+        "Accountancy",
+        "Engineering",
+        "Health Science",
+        "HR/HD",
+        "Language",
+        "Law",
+        "Medic",
+        "Science",
+        "Technology/IT",
+        "Others"
+    ];
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -69,11 +87,33 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
 
                 <div className="space-y-2">
                     <Label htmlFor="field_of_study">Field of Study</Label>
+                    <Select
+                        value={formData.field_of_study}
+                        onValueChange={(value) =>
+                            setFormData((prev) => ({ ...prev, field_of_study: value }))
+                        }
+                        disabled={isSubmitting}
+                    >
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select field of study" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {fieldOfStudyOptions.map((field) => (
+                                <SelectItem key={field} value={field}>
+                                    {field}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="course">Course</Label>
                     <Input
-                        id="field_of_study"
-                        value={formData.field_of_study || ""}
+                        id="course"
+                        value={formData.course || ""}
                         onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, field_of_study: e.target.value }))
+                            setFormData((prev) => ({ ...prev, course: e.target.value }))
                         }
                         disabled={isSubmitting}
                     />
@@ -95,12 +135,25 @@ export default function EducationForm({ initialData, onSubmit, onCancel, isSubmi
                             <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                             <SelectItem value="Master">Master's Degree</SelectItem>
                             <SelectItem value="PhD">PhD</SelectItem>
-                            <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
+                            <SelectItem value="Associate">Associate Degree</SelectItem>
                             <SelectItem value="Diploma">Diploma</SelectItem>
                             <SelectItem value="Certificate">Certificate</SelectItem>
                             <SelectItem value="High School">High School</SelectItem>
                         </SelectContent>
                     </Select>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="scholarship">Scholarship (if any)</Label>
+                    <Input
+                        id="scholarship"
+                        value={formData.scholarship || ""}
+                        onChange={(e) =>
+                            setFormData((prev) => ({ ...prev, scholarship: e.target.value }))
+                        }
+                        disabled={isSubmitting}
+                        placeholder="e.g., JPA, MARA, Corporate"
+                    />
                 </div>
 
                 <div className="space-y-2">

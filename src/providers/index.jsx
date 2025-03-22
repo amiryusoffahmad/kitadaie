@@ -9,7 +9,7 @@ export const Providers = ({ children }) => {
     return (
         <ThemeProvider
             attribute='class'
-            defaultTheme='light'
+            defaultTheme='system'
             enableSystem
             disableTransitionOnChange
         >
