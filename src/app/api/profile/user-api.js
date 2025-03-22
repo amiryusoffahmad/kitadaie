@@ -60,6 +60,20 @@ const deleteCertificationAction = () =>
     (mod) => mod.deleteCertificationAction
   );
 
+// Dynamic imports for family server actions
+const fetchFamilyDataAction = () =>
+  import("@/server/actions/family-actions").then(
+    (mod) => mod.fetchFamilyDataAction
+  );
+const updateFamilyAction = () =>
+  import("@/server/actions/family-actions").then(
+    (mod) => mod.updateFamilyAction
+  );
+const deleteFamilyAction = () =>
+  import("@/server/actions/family-actions").then(
+    (mod) => mod.deleteFamilyAction
+  );
+
 /**
  * Hook to get the current user ID from Better Auth session
  */
@@ -259,6 +273,57 @@ export function useDeleteCertification() {
       queryClient.invalidateQueries({
         queryKey: ["certificationData", userId],
       });
+    },
+  });
+}
+
+/**
+ * Hook to get family data for a user
+ */
+export function useFamilyData(userId) {
+  return useQuery({
+    queryKey: ["familyData", userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const action = await fetchFamilyDataAction();
+      return action(userId);
+    },
+    enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to add or update family data
+ */
+export function useUpdateFamily() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ data, userId }) => {
+      const action = await updateFamilyAction();
+      return action(data, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch family data after successful update
+      queryClient.invalidateQueries({ queryKey: ["familyData", userId] });
+    },
+  });
+}
+
+/**
+ * Hook to delete family entry
+ */
+export function useDeleteFamily() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ familyId, userId }) => {
+      const action = await deleteFamilyAction();
+      return action(familyId, userId);
+    },
+    onSuccess: (_, { userId }) => {
+      // Invalidate and refetch family data after successful deletion
+      queryClient.invalidateQueries({ queryKey: ["familyData", userId] });
     },
   });
 }
