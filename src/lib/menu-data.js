@@ -29,7 +29,7 @@ export const menuData = [
     items: [
       {
         title: "Personal information",
-        href: "/profile/edit/personal",
+        href: "/profile/personal",
         icon: Icons.UserRound,
       },
       {
