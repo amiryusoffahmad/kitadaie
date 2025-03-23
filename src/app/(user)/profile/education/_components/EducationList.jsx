@@ -272,74 +272,9 @@ export default function EducationList() {
                     </header>
 
                     <main className="container max-w-md w-full px-4 py-4">
-                        {/* High School Card */}
-                        {highSchoolData && (
-                            <div className="mb-6">
-                                <h2 className="text-lg font-semibold mb-2">High School Education</h2>
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>{highSchoolData.school_name}</CardTitle>
-                                        <CardDescription>
-                                            {highSchoolData.type} - {highSchoolData.state}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="space-y-2">
-                                        <p>SPM Year: {highSchoolData.spm_year}</p>
-                                        {highSchoolData.spm_result && (
-                                            <p className="text-sm">
-                                                <span className="font-medium">SPM Result:</span> {highSchoolData.spm_result}
-                                            </p>
-                                        )}
-                                        {highSchoolData.position && (
-                                            <p className="text-sm">
-                                                <span className="font-medium">Position:</span> {highSchoolData.position}
-                                            </p>
-                                        )}
-                                        {highSchoolData.highest_achievement && (
-                                            <p className="text-sm">
-                                                <span className="font-medium">Achievement:</span> {highSchoolData.highest_achievement}
-                                            </p>
-                                        )}
-                                    </CardContent>
-                                    <CardFooter className="flex justify-end space-x-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleEdit(highSchoolData, 'high-school')}
-                                        >
-                                            <Pencil className="h-4 w-4" />
-                                        </Button>
-
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="outline" size="sm">
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        This will permanently delete your high school information.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction
-                                                        onClick={() => handleDelete(highSchoolData.id, 'high-school')}
-                                                    >
-                                                        Delete
-                                                    </AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                    </CardFooter>
-                                </Card>
-                            </div>
-                        )}
 
                         {/* Higher Education Cards */}
-                        <div>
+                        <div className="mb-6">
                             <h2 className="text-lg font-semibold mb-2">Higher Education</h2>
                             {(!educationData || educationData.length === 0) && !highSchoolData && (
                                 <div className="p-4 text-gray-500 border border-gray-200 rounded-md bg-gray-50 text-center">
@@ -408,6 +343,72 @@ export default function EducationList() {
                                 </div>
                             )}
                         </div>
+
+                        {/* High School Card */}
+                        {highSchoolData && (
+                            <div>
+                                <h2 className="text-lg font-semibold mb-2">High School Education</h2>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>{highSchoolData.school_name}</CardTitle>
+                                        <CardDescription>
+                                            {highSchoolData.type} - {highSchoolData.state}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-2">
+                                        <p>SPM Year: {highSchoolData.spm_year}</p>
+                                        {highSchoolData.spm_result && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">SPM Result:</span> {highSchoolData.spm_result}
+                                            </p>
+                                        )}
+                                        {highSchoolData.position && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">Position:</span> {highSchoolData.position}
+                                            </p>
+                                        )}
+                                        {highSchoolData.highest_achievement && (
+                                            <p className="text-sm">
+                                                <span className="font-medium">Achievement:</span> {highSchoolData.highest_achievement}
+                                            </p>
+                                        )}
+                                    </CardContent>
+                                    <CardFooter className="flex justify-end space-x-2">
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => handleEdit(highSchoolData, 'high-school')}
+                                        >
+                                            <Pencil className="h-4 w-4" />
+                                        </Button>
+
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="outline" size="sm">
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        This will permanently delete your high school information.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => handleDelete(highSchoolData.id, 'high-school')}
+                                                    >
+                                                        Delete
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </CardFooter>
+                                </Card>
+                            </div>
+                        )}
                     </main>
                 </div>
             </div>
