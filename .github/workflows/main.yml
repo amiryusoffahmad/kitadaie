@@ -15,7 +15,7 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: 22
           script: |
-            cd /home/kitadaie/webapps/kitadaie
+            cd /home/soloreen/webapps/kitadaie/kitadaie
             git pull origin main
 
              # Check if bun is installed; if not, install it
