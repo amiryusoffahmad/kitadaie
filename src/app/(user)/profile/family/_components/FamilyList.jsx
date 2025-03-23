@@ -186,17 +186,6 @@ export default function FamilyList() {
         );
     }
 
-    // Group family members by relationship
-    const familyGroups = {};
-    if (familyData && familyData.length > 0) {
-        familyData.forEach(member => {
-            if (!familyGroups[member.relationship]) {
-                familyGroups[member.relationship] = [];
-            }
-            familyGroups[member.relationship].push(member);
-        });
-    }
-
     return (
         <ScrollArea>
             <div className="flex flex-col max-w-md mx-auto pb-16">
@@ -227,67 +216,47 @@ export default function FamilyList() {
                                 No family members found. Click "Add" to add your family members.
                             </div>
                         ) : (
-                            <div className="space-y-6">
-                                {Object.keys(familyGroups).map(relationship => (
-                                    <div key={relationship} className="space-y-3">
-                                        <h2 className="text-lg font-semibold">{relationship}</h2>
-                                        <div className="space-y-4">
-                                            {familyGroups[relationship].map((member) => (
-                                                <Card key={member.id}>
-                                                    <CardHeader>
-                                                        <CardTitle>{member.full_name}</CardTitle>
-                                                        {member.occupation && (
-                                                            <CardDescription>
-                                                                {member.occupation} {member.company ? `at ${member.company}` : ''}
-                                                            </CardDescription>
-                                                        )}
-                                                    </CardHeader>
-                                                    <CardContent className="space-y-2">
-                                                        {member.phone && <p>Phone: {member.phone}</p>}
-                                                        {member.supports_dakwah && (
-                                                            <div className="flex flex-wrap gap-2 items-center">
-                                                                <Badge variant="outline" className="bg-green-50">Supports Dakwah</Badge>
-                                                                {member.jemaah_name && <span>Jemaah: {member.jemaah_name}</span>}
-                                                            </div>
-                                                        )}
-                                                    </CardContent>
-                                                    <CardFooter className="flex justify-end space-x-2">
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            onClick={() => handleEdit(member)}
-                                                        >
-                                                            <Pencil className="h-4 w-4" />
-                                                        </Button>
+                            <div className="space-y-4">
+                                {familyData.map((member) => (
+                                    <Card key={member.id}>
+                                        <CardHeader>
+                                            <CardTitle>{member.full_name}</CardTitle>
+                                            <CardDescription>{member.relationship}</CardDescription>
+                                        </CardHeader>
+                                        <CardFooter className="flex justify-end space-x-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleEdit(member)}
+                                            >
+                                                <Pencil className="h-4 w-4" />
+                                            </Button>
 
-                                                        <AlertDialog>
-                                                            <AlertDialogTrigger asChild>
-                                                                <Button variant="outline" size="sm">
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            </AlertDialogTrigger>
-                                                            <AlertDialogContent>
-                                                                <AlertDialogHeader>
-                                                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                                    <AlertDialogDescription>
-                                                                        This will permanently delete this family member.
-                                                                    </AlertDialogDescription>
-                                                                </AlertDialogHeader>
-                                                                <AlertDialogFooter>
-                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                    <AlertDialogAction
-                                                                        onClick={() => handleDelete(member.id)}
-                                                                    >
-                                                                        Delete
-                                                                    </AlertDialogAction>
-                                                                </AlertDialogFooter>
-                                                            </AlertDialogContent>
-                                                        </AlertDialog>
-                                                    </CardFooter>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    </div>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="outline" size="sm">
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            This will permanently delete this family member.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction
+                                                            onClick={() => handleDelete(member.id)}
+                                                        >
+                                                            Delete
+                                                        </AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </CardFooter>
+                                    </Card>
                                 ))}
                             </div>
                         )}
