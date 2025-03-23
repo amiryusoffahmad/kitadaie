@@ -165,11 +165,11 @@ export default function EducationForm({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="High School">High School</SelectItem>
+                                <SelectItem value="Diploma">Diploma</SelectItem>
+                                <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
                                 <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                                 <SelectItem value="Master">Master's Degree</SelectItem>
                                 <SelectItem value="PhD">PhD</SelectItem>
-                                <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
-                                <SelectItem value="Diploma">Diploma</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -205,11 +205,11 @@ export default function EducationForm({
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="High School">High School</SelectItem>
+                            <SelectItem value="Diploma">Diploma</SelectItem>
+                            <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
                             <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                             <SelectItem value="Master">Master's Degree</SelectItem>
                             <SelectItem value="PhD">PhD</SelectItem>
-                            <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
-                            <SelectItem value="Diploma">Diploma</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
