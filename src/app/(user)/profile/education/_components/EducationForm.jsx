@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -12,6 +12,10 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 /**
  * @typedef {Object} EducationFormData
@@ -53,6 +57,66 @@ export default function EducationForm({
             scholarship: "",
         }
     );
+    const [open, setOpen] = useState(false);
+    const [universitiesOptions, setUniversitiesOptions] = useState([]);
+
+    // University options based on degree
+    useEffect(() => {
+        if (formData.degree === "Foundation") {
+            setUniversitiesOptions([
+                { value: "Asasi UiTM", label: "Asasi UiTM (AsiD)" },
+                { value: "Asasi UMS", label: "Asasi UMS (AUMS)" },
+                { value: "Asasi UKM", label: "Asasi UKM (AsPin)" },
+                { value: "Asasi UM", label: "Asasi UM (PAsUM)" },
+                { value: "Asasi UPM", label: "Asasi UPM (AsPutra)" },
+                { value: "Asasi USIM", label: "Asasi USIM (Tahmidi)" },
+                { value: "Asasi UNIMAS", label: "Asasi UNIMAS (AUniMaS)" },
+                { value: "Asasi UIA", label: "Asasi UIA (CFS)" },
+                { value: "Asasi Unisza", label: "Asasi Unisza" },
+                { value: "Asasi UMT", label: "Asasi UMT" },
+                { value: "Asasi UUM", label: "Asasi UUM" },
+                { value: "Kolej Matrikulasi Melaka", label: "Kolej Matrikulasi Melaka (KMM)" },
+                { value: "Kolej Matrikulasi Negeri Sembilan", label: "Kolej Matrikulasi Negeri Sembilan (KMNS)" },
+                { value: "Kolej Matrikulasi Pulau Pinang", label: "Kolej Matrikulasi Pulau Pinang (KMPP)" },
+                { value: "Kolej Matrikulasi Perlis", label: "Kolej Matrikulasi Perlis (KMP)" },
+                { value: "Kolej Matrikulasi Labuan", label: "Kolej Matrikulasi Labuan (KML)" },
+                { value: "Kolej Matrikulasi Johor", label: "Kolej Matrikulasi Johor (KMJ)" },
+                { value: "Kolej Matrikulasi Perak", label: "Kolej Matrikulasi Perak (KMPK)" },
+                { value: "Kolej Matrikulasi Pahang", label: "Kolej Matrikulasi Pahang (KMPh)" },
+                { value: "Kolej Matrikulasi Kejuruteraan Kedah", label: "Kolej Matrikulasi Kejuruteraan Kedah (KMKK)" },
+                { value: "Kolej Matrikulasi Kejuruteraan Pahang", label: "Kolej Matrikulasi Kejuruteraan Pahang (KMKPh)" },
+                { value: "Kolej Matrikulasi Kejuruteraan Johor", label: "Kolej Matrikulasi Kejuruteraan Johor (KMKJ)" },
+                { value: "Kolej Matrikulasi Selangor", label: "Kolej Matrikulasi Selangor (KMS)" },
+                { value: "Kolej Matrikulasi Kelantan", label: "Kolej Matrikulasi Kelantan (KMKt)" },
+                { value: "Kolej Matrikulasi Sarawak", label: "Kolej Matrikulasi Sarawak (KMSw)" },
+                { value: "Kolej MARA Kulim", label: "Kolej MARA Kulim (KMKu)" },
+                { value: "Kolej MARA Kuala Nerang", label: "Kolej MARA Kuala Nerang (KMKN)" },
+            ]);
+        } else if (formData.degree === "Bachelor") {
+            setUniversitiesOptions([
+                { value: "Universiti Malaya", label: "Universiti Malaya (UM)" },
+                { value: "Universiti Sains Malaysia", label: "Universiti Sains Malaysia (USM)" },
+                { value: "Universiti Kebangsaan Malaysia", label: "Universiti Kebangsaan Malaysia (UKM)" },
+                { value: "Universiti Putra Malaysia", label: "Universiti Putra Malaysia (UPM)" },
+                { value: "Universiti Teknologi Malaysia", label: "Universiti Teknologi Malaysia (UTM)" },
+                { value: "Universiti Malaysia Sarawak", label: "Universiti Malaysia Sarawak (UniMaS)" },
+                { value: "Universiti Islam Antarabangsa Malaysia", label: "Universiti Islam Antarabangsa Malaysia (UIAM)" },
+                { value: "Universiti Sains Islam Malaysia", label: "Universiti Sains Islam Malaysia (USIM)" },
+                { value: "Universiti Sultan Zainal Abidin", label: "Universiti Sultan Zainal Abidin (UniSZA)" },
+                { value: "Universiti Teknologi MARA", label: "Universiti Teknologi MARA (UiTM)" },
+                { value: "Universiti Malaysia Sabah", label: "Universiti Malaysia Sabah (UMS)" },
+                { value: "Universiti Teknikal Malaysia Melaka", label: "Universiti Teknikal Malaysia Melaka (UTeM)" },
+                { value: "Universiti Malaysia Perlis", label: "Universiti Malaysia Perlis (UniMAP)" },
+                { value: "Universiti Tun Hussein Onn Malaysia", label: "Universiti Tun Hussein Onn Malaysia (UTHM)" },
+                { value: "Universiti Malaysia Pahang", label: "Universiti Malaysia Pahang (UMP)" },
+                { value: "Universiti Utara Malaysia", label: "Universiti Utara Malaysia (UUM)" },
+                { value: "Universiti Pendidikan Sultan Idris", label: "Universiti Pendidikan Sultan Idris (UPSI)" },
+                { value: "Universiti Malaysia Terengganu", label: "Universiti Malaysia Terengganu (UMT)" },
+                { value: "Universiti Malaysia Kelantan", label: "Universiti Malaysia Kelantan (UMK)" },
+                { value: "Universiti Pertahanan Nasional Malaysia", label: "Universiti Pertahanan Nasional Malaysia (UPNM)" },
+            ]);
+        }
+    }, [formData.degree]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -104,7 +168,7 @@ export default function EducationForm({
                                 <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                                 <SelectItem value="Master">Master's Degree</SelectItem>
                                 <SelectItem value="PhD">PhD</SelectItem>
-                                <SelectItem value="Associate">Associate Degree</SelectItem>
+                                <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
                                 <SelectItem value="Diploma">Diploma</SelectItem>
                             </SelectContent>
                         </Select>
@@ -144,23 +208,102 @@ export default function EducationForm({
                             <SelectItem value="Bachelor">Bachelor's Degree</SelectItem>
                             <SelectItem value="Master">Master's Degree</SelectItem>
                             <SelectItem value="PhD">PhD</SelectItem>
-                            <SelectItem value="Associate">Associate Degree</SelectItem>
+                            <SelectItem value="Foundation">Foundation / Matriculation</SelectItem>
                             <SelectItem value="Diploma">Diploma</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
-                <div className="space-y-2">
-                    <Label htmlFor="university">University</Label>
-                    <Input
-                        id="university"
-                        value={formData.university || ""}
-                        onChange={(e) =>
-                            setFormData((prev) => ({ ...prev, university: e.target.value }))
-                        }
-                        disabled={isSubmitting}
-                    />
-                </div>
+                {(formData.degree === "Foundation" || formData.degree === "Bachelor") ? (
+                    <div className="space-y-2">
+                        <Label htmlFor="university">
+                            {formData.degree === "Foundation" ? "Institution" : "University"}
+                        </Label>
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={open}
+                                    className="w-full justify-between"
+                                    disabled={isSubmitting}
+                                >
+                                    {formData.university
+                                        ? universitiesOptions.find(
+                                            (university) => university.value === formData.university
+                                        )?.label || formData.university
+                                        : `Select ${formData.degree === "Foundation" ? "institution" : "university"}...`}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0">
+                                <Command>
+                                    <CommandInput placeholder={`Search ${formData.degree === "Foundation" ? "institution" : "university"}...`} />
+                                    <CommandEmpty>
+                                        No {formData.degree === "Foundation" ? "institution" : "university"} found. Enter a custom {formData.degree === "Foundation" ? "institution" : "university"} name.
+                                        <Input
+                                            value={formData.university || ""}
+                                            onChange={(e) =>
+                                                setFormData((prev) => ({
+                                                    ...prev,
+                                                    university: e.target.value
+                                                }))
+                                            }
+                                            placeholder="Enter custom value"
+                                            className="mt-2"
+                                        />
+                                        <Button
+                                            type="button"
+                                            className="mt-2 w-full"
+                                            onClick={() => setOpen(false)}
+                                        >
+                                            Use custom value
+                                        </Button>
+                                    </CommandEmpty>
+                                    <CommandList>
+                                        <CommandGroup>
+                                            {universitiesOptions.map((university) => (
+                                                <CommandItem
+                                                    key={university.value}
+                                                    value={university.value}
+                                                    onSelect={(currentValue) => {
+                                                        setFormData((prev) => ({
+                                                            ...prev,
+                                                            university: currentValue
+                                                        }));
+                                                        setOpen(false);
+                                                    }}
+                                                >
+                                                    <CheckIcon
+                                                        className={cn(
+                                                            "mr-2 h-4 w-4",
+                                                            formData.university === university.value
+                                                                ? "opacity-100"
+                                                                : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {university.label}
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        <Label htmlFor="university">University</Label>
+                        <Input
+                            id="university"
+                            value={formData.university || ""}
+                            onChange={(e) =>
+                                setFormData((prev) => ({ ...prev, university: e.target.value }))
+                            }
+                            disabled={isSubmitting}
+                        />
+                    </div>
+                )}
 
                 <div className="space-y-2">
                     <Label htmlFor="field_of_study">Field of Study</Label>
@@ -256,18 +399,14 @@ export default function EducationForm({
                             onValueChange={(value) =>
                                 setFormData((prev) => ({ ...prev, end_year: value }))
                             }
-                            disabled={isSubmitting || formData.is_current}
+                            disabled={isSubmitting}
                         >
                             <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select end year" />
                             </SelectTrigger>
                             <SelectContent>
                                 {years.map((year) => (
-                                    <SelectItem
-                                        key={year}
-                                        value={year}
-                                        disabled={formData.start_year && parseInt(year) < parseInt(formData.start_year)}
-                                    >
+                                    <SelectItem key={year} value={year}>
                                         {year}
                                     </SelectItem>
                                 ))}
