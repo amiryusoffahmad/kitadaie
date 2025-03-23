@@ -20,7 +20,7 @@ export const auth = betterAuth({
   },
   plugins: [nextCookies()],
   // COMMENT THE BELOW LINES DURING DEVELOPMENT
-  trustedOrigins: ["https://dev.kitadaie.com/"],
+  trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL],
   databaseHooks: {
     user: {
       create: {
