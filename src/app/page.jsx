@@ -14,7 +14,7 @@ export default function Home() {
         />
         <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-manrope)]">
           <li className="mb-2 tracking-[-.01em]">
-            Ge started by test{" "}
+            Get started by test{" "}
             <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-manrope)] font-semibold">
               src/app/page.js
             </code>
