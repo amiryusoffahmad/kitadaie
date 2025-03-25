@@ -17,7 +17,7 @@ export async function fetchPersonalData(userId) {
 
     // Fetch basic user data from user table
     const userData = await db("user")
-      .select("id", "name", "email", "image")
+      .select("id", "name", "email", "image", "username")
       .where({ id: userId })
       .first();
 
@@ -54,6 +54,7 @@ export async function fetchPersonalData(userId) {
       email: userData.email || "",
       name: userData.name || "",
       image: userData.image || "",
+      username: userData.username || "",
       first_name: profileData?.first_name || "",
       gender: profileData?.gender || "",
       phone: profileData?.phone || "",
