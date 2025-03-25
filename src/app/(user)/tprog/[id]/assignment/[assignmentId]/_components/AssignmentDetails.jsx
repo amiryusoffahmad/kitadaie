@@ -346,7 +346,7 @@ export default function AssignmentDetails({ params }) {
                                             Submitted: {new Date(assignment.submission.submitted_at).toLocaleString()}
                                         </span>
                                     </div>
-                                    <div className="flex gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
                                         <Button variant="secondary" onClick={handleFileDownload}>Download</Button>
                                         <Button
                                             variant="destructive"
