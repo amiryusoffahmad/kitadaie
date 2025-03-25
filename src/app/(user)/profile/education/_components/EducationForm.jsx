@@ -14,8 +14,112 @@ import {
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { CheckIcon, ChevronsUpDown } from "lucide-react";
+import { CheckIcon, ChevronsUpDown, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+/**
+ * SearchableDropdownContent component for handling search and selection functionality
+ */
+function SearchableDropdownContent({ options, selectedValue, onSelect, onCustomValueSubmit, entityType }) {
+    const [searchTerm, setSearchTerm] = useState("");
+    const [customValue, setCustomValue] = useState("");
+
+    // Reset custom value when selected value changes
+    useEffect(() => {
+        if (selectedValue) {
+            setCustomValue(selectedValue);
+        }
+    }, [selectedValue]);
+
+    // Filter options based on search term
+    const filteredOptions = options.filter(option =>
+        option.label.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <>
+            <div className="flex items-center border-b px-3">
+                <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                <input
+                    className="flex h-10 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+                    placeholder={`Search ${entityType}...`}
+                    value={searchTerm}
+                    onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                    }}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+                    }}
+                    autoComplete="off"
+                />
+            </div>
+            <div className="max-h-72 overflow-y-auto p-1">
+                {filteredOptions.length > 0 ? (
+                    filteredOptions.map(option => (
+                        <div
+                            key={option.value}
+                            className={cn(
+                                "relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none",
+                                selectedValue === option.value ? "bg-accent text-accent-foreground" : "hover:bg-accent hover:text-accent-foreground"
+                            )}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onSelect(option.value);
+                            }}
+                        >
+                            <CheckIcon
+                                className={cn(
+                                    "mr-2 h-4 w-4",
+                                    selectedValue === option.value ? "opacity-100" : "opacity-0"
+                                )}
+                            />
+                            <span>{option.label}</span>
+                        </div>
+                    ))
+                ) : (
+                    <div className="p-2">
+                        <div className="text-sm">
+                            No {entityType} found. Enter a custom value.
+                        </div>
+                        <Input
+                            value={customValue || ""}
+                            onChange={(e) => {
+                                setCustomValue(e.target.value);
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (customValue && customValue.trim() !== "") {
+                                        onCustomValueSubmit(customValue);
+                                    }
+                                }
+                            }}
+                            placeholder="Enter custom value"
+                            className="mt-2"
+                            autoComplete="off"
+                        />
+                        <Button
+                            type="button"
+                            className="mt-2 w-full"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (customValue && customValue.trim() !== "") {
+                                    onCustomValueSubmit(customValue);
+                                }
+                            }}
+                        >
+                            Use custom value
+                        </Button>
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
 
 /**
  * @typedef {Object} EducationFormData
@@ -219,13 +323,24 @@ export default function EducationForm({
                         <Label htmlFor="university">
                             {formData.degree === "Foundation" ? "Institution" : "University"}
                         </Label>
-                        <Popover open={open} onOpenChange={setOpen}>
+                        <Popover
+                            open={open}
+                            onOpenChange={setOpen}
+                            modal={false}
+                        >
                             <PopoverTrigger asChild>
                                 <Button
+                                    id="university-dropdown-trigger"
+                                    type="button"
                                     variant="outline"
                                     role="combobox"
                                     aria-expanded={open}
                                     className="w-full justify-between"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setOpen(!open);
+                                    }}
                                     disabled={isSubmitting}
                                 >
                                     {formData.university
@@ -236,58 +351,44 @@ export default function EducationForm({
                                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-full p-0">
-                                <Command>
-                                    <CommandInput placeholder={`Search ${formData.degree === "Foundation" ? "institution" : "university"}...`} />
-                                    <CommandEmpty>
-                                        No {formData.degree === "Foundation" ? "institution" : "university"} found. Enter a custom {formData.degree === "Foundation" ? "institution" : "university"} name.
-                                        <Input
-                                            value={formData.university || ""}
-                                            onChange={(e) =>
-                                                setFormData((prev) => ({
-                                                    ...prev,
-                                                    university: e.target.value
-                                                }))
-                                            }
-                                            placeholder="Enter custom value"
-                                            className="mt-2"
-                                        />
-                                        <Button
-                                            type="button"
-                                            className="mt-2 w-full"
-                                            onClick={() => setOpen(false)}
-                                        >
-                                            Use custom value
-                                        </Button>
-                                    </CommandEmpty>
-                                    <CommandList>
-                                        <CommandGroup>
-                                            {universitiesOptions.map((university) => (
-                                                <CommandItem
-                                                    key={university.value}
-                                                    value={university.value}
-                                                    onSelect={(currentValue) => {
-                                                        setFormData((prev) => ({
-                                                            ...prev,
-                                                            university: currentValue
-                                                        }));
-                                                        setOpen(false);
-                                                    }}
-                                                >
-                                                    <CheckIcon
-                                                        className={cn(
-                                                            "mr-2 h-4 w-4",
-                                                            formData.university === university.value
-                                                                ? "opacity-100"
-                                                                : "opacity-0"
-                                                        )}
-                                                    />
-                                                    {university.label}
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                </Command>
+                            <PopoverContent
+                                className="p-0 w-full"
+                                align="start"
+                                side="bottom"
+                                sideOffset={5}
+                                avoidCollisions={true}
+                                style={{
+                                    zIndex: 9999999,
+                                    position: "relative"
+                                }}
+                                onCloseAutoFocus={(e) => {
+                                    // Prevent default auto focus behavior
+                                    e.preventDefault();
+                                }}
+                                onEscapeKeyDown={() => setOpen(false)}
+                                onPointerDownOutside={() => setOpen(false)}
+                            >
+                                <div className="overflow-hidden rounded-md border border-slate-200">
+                                    <SearchableDropdownContent
+                                        options={universitiesOptions}
+                                        selectedValue={formData.university}
+                                        onSelect={(value) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                university: value
+                                            }));
+                                            setOpen(false);
+                                        }}
+                                        onCustomValueSubmit={(value) => {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                university: value
+                                            }));
+                                            setOpen(false);
+                                        }}
+                                        entityType={formData.degree === "Foundation" ? "institution" : "university"}
+                                    />
+                                </div>
                             </PopoverContent>
                         </Popover>
                     </div>
