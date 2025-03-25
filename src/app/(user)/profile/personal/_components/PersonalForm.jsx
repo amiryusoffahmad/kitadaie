@@ -11,6 +11,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 /**
  * @typedef {Object} PersonalFormData
@@ -55,7 +56,17 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        onSubmit(formData);
+        try {
+            await onSubmit(formData);
+            toast.success("Profile updated successfully!", {
+                description: "Your personal information has been saved.",
+            });
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            toast.error("Failed to update profile", {
+                description: "Please try again later.",
+            });
+        }
     };
 
     return (

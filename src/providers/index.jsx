@@ -1,6 +1,6 @@
 'use client'
 
-// import { Toaster } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from './theme-provider'
 import { ReactQueryProvider } from './react-query-provider'
 // import ModalProvider from './modal-provider'
@@ -16,7 +16,7 @@ export const Providers = ({ children }) => {
             <ReactQueryProvider>
                 {children}
                 {/* <ModalProvider /> */}
-                {/* <Toaster position='top-center' /> */}
+                <Toaster position='top-center' />
             </ReactQueryProvider>
         </ThemeProvider>
     )

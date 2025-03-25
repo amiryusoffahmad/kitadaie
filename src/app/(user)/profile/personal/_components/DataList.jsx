@@ -37,7 +37,7 @@ export default function DataList() {
             return;
         }
 
-        mutation.mutate({ data, userId });
+        return mutation.mutateAsync({ data, userId });
     };
 
     // Combined loading state
