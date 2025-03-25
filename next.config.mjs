@@ -5,7 +5,7 @@ const nextConfig = {
   env: {
     NEXT_PUBLIC_UPLOAD_API_URL:
       process.env.NODE_ENV === "production"
-        ? "https://file.kitadaie.com"
+        ? "https://upload.kitadaie.com"
         : "http://localhost:4000",
   },
   images: {
@@ -18,7 +18,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "file.kitadaie.com",
+        hostname: "upload.kitadaie.com",
         pathname: "/uploads/**",
       },
     ],
