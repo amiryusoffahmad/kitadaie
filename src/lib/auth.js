@@ -1,4 +1,4 @@
-import { assignUserRole } from "@/features/auth/auth-actions";
+import { assignUserRole, assignUsername } from "@/features/auth/auth-actions";
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { createPool } from "mysql2/promise";
@@ -26,6 +26,7 @@ export const auth = betterAuth({
       create: {
         after: async (user) => {
           await assignUserRole(user.id);
+          await assignUsername(user.id);
         },
       },
     },
