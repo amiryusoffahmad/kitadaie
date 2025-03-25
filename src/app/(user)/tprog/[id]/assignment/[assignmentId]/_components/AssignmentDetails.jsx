@@ -339,9 +339,11 @@ export default function AssignmentDetails({ params }) {
                         <div className="space-y-4">
                             {assignment?.submission ? (
                                 <div className="border rounded-lg p-4 space-y-4">
-                                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <FileText className="h-4 w-4" />
-                                        <span>{assignment.submission.fileName}</span>
+                                    <div className="grid grid-cols-2 items-center gap-8 text-sm text-muted-foreground">
+                                        <div>
+                                            <FileText className="h-4 w-4" />
+                                            <span>{assignment.submission.fileName}</span>
+                                        </div>
                                         <span className="ml-auto">
                                             Submitted: {new Date(assignment.submission.submitted_at).toLocaleString()}
                                         </span>
@@ -457,6 +459,16 @@ export default function AssignmentDetails({ params }) {
                                     </div>
                                 </div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Display advisor feedback/comments if available */}
+                    {assignment?.submission?.feedback && (
+                        <div className="mt-6 border rounded-lg p-4 ">
+                            <h3 className="font-semibold mb-2">Advisor Feedback</h3>
+                            <div className="prose prose-sm max-w-none">
+                                <p className="text-sm whitespace-pre-wrap">{assignment.submission.feedback}</p>
+                            </div>
                         </div>
                     )}
                 </CardContent>

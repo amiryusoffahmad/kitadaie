@@ -87,6 +87,7 @@ export async function getAssignmentWithSubmission(assignmentId, userId) {
       "tprog_submission.id",
       "tprog_submission.status",
       "tprog_submission.submitted_at",
+      "tprog_submission.feedback",
       "uploads.id as file_id",
       "uploads.original_filename as fileName",
       "uploads.path as filePath"
@@ -128,6 +129,7 @@ export async function getUserSubmission(assignmentId, userId) {
       "tprog_submission.id",
       "tprog_submission.status",
       "tprog_submission.submitted_at",
+      "tprog_submission.feedback",
       "uploads.id as file_id",
       "uploads.original_filename as fileName",
       "uploads.path as filePath"
@@ -190,4 +192,166 @@ export async function getAssignmentsWithStatus(classId, userId) {
 
   console.log("[DATA] Returning processed assignments:", result.length);
   return result;
+}
+
+// Advisor-Student related queries
+export async function isUserAdvisor(identifier) {
+  if (!identifier) {
+    console.log(
+      "[DATA] isUserAdvisor called with invalid identifier:",
+      identifier
+    );
+    return false;
+  }
+
+  console.log(
+    "[DATA] Checking if user is advisor with identifier:",
+    identifier
+  );
+
+  try {
+    // First try to find by advisor username
+    let result = await db("tprog_role")
+      .where("username_advisor", identifier)
+      .first();
+
+    if (result) {
+      console.log("[DATA] Found advisor by username_advisor");
+      return true;
+    }
+
+    // If not found, check if any users with this ID are advisors
+    // First get the username for this user ID
+    const user = await db("user")
+      .where("id", identifier)
+      .select("username")
+      .first();
+
+    if (user && user.username) {
+      console.log("[DATA] Found username for ID:", user.username);
+
+      // Now check if this username is in the advisor column
+      result = await db("tprog_role")
+        .where("username_advisor", user.username)
+        .first();
+
+      console.log("[DATA] isUserAdvisor result after ID lookup:", !!result);
+      return !!result;
+    }
+
+    console.log("[DATA] isUserAdvisor query result: false (no matches found)");
+    return false;
+  } catch (error) {
+    console.error("[DATA] Error in isUserAdvisor:", error);
+    return false;
+  }
+}
+
+export async function getAdvisorStudents(advisorIdentifier) {
+  if (!advisorIdentifier) {
+    console.log("[DATA] getAdvisorStudents called with invalid identifier");
+    return [];
+  }
+
+  console.log("[DATA] Getting advisor students for:", advisorIdentifier);
+
+  try {
+    // First, get the username if we were passed a user ID
+    let username = advisorIdentifier;
+    const user = await db("user")
+      .where("id", advisorIdentifier)
+      .select("username")
+      .first();
+
+    if (user && user.username) {
+      username = user.username;
+      console.log("[DATA] Found username for ID:", username);
+    }
+
+    // Get student usernames from the tprog_role table
+    const studentUsernames = await db("tprog_role")
+      .where("username_advisor", username)
+      .select("username_student");
+
+    // Log the direct query results to debug
+    console.log(
+      "[DATA] Raw query results:",
+      JSON.stringify(studentUsernames, null, 2)
+    );
+
+    // If no students found, return empty array
+    if (!studentUsernames || studentUsernames.length === 0) {
+      console.log("[DATA] No students found for advisor:", username);
+
+      // As a fallback, try to query by ID directly
+      const fallbackResults = await db("tprog_role")
+        .where("username_advisor", advisorIdentifier)
+        .select("username_student");
+
+      console.log(
+        "[DATA] Fallback query results:",
+        JSON.stringify(fallbackResults, null, 2)
+      );
+
+      if (!fallbackResults || fallbackResults.length === 0) {
+        return [];
+      }
+
+      console.log("[DATA] Found students in fallback query");
+      const students = await db("user")
+        .whereIn(
+          "username",
+          fallbackResults.map((s) => s.username_student)
+        )
+        .select("id", "name", "username", "email");
+
+      console.log(
+        "[DATA] Returning student records from fallback:",
+        students.length
+      );
+      return students;
+    }
+
+    console.log("[DATA] Found student usernames:", studentUsernames.length);
+
+    // Get student data from user table
+    const students = await db("user")
+      .whereIn(
+        "username",
+        studentUsernames.map((s) => s.username_student)
+      )
+      .select("id", "name", "username", "email");
+
+    console.log("[DATA] Returning student records:", students.length);
+    return students;
+  } catch (error) {
+    console.error("[DATA] Error in getAdvisorStudents:", error);
+    return [];
+  }
+}
+
+export async function getStudentClasses(studentId) {
+  return await getEnrolledClasses(studentId);
+}
+
+export async function getStudentAssignments(studentId, classId) {
+  return await getAssignmentsWithStatus(classId, studentId);
+}
+
+export async function getStudentAssignmentDetails(assignmentId, studentId) {
+  return await getAssignmentWithSubmission(assignmentId, studentId);
+}
+
+export async function updateSubmissionStatus(submissionId, status, comments) {
+  try {
+    await db("tprog_submission").where("id", submissionId).update({
+      status,
+      feedback: comments,
+      updated_at: new Date(),
+    });
+    return true;
+  } catch (error) {
+    console.error("[DATA] Error updating submission status:", error);
+    return false;
+  }
 }

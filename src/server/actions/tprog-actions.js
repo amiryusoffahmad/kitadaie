@@ -448,3 +448,222 @@ export async function getSubmissionsAction(assignmentId) {
     return { success: false, message: error.message };
   }
 }
+
+// Advisor-Student actions
+export async function isUserAdvisor() {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Debug the session object to understand its structure
+    console.log(
+      "[SERVER ACTION] Session user object:",
+      JSON.stringify(session.user, null, 2)
+    );
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log("[SERVER ACTION] Using username for advisor check:", username);
+
+    // Pass the username
+    const isAdvisor = await tprogData.isUserAdvisor(username);
+
+    console.log("[SERVER ACTION] isAdvisor result:", isAdvisor);
+    return { success: true, data: isAdvisor };
+  } catch (error) {
+    console.error("[SERVER ACTION] Error in isUserAdvisor:", error.message);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getAdvisorStudents() {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Debug the session object
+    console.log(
+      "[SERVER ACTION] getAdvisorStudents - Session user:",
+      JSON.stringify(session.user, null, 2)
+    );
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for advisor students:",
+      username
+    );
+
+    const students = await tprogData.getAdvisorStudents(username);
+    console.log("[SERVER ACTION] Found advisor students:", students.length);
+
+    return { success: true, data: students };
+  } catch (error) {
+    console.error(
+      "[SERVER ACTION] Error in getAdvisorStudents:",
+      error.message
+    );
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getStudentClasses(studentId) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for advisor check:",
+      username
+    );
+
+    // Verify that the current user is an advisor of the student
+    const students = await tprogData.getAdvisorStudents(username);
+    console.log("[SERVER ACTION] Found students for advisor:", students.length);
+
+    const isAdvisor = students.some((student) => student.id === studentId);
+    console.log("[SERVER ACTION] Is advisor of this student:", isAdvisor);
+
+    if (!isAdvisor) {
+      throw new Error(
+        "You are not authorized to view this student's information"
+      );
+    }
+
+    const classes = await tprogData.getStudentClasses(studentId);
+    return { success: true, data: classes };
+  } catch (error) {
+    console.error("[SERVER ACTION] Error in getStudentClasses:", error.message);
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getStudentAssignments(studentId, classId) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for advisor check:",
+      username
+    );
+
+    // Verify that the current user is an advisor of the student
+    const students = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = students.some((student) => student.id === studentId);
+
+    if (!isAdvisor) {
+      throw new Error(
+        "You are not authorized to view this student's information"
+      );
+    }
+
+    const assignments = await tprogData.getStudentAssignments(
+      studentId,
+      classId
+    );
+    return { success: true, data: assignments };
+  } catch (error) {
+    console.error(
+      "[SERVER ACTION] Error in getStudentAssignments:",
+      error.message
+    );
+    return { success: false, message: error.message };
+  }
+}
+
+export async function getStudentAssignmentDetails(assignmentId, studentId) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for advisor check:",
+      username
+    );
+
+    // Verify that the current user is an advisor of the student
+    const students = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = students.some((student) => student.id === studentId);
+
+    if (!isAdvisor) {
+      throw new Error(
+        "You are not authorized to view this student's information"
+      );
+    }
+
+    const assignmentDetails = await tprogData.getStudentAssignmentDetails(
+      assignmentId,
+      studentId
+    );
+    return { success: true, data: assignmentDetails };
+  } catch (error) {
+    console.error(
+      "[SERVER ACTION] Error in getStudentAssignmentDetails:",
+      error.message
+    );
+    return { success: false, message: error.message };
+  }
+}
+
+export async function updateSubmissionStatus(submissionId, status, comments) {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Get submission details to verify authorization
+    const submission = await db("tprog_submission")
+      .where("id", submissionId)
+      .first();
+
+    if (!submission) {
+      throw new Error("Submission not found");
+    }
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for advisor check:",
+      username
+    );
+
+    // Verify that the current user is an advisor of the student who made the submission
+    const students = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = students.some(
+      (student) => student.id === submission.user_id
+    );
+
+    if (!isAdvisor) {
+      throw new Error("You are not authorized to update this submission");
+    }
+
+    await tprogData.updateSubmissionStatus(submissionId, status, comments);
+    revalidatePath(`/tprog`);
+
+    return { success: true, message: "Submission status updated successfully" };
+  } catch (error) {
+    console.error(
+      "[SERVER ACTION] Error in updateSubmissionStatus:",
+      error.message
+    );
+    return { success: false, message: error.message };
+  }
+}

@@ -1,0 +1,1 @@
+-- Add feedback column to tprog_submissiontable if it doesn't exist\nALTER TABLE tprog_submission ADD COLUMN IF NOT EXISTS feedback TEXT DEFAULT NULL;

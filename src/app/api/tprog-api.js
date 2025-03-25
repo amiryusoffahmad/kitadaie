@@ -291,7 +291,7 @@ export async function deleteSubmission(submissionId) {
     }
 
     const actions = await getActions();
-    const response = await actions.deleteSubmission(submissionId);
+    const response = await actions.deleteSubmissionAction(submissionId);
 
     if (!response.success) {
       throw new Error(response.message || "Failed to delete submission");
@@ -351,6 +351,162 @@ export async function getSubmissions(assignmentId) {
     console.error("[API] Error fetching submissions:", error);
     toast.error(error.message || "Failed to fetch submissions");
     return [];
+  }
+}
+
+// Advisor-related functions
+export async function isUserAdvisor() {
+  try {
+    console.log("[API] Checking if user is an advisor");
+    const actions = await getActions();
+    const response = await actions.isUserAdvisor();
+
+    console.log("[API] isUserAdvisor response:", response);
+
+    if (!response.success) {
+      throw new Error(response.message || "Failed to check advisor status");
+    }
+
+    return response.data || false;
+  } catch (error) {
+    console.error("[API] Error checking advisor status:", error);
+    // Don't show toast for this operation as it's a background check
+    return false;
+  }
+}
+
+export async function getAdvisorStudents() {
+  try {
+    const actions = await getActions();
+    const response = await actions.getAdvisorStudents();
+
+    if (!response.success) {
+      throw new Error(response.message || "Failed to get advisor students");
+    }
+
+    return response.data || [];
+  } catch (error) {
+    console.error("[API] Error fetching advisor students:", error);
+    toast.error(error.message || "Failed to fetch students");
+    return [];
+  }
+}
+
+export async function getStudentClasses(studentId) {
+  try {
+    if (!studentId) {
+      console.error("[API] Invalid studentId:", studentId);
+      return [];
+    }
+
+    const actions = await getActions();
+    const response = await actions.getStudentClasses(studentId);
+
+    if (!response.success) {
+      throw new Error(response.message || "Failed to fetch student classes");
+    }
+
+    return response.data || [];
+  } catch (error) {
+    console.error("[API] Error fetching student classes:", error);
+    toast.error(error.message || "Failed to fetch student classes");
+    return [];
+  }
+}
+
+export async function getStudentAssignments(studentId, classId) {
+  try {
+    if (!studentId || !classId) {
+      console.error(
+        "[API] Invalid parameters. studentId:",
+        studentId,
+        "classId:",
+        classId
+      );
+      return [];
+    }
+
+    const actions = await getActions();
+    const response = await actions.getStudentAssignments(
+      studentId,
+      classId.toString()
+    );
+
+    if (!response.success) {
+      throw new Error(
+        response.message || "Failed to fetch student assignments"
+      );
+    }
+
+    return response.data || [];
+  } catch (error) {
+    console.error("[API] Error fetching student assignments:", error);
+    toast.error(error.message || "Failed to fetch student assignments");
+    return [];
+  }
+}
+
+export async function getStudentAssignmentDetails(assignmentId, studentId) {
+  try {
+    if (!assignmentId || !studentId) {
+      console.error(
+        "[API] Invalid parameters. assignmentId:",
+        assignmentId,
+        "studentId:",
+        studentId
+      );
+      return null;
+    }
+
+    const actions = await getActions();
+    const response = await actions.getStudentAssignmentDetails(
+      assignmentId,
+      studentId
+    );
+
+    if (!response.success) {
+      throw new Error(
+        response.message || "Failed to fetch student assignment details"
+      );
+    }
+
+    return response.data || null;
+  } catch (error) {
+    console.error("[API] Error fetching student assignment details:", error);
+    toast.error(error.message || "Failed to fetch student assignment details");
+    return null;
+  }
+}
+
+export async function updateSubmissionStatus(submissionId, status, comments) {
+  try {
+    if (!submissionId || !status) {
+      console.error(
+        "[API] Invalid parameters. submissionId:",
+        submissionId,
+        "status:",
+        status
+      );
+      throw new Error("Invalid parameters for updating submission status");
+    }
+
+    const actions = await getActions();
+    const response = await actions.updateSubmissionStatus(
+      submissionId,
+      status,
+      comments || ""
+    );
+
+    if (!response.success) {
+      throw new Error(response.message || "Failed to update submission status");
+    }
+
+    toast.success(response.message || "Submission status updated successfully");
+    return response;
+  } catch (error) {
+    console.error("[API] Error updating submission status:", error);
+    toast.error(error.message || "Failed to update submission status");
+    throw error;
   }
 }
 
