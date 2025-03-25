@@ -3,25 +3,16 @@ import { menuData } from "@/lib/menu-data"
 import { ProfileSection } from "./ProfileSection"
 import { useSession } from '@/lib/auth-client'
 import { useQuery } from '@tanstack/react-query'
+import { usePersonalData } from '@/app/api/profile/user-api'
 
 export default function DataList() {
     const { data: session } = useSession()
 
-    // Fetch user profile to get first name
-    const { data: userProfile } = useQuery({
-        queryKey: ['userProfile', session?.user?.id],
-        queryFn: async () => {
-            const response = await fetch(`/api/users/profile`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch user profile');
-            }
-            return response.json();
-        },
-        enabled: !!session?.user?.id
-    })
+    // Fetch user profile data using the proper hook
+    const { data: personalData } = usePersonalData(session?.user?.id)
 
-    // Get first name or fallback to display name
-    const firstName = userProfile?.first_name || session?.user?.name?.split(' ')[0] || 'User';
+    // Get first name from personal data or fallback to display name
+    const firstName = personalData?.first_name || session?.user?.name?.split(' ')[0] || 'User'
 
     return (
         <div className="flex min-h-screen flex-col">
