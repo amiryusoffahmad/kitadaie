@@ -48,11 +48,7 @@ export default function DataList() {
 
     const handleEnroll = () => {
         if (classCode.length !== 6) {
-            toast({
-                title: 'Invalid Class Code',
-                description: 'Please enter a valid 6-digit class code.',
-                variant: 'destructive',
-            })
+            toast.error('Please enter a valid 6-digit class code.')
             return
         }
 

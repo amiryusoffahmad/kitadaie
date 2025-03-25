@@ -47,11 +47,7 @@ export async function getEnrolledClasses() {
     return response.data || [];
   } catch (error) {
     console.error("Error fetching enrolled classes:", error);
-    toast({
-      title: "Error",
-      description: error.message || "Failed to fetch enrolled classes",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to fetch enrolled classes");
     return [];
   }
 }
@@ -65,19 +61,11 @@ export async function enrollInClass(classCode) {
       throw new Error(response.message || "Failed to enroll in class");
     }
 
-    toast({
-      title: "Success",
-      description: response.message || "Successfully enrolled in class",
-    });
-
+    toast.success(response.message || "Successfully enrolled in class");
     return response;
   } catch (error) {
     console.error("Error enrolling in class:", error);
-    toast({
-      title: "Error",
-      description: error.message || "Failed to enroll in class",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to enroll in class");
     throw error;
   }
 }
@@ -103,11 +91,7 @@ export async function getClassDetails(classId) {
     return response.data || null;
   } catch (error) {
     console.error("[API] Error fetching class details:", error);
-    toast({
-      title: "Error",
-      description: error.message || "Failed to fetch class details",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to fetch class details");
     return null;
   }
 }
@@ -133,11 +117,7 @@ export async function getAssignments(classId) {
     return response.data || [];
   } catch (error) {
     console.error("[API] Error fetching assignments:", error);
-    toast({
-      title: "Error",
-      description: error.message || "Failed to fetch assignments",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to fetch assignments");
     return [];
   }
 }
@@ -181,11 +161,7 @@ export async function getAssignmentDetails(assignmentId) {
       console.error("[API] Error stack:", error.stack);
     }
 
-    toast({
-      title: "Error",
-      description: error.message || "Failed to fetch assignment details",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to fetch assignment details");
     throw error;
   }
 }
@@ -254,19 +230,12 @@ export async function submitAssignmentWithFile(assignmentId, file) {
       throw new Error(response.message || "Failed to submit assignment");
     }
 
-    toast({
-      title: "Success",
-      description: response.message || "Assignment submitted successfully",
-    });
+    toast.success(response.message || "Assignment submitted successfully");
 
     return response;
   } catch (error) {
     console.error("[API] Error submitting assignment:", error);
-    toast({
-      title: "Error",
-      description: error.message || "Failed to submit assignment",
-      variant: "destructive",
-    });
+    toast.error(error.message || "Failed to submit assignment");
     throw error;
   }
 }
@@ -317,31 +286,23 @@ export async function submitAssignment(assignmentId, fileId) {
 // Delete a submission
 export async function deleteSubmission(submissionId) {
   try {
-    console.log(`[CLIENT API] Deleting submission: ${submissionId}`);
-
     if (!submissionId) {
-      console.error(
-        "[CLIENT API] Invalid submission ID for deletion:",
-        submissionId
-      );
-      toast.error("Cannot delete: Invalid submission ID");
-      return { success: false };
+      throw new Error("Submission ID is required");
     }
 
-    // Call the server action to delete the submission
-    const result = await deleteSubmissionAction(submissionId);
+    const actions = await getActions();
+    const response = await actions.deleteSubmission(submissionId);
 
-    if (result.success) {
-      toast.success("Submission deleted successfully");
-      return result;
-    } else {
-      toast.error(result.message || "Failed to delete submission");
-      return { success: false };
+    if (!response.success) {
+      throw new Error(response.message || "Failed to delete submission");
     }
+
+    toast.success(response.message || "Submission deleted successfully");
+    return response;
   } catch (error) {
-    console.error("[CLIENT API] Error deleting submission:", error);
-    toast.error(`Failed to delete submission: ${error.message}`);
-    return { success: false, error: error.message };
+    console.error("Error deleting submission:", error);
+    toast.error(error.message || "Failed to delete submission");
+    throw error;
   }
 }
 
@@ -352,31 +313,17 @@ export async function deleteSubmission(submissionId) {
  */
 export async function downloadSubmission(submissionId) {
   try {
-    console.log(`[CLIENT API] Downloading submission: ${submissionId}`);
-
     if (!submissionId) {
-      console.error(
-        "[CLIENT API] Invalid submission ID for download:",
-        submissionId
-      );
-      toast.error("Cannot download: Invalid submission ID");
-      return { success: false };
+      throw new Error("Submission ID is required");
     }
 
-    // Create the download URL using the submission ID
-    const downloadUrl = `/api/tprog/download/${submissionId}`;
-
-    // We don't actually fetch the file here - just return the URL
-    // The actual download will happen when the browser navigates to this URL
-    return {
-      success: true,
-      downloadUrl,
-      message: "Download URL generated successfully",
-    };
+    // This would be a direct call to download the file
+    window.open(`/api/submissions/${submissionId}/download`, "_blank");
+    return { success: true };
   } catch (error) {
-    console.error("[CLIENT API] Error generating download URL:", error);
-    toast.error(`Failed to download file: ${error.message}`);
-    return { success: false, error: error.message };
+    console.error("Error downloading submission:", error);
+    toast.error(error.message || "Failed to download submission");
+    throw error;
   }
 }
 
@@ -391,7 +338,7 @@ export async function getSubmissions(assignmentId) {
     }
 
     const actions = await getActions();
-    const response = await actions.getSubmissionsAction(assignmentId);
+    const response = await actions.getSubmissions(assignmentId);
 
     console.log("[API] getSubmissions response:", response);
 
