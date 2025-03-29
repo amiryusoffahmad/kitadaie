@@ -2,6 +2,8 @@
 
 export default function DataList() {
     return (
-        <div>Inbox Data List</div>
+        <div className="text-center py-10 text-muted-foreground">
+            Coming soon
+        </div>
     )
 }

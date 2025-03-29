@@ -54,7 +54,7 @@ export const menuData = [
     items: [
       {
         title: "Security",
-        href: "/profile/edit/security",
+        href: "/profile/security",
         icon: Icons.ShieldCheck,
       },
     ],
