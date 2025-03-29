@@ -182,7 +182,7 @@ export default function DataList() {
                             <p className="mt-2">Loading classes...</p>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 py-4">
                             {classes && classes.length > 0 ? (
                                 classes.map((classItem) => (
                                     <Card key={classItem.id}>
@@ -207,6 +207,37 @@ export default function DataList() {
                             )}
                         </div>
                     )}
+                    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="w-full">Enroll</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Class Enrollment</DialogTitle>
+                                <DialogDescription>Enter a 6-digit class code to enroll in a class</DialogDescription>
+                            </DialogHeader>
+                            <div className="flex flex-col gap-4">
+                                <Input
+                                    placeholder="Enter class code"
+                                    value={classCode}
+                                    onChange={(e) => setClassCode(e.target.value)}
+                                    maxLength={6}
+                                />
+                                <Button
+                                    onClick={handleEnroll}
+                                    disabled={enrollMutation.isPending || classCode.length !== 6}
+                                    className="w-full"
+                                >
+                                    {enrollMutation.isPending ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Enrolling...
+                                        </>
+                                    ) : 'Enroll'}
+                                </Button>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                 </TabsContent>
 
                 <TabsContent value="past">
@@ -303,37 +334,7 @@ export default function DataList() {
                 )}
             </Tabs>
 
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                <DialogTrigger asChild>
-                    <Button className="w-full">Enroll</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Class Enrollment</DialogTitle>
-                        <DialogDescription>Enter a 6-digit class code to enroll in a class</DialogDescription>
-                    </DialogHeader>
-                    <div className="flex flex-col gap-4">
-                        <Input
-                            placeholder="Enter class code"
-                            value={classCode}
-                            onChange={(e) => setClassCode(e.target.value)}
-                            maxLength={6}
-                        />
-                        <Button
-                            onClick={handleEnroll}
-                            disabled={enrollMutation.isPending || classCode.length !== 6}
-                            className="w-full"
-                        >
-                            {enrollMutation.isPending ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Enrolling...
-                                </>
-                            ) : 'Enroll'}
-                        </Button>
-                    </div>
-                </DialogContent>
-            </Dialog>
+
         </div>
     )
 }
