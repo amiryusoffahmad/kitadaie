@@ -10,15 +10,6 @@ export default function Page() {
     return (
         <div>
             <DataList />
-            <Button onClick={async () => await signOut({
-                fetchOptions: {
-                    onSuccess: () => {
-                        router.push("/sign-in"); // redirect to login page
-                    },
-                },
-            })}>
-                Logout
-            </Button>
         </div>
     )
 }
