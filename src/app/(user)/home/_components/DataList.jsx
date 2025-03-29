@@ -7,11 +7,12 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
 import { Terminal } from 'lucide-react'
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
-
+import { useRouter } from 'next/navigation';
 export default function DataList() {
     const { data: session } = useSession()
     const { data: personalData, isLoading } = usePersonalData(session?.user?.id)
     const first_name = personalData?.first_name
+    const router = useRouter()
 
     return (
         <div className="flex flex-col gap-4">
