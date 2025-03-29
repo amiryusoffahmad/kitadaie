@@ -1,15 +1,7 @@
 "use client"
 
-import { ChevronRight } from "lucide-react";
-
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible"
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarGroupContent,
     SidebarMenu,
     SidebarMenuButton,
@@ -19,8 +11,6 @@ import {
 export function NavTop({
     items
 }) {
-    // const { isMobile } = useSidebar()
-
     return (
         (<SidebarGroup>
 
