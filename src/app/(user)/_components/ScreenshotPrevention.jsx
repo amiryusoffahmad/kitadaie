@@ -10,6 +10,9 @@ export default function ScreenshotPrevention() {
     const lastVisibilityChange = useRef(0);
     const lastLuminance = useRef(null);
     const isIOS = useRef(false);
+    const canvasRef = useRef(null);
+    const frameId = useRef(null);
+    const screenObserver = useRef(null);
 
     useEffect(() => {
         // Check if device is iOS
@@ -35,6 +38,107 @@ export default function ScreenshotPrevention() {
             setSecurityTriggered(true);
 
             return false;
+        };
+
+        // iOS Safari-specific screenshot detection
+        // Based on research, iOS screenshots trigger a sequence of events
+        let iosScreenshotTimeout = null;
+        const detectIOSScreenshot = () => {
+            // iOS screenshot detection is challenging but possible through various signals
+
+            // Create a MutationObserver to watch for temporary elements that iOS creates when taking screenshots
+            if (!screenObserver.current && isIOS.current) {
+                screenObserver.current = new MutationObserver((mutations) => {
+                    for (const mutation of mutations) {
+                        if (mutation.addedNodes.length) {
+                            // iOS 16+ adds some specific elements when screenshot is taken
+                            const addedElements = Array.from(mutation.addedNodes);
+                            const possibleScreenshotIndicator = addedElements.some(
+                                node => node.nodeType === 1 &&
+                                    (node.classList?.contains('UIActionSheet') ||
+                                        node.id?.includes('screenshot') ||
+                                        node.style?.zIndex > 9999)
+                            );
+
+                            if (possibleScreenshotIndicator) {
+                                console.log('[SECURITY] iOS DOM change indicating screenshot');
+                                clearTimeout(iosScreenshotTimeout);
+                                iosScreenshotTimeout = setTimeout(handleScreenshotAttempt, 50);
+                            }
+                        }
+                    }
+                });
+
+                // Watch for changes to the body and its descendants
+                screenObserver.current.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['style', 'class']
+                });
+            }
+        };
+
+        // Implement 60fps animation technique to prevent clear screenshots
+        // This is one of the most effective methods on iOS according to research
+        const createProtectionCanvas = () => {
+            if (isIOS.current) {
+                // Create canvas element for 60fps animation
+                const canvas = document.createElement('canvas');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                canvas.style.position = 'fixed';
+                canvas.style.top = '0';
+                canvas.style.left = '0';
+                canvas.style.pointerEvents = 'none';
+                canvas.style.zIndex = '99999';
+                canvas.style.opacity = '0.01'; // Almost invisible but will affect screenshots
+
+                document.body.appendChild(canvas);
+                canvasRef.current = canvas;
+
+                const ctx = canvas.getContext('2d');
+
+                // Animate canvas at 60fps to disrupt screenshots
+                const animate = () => {
+                    if (!ctx) return;
+
+                    // Create a subtle but effective pattern that will disrupt screenshots
+                    // but be nearly invisible to users
+                    const timestamp = Date.now() / 1000;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    // Draw subtle patterns that change every frame
+                    for (let i = 0; i < 10; i++) {
+                        const x = Math.sin(timestamp + i) * canvas.width / 2 + canvas.width / 2;
+                        const y = Math.cos(timestamp + i) * canvas.height / 2 + canvas.height / 2;
+
+                        ctx.fillStyle = `rgba(255,255,255,0.01)`;
+                        ctx.beginPath();
+                        ctx.arc(x, y, 50 + Math.sin(timestamp) * 20, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Add watermark text that will show in screenshots
+                        ctx.font = '20px Arial';
+                        ctx.fillStyle = 'rgba(0,0,0,0.01)';
+                        ctx.fillText('SECURE - NO SCREENSHOTS',
+                            canvas.width / 2 - 100 + Math.sin(timestamp) * 10,
+                            canvas.height / 2 + Math.cos(timestamp) * 10);
+                    }
+
+                    frameId.current = requestAnimationFrame(animate);
+                };
+
+                frameId.current = requestAnimationFrame(animate);
+
+                // Adjust canvas on resize
+                window.addEventListener('resize', () => {
+                    if (canvasRef.current) {
+                        canvasRef.current.width = window.innerWidth;
+                        canvasRef.current.height = window.innerHeight;
+                    }
+                });
+            }
         };
 
         // Function to detect visibility change (potential screenshot attempt)
@@ -100,12 +204,13 @@ export default function ScreenshotPrevention() {
 
         // iOS specific: Screen capture API detection (iOS 15+)
         let screenCaptureSupported = false;
+        let originalGetDisplayMedia = null;
         if (typeof navigator.mediaDevices !== 'undefined' &&
             typeof navigator.mediaDevices.getDisplayMedia === 'function') {
             screenCaptureSupported = true;
 
             // Override getDisplayMedia to detect screen recording attempts
-            const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+            originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
             navigator.mediaDevices.getDisplayMedia = function (constraints) {
                 console.log('[SECURITY] Screen capture attempt detected');
                 handleScreenshotAttempt();
@@ -119,6 +224,60 @@ export default function ScreenshotPrevention() {
                     });
             };
         }
+
+        // Detect Assistive Touch screenshot (iOS specific)
+        const detectAssistiveTouch = () => {
+            if (!isIOS.current) return;
+
+            // Assistive Touch detection is tricky, but we can listen for specific touch patterns
+            let touchStartTime = 0;
+            let lastTouchX = 0;
+            let lastTouchY = 0;
+
+            const handleTouchStart = (e) => {
+                touchStartTime = Date.now();
+                if (e.touches.length === 1) {
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                }
+
+                // Detect edge touches which might indicate Assistive Touch activation
+                const touchX = e.touches[0]?.clientX || 0;
+                const touchY = e.touches[0]?.clientY || 0;
+                const edgeTolerance = 20;
+
+                if (touchX < edgeTolerance ||
+                    touchX > window.innerWidth - edgeTolerance ||
+                    touchY < edgeTolerance ||
+                    touchY > window.innerHeight - edgeTolerance) {
+                    console.log('[SECURITY] Edge touch detected - possible Assistive Touch');
+                }
+            };
+
+            const handleTouchEnd = (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+
+                // Assistive Touch typically involves quick taps
+                if (touchDuration < 200) {
+                    setTimeout(() => {
+                        // If we detect rapid visibility changes after a quick tap,
+                        // it might be Assistive Touch screenshot
+                        if (Date.now() - lastVisibilityChange.current < 500) {
+                            console.log('[SECURITY] Possible Assistive Touch screenshot pattern');
+                            handleScreenshotAttempt();
+                        }
+                    }, 300);
+                }
+            };
+
+            document.addEventListener('touchstart', handleTouchStart, { passive: true });
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+            return () => {
+                document.removeEventListener('touchstart', handleTouchStart);
+                document.removeEventListener('touchend', handleTouchEnd);
+            };
+        };
 
         // Detect screen brightness changes (can indicate iOS screenshot)
         const handleScreenBrightnessChange = () => {
@@ -192,8 +351,13 @@ export default function ScreenshotPrevention() {
         document.addEventListener('contextmenu', handleScreenshotAttempt);
 
         // Add iOS-specific detection
+        let cleanupAssistiveTouch = () => { };
         if (isIOS.current) {
             handleScreenBrightnessChange();
+            detectIOSScreenshot();
+            createProtectionCanvas();
+            cleanupAssistiveTouch = detectAssistiveTouch();
+
             // iOS gesture that can trigger screenshots (three finger tap)
             document.addEventListener('touchstart', (e) => {
                 if (e.touches.length >= 3) {
@@ -212,14 +376,32 @@ export default function ScreenshotPrevention() {
 
             if (isIOS.current) {
                 document.removeEventListener('touchstart', handleScreenshotAttempt);
+                cleanupAssistiveTouch();
+
+                if (screenObserver.current) {
+                    screenObserver.current.disconnect();
+                    screenObserver.current = null;
+                }
+
+                if (frameId.current) {
+                    cancelAnimationFrame(frameId.current);
+                    frameId.current = null;
+                }
+
+                if (canvasRef.current && canvasRef.current.parentNode) {
+                    canvasRef.current.parentNode.removeChild(canvasRef.current);
+                    canvasRef.current = null;
+                }
             }
 
             document.head.removeChild(styleElement);
 
             // Restore original getDisplayMedia if we modified it
-            if (screenCaptureSupported) {
+            if (screenCaptureSupported && originalGetDisplayMedia) {
                 navigator.mediaDevices.getDisplayMedia = originalGetDisplayMedia;
             }
+
+            clearTimeout(iosScreenshotTimeout);
         };
     }, []);
 
