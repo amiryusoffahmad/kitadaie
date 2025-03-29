@@ -511,6 +511,39 @@ export async function getAdvisorStudents() {
   }
 }
 
+export async function getMurobbiStudents() {
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session || !session.user) {
+      throw new Error("Authentication required");
+    }
+
+    // Debug the session object
+    console.log(
+      "[SERVER ACTION] getMurobbiStudents - Session user:",
+      JSON.stringify(session.user, null, 2)
+    );
+
+    // Get username from the session - it might be in session.user.id
+    const username = session.user.username || session.user.id;
+    console.log(
+      "[SERVER ACTION] Using identifier for murobbi students:",
+      username
+    );
+
+    const students = await tprogData.getMurobbiStudents(username);
+    console.log("[SERVER ACTION] Found murobbi students:", students.length);
+
+    return { success: true, data: students };
+  } catch (error) {
+    console.error(
+      "[SERVER ACTION] Error in getMurobbiStudents:",
+      error.message
+    );
+    return { success: false, message: error.message };
+  }
+}
+
 export async function getStudentClasses(studentId) {
   try {
     const session = await auth.api.getSession({ headers: await headers() });

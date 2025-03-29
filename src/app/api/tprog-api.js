@@ -392,6 +392,23 @@ export async function getAdvisorStudents() {
   }
 }
 
+export async function getMurobbiStudents() {
+  try {
+    const actions = await getActions();
+    const response = await actions.getMurobbiStudents();
+
+    if (!response.success) {
+      throw new Error(response.message || "Failed to get murobbi students");
+    }
+
+    return response.data || [];
+  } catch (error) {
+    console.error("[API] Error fetching murobbi students:", error);
+    toast.error(error.message || "Failed to fetch murobbi students");
+    return [];
+  }
+}
+
 export async function getStudentClasses(studentId) {
   try {
     if (!studentId) {

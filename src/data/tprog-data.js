@@ -330,6 +330,62 @@ export async function getAdvisorStudents(advisorIdentifier) {
   }
 }
 
+export async function getMurobbiStudents(murobbiIdentifier) {
+  if (!murobbiIdentifier) {
+    console.log("[DATA] getMurobbiStudents called with invalid identifier");
+    return [];
+  }
+
+  console.log("[DATA] Getting murobbi students for:", murobbiIdentifier);
+
+  try {
+    // First, get the username if we were passed a user ID
+    let username = murobbiIdentifier;
+    const user = await db("user")
+      .where("id", murobbiIdentifier)
+      .select("username")
+      .first();
+
+    if (user && user.username) {
+      username = user.username;
+      console.log("[DATA] Found username for ID:", username);
+    }
+
+    // Get student IDs from the users_profile table where murobbi_id matches username
+    const studentProfiles = await db("users_profile")
+      .where("murobbi_id", username)
+      .select("id"); // This selects user IDs
+
+    // Log the direct query results to debug
+    console.log(
+      "[DATA] Raw murobbi query results:",
+      JSON.stringify(studentProfiles, null, 2)
+    );
+
+    // If no students found, return empty array
+    if (!studentProfiles || studentProfiles.length === 0) {
+      console.log("[DATA] No murobbi students found for:", username);
+      return [];
+    }
+
+    console.log("[DATA] Found student profiles:", studentProfiles.length);
+
+    // Get student data from user table using the IDs
+    const students = await db("user")
+      .whereIn(
+        "id",
+        studentProfiles.map((s) => s.id)
+      )
+      .select("id", "name", "username", "email");
+
+    console.log("[DATA] Returning murobbi student records:", students.length);
+    return students;
+  } catch (error) {
+    console.error("[DATA] Error in getMurobbiStudents:", error);
+    return [];
+  }
+}
+
 export async function getStudentClasses(studentId) {
   return await getEnrolledClasses(studentId);
 }

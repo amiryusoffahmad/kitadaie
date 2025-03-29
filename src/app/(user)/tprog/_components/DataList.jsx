@@ -14,9 +14,11 @@ import {
     enrollInClass,
     isUserAdvisor,
     getAdvisorStudents,
+    getMurobbiStudents,
     getStudentClasses
 } from '@/app/api/tprog-api'
 import { Loader2 } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import {
     Dialog,
     DialogContent,
@@ -61,7 +63,7 @@ export default function DataList() {
     })
 
     // Fetch advisor students
-    const { data: students, isLoading: isStudentsLoading, error: studentsError } = useQuery({
+    const { data: advisorStudents, isLoading: isAdvisorStudentsLoading, error: advisorStudentsError } = useQuery({
         queryKey: ['advisorStudents', session?.user?.id],
         queryFn: async () => {
             console.log("[CLIENT] Fetching advisor students");
@@ -73,18 +75,37 @@ export default function DataList() {
         retry: 2
     })
 
+    // Fetch murobbi students 
+    const { data: murobbiStudents, isLoading: isMurobbiStudentsLoading, error: murobbiStudentsError } = useQuery({
+        queryKey: ['murobbiStudents', session?.user?.id],
+        queryFn: async () => {
+            console.log("[CLIENT] Fetching murobbi students");
+            const result = await getMurobbiStudents();
+            console.log("[CLIENT] Murobbi students result:", result);
+            return result;
+        },
+        enabled: !!session?.user?.id,
+        retry: 2
+    })
+
+    // Combine the students from both sources with a source identifier
+    const studentsWithSource = [
+        ...(advisorStudents?.map(student => ({ ...student, source: 'advisor' })) || []),
+        ...(murobbiStudents?.map(student => ({ ...student, source: 'murobbi' })) || [])
+    ];
+
     // Fetch student classes for each student
     const { data: studentClassMap, isLoading: isStudentClassesLoading, error: studentClassesError } = useQuery({
-        queryKey: ['studentClasses', students],
+        queryKey: ['studentClasses', studentsWithSource],
         queryFn: async () => {
-            if (!students || students.length === 0) {
+            if (!studentsWithSource || studentsWithSource.length === 0) {
                 console.log("[CLIENT] No students to fetch classes for");
                 return {};
             }
 
-            console.log("[CLIENT] Fetching classes for students:", students.length);
+            console.log("[CLIENT] Fetching classes for students:", studentsWithSource.length);
             const classMap = {};
-            for (const student of students) {
+            for (const student of studentsWithSource) {
                 console.log("[CLIENT] Fetching classes for student:", student.id);
                 try {
                     const classes = await getStudentClasses(student.id);
@@ -97,7 +118,7 @@ export default function DataList() {
             }
             return classMap;
         },
-        enabled: !!students && students.length > 0,
+        enabled: !!studentsWithSource && studentsWithSource.length > 0,
         retry: 2
     })
 
@@ -122,12 +143,24 @@ export default function DataList() {
 
     // Determine if we should show the My Students tab
     const loadingClasses = isClassesLoading || false;
-    const loadingStudents = isStudentsLoading || false;
+    const loadingStudents = isAdvisorStudentsLoading || isMurobbiStudentsLoading || false;
     const isLoading = isAdvisorLoading || loadingClasses || (isAdvisor === true && loadingStudents);
-    const showMyStudentsTab = isAdvisor === true;
+
+    // Show My Students tab if user is advisor or has murobbi students
+    const showMyStudentsTab = isAdvisor === true || (murobbiStudents && murobbiStudents.length > 0);
 
     // Calculate number of tabs
     const numTabs = showMyStudentsTab ? 3 : 2;
+
+    // Helper function to get source badge
+    const getSourceBadge = (source) => {
+        if (source === 'advisor') {
+            return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">Advisor</Badge>;
+        } else if (source === 'murobbi') {
+            return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Murobbi</Badge>;
+        }
+        return null;
+    };
 
     return (
         <div className="container mx-auto py-6 space-y-6">
@@ -184,16 +217,19 @@ export default function DataList() {
 
                 {showMyStudentsTab && (
                     <TabsContent value="students">
-                        {isStudentsLoading ? (
+                        {isAdvisorStudentsLoading || isMurobbiStudentsLoading ? (
                             <div className="text-center py-10">
                                 <Loader2 className="h-6 w-6 animate-spin mx-auto" />
                                 <p className="mt-2">Loading students...</p>
                             </div>
-                        ) : studentsError ? (
+                        ) : advisorStudentsError && murobbiStudentsError ? (
                             <div className="text-center py-10 text-red-500">
-                                <p>Error loading students: {studentsError.message}</p>
+                                <p>Error loading students</p>
                                 <Button
-                                    onClick={() => queryClient.invalidateQueries(['advisorStudents'])}
+                                    onClick={() => {
+                                        queryClient.invalidateQueries(['advisorStudents']);
+                                        queryClient.invalidateQueries(['murobbiStudents']);
+                                    }}
                                     variant="outline"
                                     className="mt-2"
                                 >
@@ -207,21 +243,24 @@ export default function DataList() {
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">
-                                {students && students.length > 0 ? (
+                                {studentsWithSource && studentsWithSource.length > 0 ? (
                                     <>
                                         <div className="text-sm text-muted-foreground mb-2">
-                                            Found {students.length} student{students.length > 1 ? 's' : ''}
+                                            Found {studentsWithSource.length} student{studentsWithSource.length > 1 ? 's' : ''}
                                         </div>
-                                        {students.map((student) => {
+                                        {studentsWithSource.map((student) => {
                                             const studentClasses = studentClassMap?.[student.id] || [];
                                             console.log(`[CLIENT] Rendering classes for student ${student.name}:`, studentClasses.length);
 
                                             if (studentClasses.length === 0) {
                                                 return (
-                                                    <Card key={student.id}>
-                                                        <CardHeader>
-                                                            <CardTitle>{student.name}</CardTitle>
-                                                            <CardDescription>{student.email}</CardDescription>
+                                                    <Card key={`${student.id}-${student.source}`}>
+                                                        <CardHeader className="flex flex-row items-start justify-between">
+                                                            <div>
+                                                                <CardTitle>{student.name}</CardTitle>
+                                                                <CardDescription>{student.email}</CardDescription>
+                                                            </div>
+                                                            {getSourceBadge(student.source)}
                                                         </CardHeader>
                                                         <CardContent>
                                                             <p className="text-sm text-muted-foreground">
@@ -233,10 +272,13 @@ export default function DataList() {
                                             }
 
                                             return studentClasses.map((classItem) => (
-                                                <Card key={`${student.id}-${classItem.id}`}>
-                                                    <CardHeader>
-                                                        <CardTitle>{student.name}</CardTitle>
-                                                        <CardDescription>{classItem.name}</CardDescription>
+                                                <Card key={`${student.id}-${classItem.id}-${student.source}`}>
+                                                    <CardHeader className="flex flex-row items-start justify-between">
+                                                        <div>
+                                                            <CardTitle>{student.name}</CardTitle>
+                                                            <CardDescription>{classItem.name}</CardDescription>
+                                                        </div>
+                                                        {getSourceBadge(student.source)}
                                                     </CardHeader>
                                                     <CardContent>
                                                         <p className="mb-4 text-sm text-muted-foreground">{classItem.description}</p>
