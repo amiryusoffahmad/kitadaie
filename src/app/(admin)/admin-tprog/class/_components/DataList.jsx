@@ -16,6 +16,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 // Client-side API functions to interact with server actions
 const API_ENDPOINT = '/api/admin/tprog';
 
+// Create a safe wrapper for toast to prevent passing objects as React children
+const safeToast = {
+    success: (message) => {
+        toast.success(typeof message === 'string' ? message : 'Operation successful');
+    },
+    error: (message) => {
+        toast.error(typeof message === 'string' ? message : 'An error occurred');
+    }
+};
+
 // Helper function to format dates
 function formatDate(dateString) {
     const date = new Date(dateString);
@@ -173,12 +183,9 @@ export default function DataList() {
     const [classes, setClasses] = useState([]);
     const [assignments, setAssignments] = useState([]);
     const [selectedClass, setSelectedClass] = useState(null);
-    const [isCreateClassDialogOpen, setIsCreateClassDialogOpen] = useState(false);
-    const [isCreateAssignmentDialogOpen, setIsCreateAssignmentDialogOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-
-    // Edit state variables
+    const [isAddClassDialogOpen, setIsAddClassDialogOpen] = useState(false);
     const [isEditClassDialogOpen, setIsEditClassDialogOpen] = useState(false);
+    const [isAddAssignmentDialogOpen, setIsAddAssignmentDialogOpen] = useState(false);
     const [isEditAssignmentDialogOpen, setIsEditAssignmentDialogOpen] = useState(false);
     const [itemToEdit, setItemToEdit] = useState(null);
     const [editClassForm, setEditClassForm] = useState({
@@ -188,8 +195,9 @@ export default function DataList() {
     });
     const [editAssignmentForm, setEditAssignmentForm] = useState({
         title: '',
-        instructions: '',
+        description: '',
         due_date: '',
+        is_published: true
     });
 
     // Confirmation dialogs
@@ -198,37 +206,69 @@ export default function DataList() {
     const [itemToDelete, setItemToDelete] = useState(null);
 
     // Form states
-    const [newClass, setNewClass] = useState({
+    const [newClassForm, setNewClassForm] = useState({
         name: '',
-        class_code: '',
+        code: '',
         description: '',
     });
 
-    const [newAssignment, setNewAssignment] = useState({
+    const [newAssignmentForm, setNewAssignmentForm] = useState({
         title: '',
-        instructions: '',
+        description: '',
         due_date: '',
+        is_published: true
     });
+
+    // Add isLoading to state variables
+    const [isLoading, setIsLoading] = useState(false);
+
+    // Load classes
+    const loadClasses = async () => {
+        setIsLoading(true);
+        try {
+            const fetchedClasses = await fetchClasses();
+            setClasses(fetchedClasses);
+        } catch (error) {
+            let errorMessage = "Failed to load classes";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Load assignments for a class
+    const loadAssignments = async (classId) => {
+        if (!classId) {
+            setAssignments([]);
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const fetchedAssignments = await fetchAssignments(classId);
+            setAssignments(fetchedAssignments);
+        } catch (error) {
+            let errorMessage = "Failed to load assignments";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     // Fetch classes on component mount
     useEffect(() => {
-        const loadClasses = async () => {
-            setIsLoading(true);
-            try {
-                const data = await fetchClasses();
-                setClasses(data);
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: error.message || "Failed to load classes",
-                    variant: "destructive"
-                });
-                setClasses([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         loadClasses();
     }, []); // Empty dependency array since toast import is not a hook
 
@@ -236,24 +276,7 @@ export default function DataList() {
     useEffect(() => {
         if (!selectedClass) return;
 
-        const loadAssignments = async () => {
-            setIsLoading(true);
-            try {
-                const data = await fetchAssignments(selectedClass.id);
-                setAssignments(data);
-            } catch (error) {
-                toast({
-                    title: "Error",
-                    description: error.message || "Failed to load assignments",
-                    variant: "destructive"
-                });
-                setAssignments([]);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        loadAssignments();
+        loadAssignments(selectedClass.id);
     }, [selectedClass]); // Only depend on selectedClass
 
     const handleSelectClass = (classItem) => {
@@ -262,37 +285,35 @@ export default function DataList() {
 
     const handleCreateClass = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
 
+        setIsLoading(true);
         try {
             // Validate required fields
-            if (!newClass.name || !newClass.class_code) {
-                throw new Error('Class name and code are required');
+            if (!newClassForm.name) {
+                throw new Error('Class name is required');
             }
 
-            await createClass(newClass);
-            toast({
-                title: "Success",
-                description: "Class created successfully",
-            });
+            const newClass = await createClass(newClassForm);
 
-            // Refresh class list
-            const updatedClasses = await fetchClasses();
-            setClasses(updatedClasses);
-
-            // Reset form and close dialog
-            setNewClass({
+            // Update state and reset form
+            setClasses(prevClasses => [...prevClasses, newClass]);
+            setNewClassForm({
                 name: '',
-                class_code: '',
-                description: '',
+                code: ''
             });
-            setIsCreateClassDialogOpen(false);
+            setIsAddClassDialogOpen(false);
+
+            // Show success message
+            safeToast.success("Class created successfully");
         } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to create class",
-                variant: "destructive"
-            });
+            let errorMessage = "Failed to create class";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -300,37 +321,38 @@ export default function DataList() {
 
     const handleCreateAssignment = async (e) => {
         e.preventDefault();
-        setIsLoading(true);
+        if (!selectedClass) return;
 
+        setIsLoading(true);
         try {
             // Validate required fields
-            if (!newAssignment.title || !newAssignment.due_date) {
+            if (!newAssignmentForm.title || !newAssignmentForm.due_date) {
                 throw new Error('Assignment title and due date are required');
             }
 
-            await createAssignment(selectedClass.id, newAssignment);
-            toast({
-                title: "Success",
-                description: "Assignment created successfully",
-            });
+            const newAssignment = await createAssignment(selectedClass.id, newAssignmentForm);
 
-            // Refresh assignment list
-            const updatedAssignments = await fetchAssignments(selectedClass.id);
-            setAssignments(updatedAssignments);
-
-            // Reset form and close dialog
-            setNewAssignment({
+            // Update state and reset form
+            setAssignments(prevAssignments => [...prevAssignments, newAssignment]);
+            setNewAssignmentForm({
                 title: '',
-                instructions: '',
+                description: '',
                 due_date: '',
+                is_published: true
             });
-            setIsCreateAssignmentDialogOpen(false);
+            setIsAddAssignmentDialogOpen(false);
+
+            // Show success message
+            safeToast.success("Assignment created successfully");
         } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to create assignment",
-                variant: "destructive"
-            });
+            let errorMessage = "Failed to create assignment";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -341,6 +363,8 @@ export default function DataList() {
         if (!itemToDelete) return;
 
         setIsLoading(true);
+        let hasError = false;
+
         try {
             await deleteClass(itemToDelete.id);
 
@@ -350,22 +374,33 @@ export default function DataList() {
             // Reset selected class if it was deleted
             if (selectedClass && selectedClass.id === itemToDelete.id) {
                 setSelectedClass(null);
+                setAssignments([]);
             }
 
-            toast({
-                title: "Success",
-                description: "Class deleted successfully",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to delete class",
-                variant: "destructive"
-            });
-        } finally {
-            setIsLoading(false);
+            // Clean up state
             setIsDeleteClassDialogOpen(false);
             setItemToDelete(null);
+
+            // Show success toast after state updates
+            safeToast.success("Class deleted successfully");
+        } catch (error) {
+            hasError = true;
+            let errorMessage = "Failed to delete class";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+            if (!hasError) {
+                // This wasn't needed because we already clear these in the try block
+                // But we can keep it as a safety measure
+                setIsDeleteClassDialogOpen(false);
+                setItemToDelete(null);
+            }
         }
     };
 
@@ -374,26 +409,38 @@ export default function DataList() {
         if (!itemToDelete || !selectedClass) return;
 
         setIsLoading(true);
+        let hasError = false;
+
         try {
             await deleteAssignment(selectedClass.id, itemToDelete.id);
 
             // Remove assignment from list
             setAssignments(assignments.filter(a => a.id !== itemToDelete.id));
 
-            toast({
-                title: "Success",
-                description: "Assignment deleted successfully",
-            });
-        } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to delete assignment",
-                variant: "destructive"
-            });
-        } finally {
-            setIsLoading(false);
+            // Clean up state
             setIsDeleteAssignmentDialogOpen(false);
             setItemToDelete(null);
+
+            // Show success toast after state updates
+            safeToast.success("Assignment deleted successfully");
+        } catch (error) {
+            hasError = true;
+            let errorMessage = "Failed to delete assignment";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
+        } finally {
+            setIsLoading(false);
+            if (!hasError) {
+                // This wasn't needed because we already clear these in the try block
+                // But we can keep it as a safety measure
+                setIsDeleteAssignmentDialogOpen(false);
+                setItemToDelete(null);
+            }
         }
     };
 
@@ -421,8 +468,9 @@ export default function DataList() {
 
         setEditAssignmentForm({
             title: assignment.title,
-            instructions: assignment.instructions || '',
+            description: assignment.description || '',
             due_date: formattedDate,
+            is_published: assignment.is_published
         });
         setIsEditAssignmentDialogOpen(true);
     };
@@ -439,34 +487,36 @@ export default function DataList() {
                 throw new Error('Class name is required');
             }
 
-            // We don't validate the class code change here since the API will handle that
+            // Make API call
+            const result = await updateClass(itemToEdit.id, editClassForm);
 
-            const updatedClass = await updateClass(itemToEdit.id, editClassForm);
-
-            // Update the class in the local state
-            setClasses(classes.map(c =>
-                c.id === itemToEdit.id ? updatedClass : c
-            ));
-
-            // Update selected class if it was the one edited
-            if (selectedClass && selectedClass.id === itemToEdit.id) {
-                setSelectedClass(updatedClass);
-            }
-
-            toast({
-                title: "Success",
-                description: "Class updated successfully",
-            });
-
-            // Close dialog and reset form
+            // First close dialog and reset form
             setIsEditClassDialogOpen(false);
             setItemToEdit(null);
+
+            // Save the ID to use in state updates
+            const updatedId = result.id;
+
+            // Update states with string values, not objects
+            setClasses(prevClasses =>
+                prevClasses.map(c => c.id === updatedId ? result : c)
+            );
+
+            if (selectedClass && selectedClass.id === updatedId) {
+                setSelectedClass(result);
+            }
+
+            // Show success message
+            safeToast.success("Class updated successfully");
         } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to update class",
-                variant: "destructive"
-            });
+            let errorMessage = "Failed to update class";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -484,31 +534,36 @@ export default function DataList() {
                 throw new Error('Assignment title and due date are required');
             }
 
-            const updatedAssignment = await updateAssignment(
+            // Make API call
+            const result = await updateAssignment(
                 selectedClass.id,
                 itemToEdit.id,
                 editAssignmentForm
             );
 
-            // Update the assignment in the local state
-            setAssignments(assignments.map(a =>
-                a.id === itemToEdit.id ? updatedAssignment : a
-            ));
-
-            toast({
-                title: "Success",
-                description: "Assignment updated successfully",
-            });
-
-            // Close dialog and reset form
+            // First close dialog and reset form
             setIsEditAssignmentDialogOpen(false);
             setItemToEdit(null);
+
+            // Save the ID to use in state updates
+            const updatedId = result.id;
+
+            // Update assignments with string values, not objects
+            setAssignments(prevAssignments =>
+                prevAssignments.map(a => a.id === updatedId ? result : a)
+            );
+
+            // Show success message
+            safeToast.success("Assignment updated successfully");
         } catch (error) {
-            toast({
-                title: "Error",
-                description: error.message || "Failed to update assignment",
-                variant: "destructive"
-            });
+            let errorMessage = "Failed to update assignment";
+            if (typeof error === 'string') {
+                errorMessage = error;
+            } else if (error && typeof error.message === 'string') {
+                errorMessage = error.message;
+            }
+
+            safeToast.error(errorMessage);
         } finally {
             setIsLoading(false);
         }
@@ -518,7 +573,7 @@ export default function DataList() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold tracking-tight">Class Management</h1>
-                <Dialog open={isCreateClassDialogOpen} onOpenChange={setIsCreateClassDialogOpen}>
+                <Dialog open={isAddClassDialogOpen} onOpenChange={setIsAddClassDialogOpen}>
                     <DialogTrigger asChild>
                         <Button>
                             <PlusCircle className="mr-2 h-4 w-4" />
@@ -540,8 +595,8 @@ export default function DataList() {
                                     </Label>
                                     <Input
                                         id="class-name"
-                                        value={newClass.name}
-                                        onChange={(e) => setNewClass({ ...newClass, name: e.target.value })}
+                                        value={newClassForm.name}
+                                        onChange={(e) => setNewClassForm({ ...newClassForm, name: e.target.value })}
                                         className="col-span-3"
                                         required
                                     />
@@ -552,8 +607,8 @@ export default function DataList() {
                                     </Label>
                                     <Input
                                         id="class-code"
-                                        value={newClass.class_code}
-                                        onChange={(e) => setNewClass({ ...newClass, class_code: e.target.value })}
+                                        value={newClassForm.code}
+                                        onChange={(e) => setNewClassForm({ ...newClassForm, code: e.target.value })}
                                         className="col-span-3"
                                         maxLength={6}
                                         required
@@ -566,8 +621,8 @@ export default function DataList() {
                                     </Label>
                                     <Textarea
                                         id="description"
-                                        value={newClass.description}
-                                        onChange={(e) => setNewClass({ ...newClass, description: e.target.value })}
+                                        value={newClassForm.description}
+                                        onChange={(e) => setNewClassForm({ ...newClassForm, description: e.target.value })}
                                         className="col-span-3"
                                         rows={3}
                                     />
@@ -711,13 +766,13 @@ export default function DataList() {
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-instructions" className="text-right">
-                                    Instructions
+                                <Label htmlFor="edit-description" className="text-right">
+                                    Description
                                 </Label>
                                 <Textarea
-                                    id="edit-instructions"
-                                    value={editAssignmentForm.instructions}
-                                    onChange={(e) => setEditAssignmentForm({ ...editAssignmentForm, instructions: e.target.value })}
+                                    id="edit-description"
+                                    value={editAssignmentForm.description}
+                                    onChange={(e) => setEditAssignmentForm({ ...editAssignmentForm, description: e.target.value })}
                                     className="col-span-3"
                                     rows={3}
                                 />
@@ -821,7 +876,7 @@ export default function DataList() {
                                     <CardTitle>Assignments for {selectedClass.name}</CardTitle>
                                     <CardDescription>Class Code: {selectedClass.class_code}</CardDescription>
                                 </div>
-                                <Dialog open={isCreateAssignmentDialogOpen} onOpenChange={setIsCreateAssignmentDialogOpen}>
+                                <Dialog open={isAddAssignmentDialogOpen} onOpenChange={setIsAddAssignmentDialogOpen}>
                                     <DialogTrigger asChild>
                                         <Button>
                                             <Plus className="mr-2 h-4 w-4" />
@@ -843,20 +898,20 @@ export default function DataList() {
                                                     </Label>
                                                     <Input
                                                         id="title"
-                                                        value={newAssignment.title}
-                                                        onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
+                                                        value={newAssignmentForm.title}
+                                                        onChange={(e) => setNewAssignmentForm({ ...newAssignmentForm, title: e.target.value })}
                                                         className="col-span-3"
                                                         required
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="instructions" className="text-right">
-                                                        Instructions
+                                                    <Label htmlFor="description" className="text-right">
+                                                        Description
                                                     </Label>
                                                     <Textarea
-                                                        id="instructions"
-                                                        value={newAssignment.instructions}
-                                                        onChange={(e) => setNewAssignment({ ...newAssignment, instructions: e.target.value })}
+                                                        id="description"
+                                                        value={newAssignmentForm.description}
+                                                        onChange={(e) => setNewAssignmentForm({ ...newAssignmentForm, description: e.target.value })}
                                                         className="col-span-3"
                                                         rows={3}
                                                     />
@@ -868,8 +923,8 @@ export default function DataList() {
                                                     <Input
                                                         id="due-date"
                                                         type="datetime-local"
-                                                        value={newAssignment.due_date}
-                                                        onChange={(e) => setNewAssignment({ ...newAssignment, due_date: e.target.value })}
+                                                        value={newAssignmentForm.due_date}
+                                                        onChange={(e) => setNewAssignmentForm({ ...newAssignmentForm, due_date: e.target.value })}
                                                         className="col-span-3"
                                                         required
                                                     />
@@ -890,7 +945,7 @@ export default function DataList() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Title</TableHead>
-                                            <TableHead>Instructions</TableHead>
+                                            <TableHead>Description</TableHead>
                                             <TableHead>Due Date</TableHead>
                                             <TableHead className="w-[150px]">Actions</TableHead>
                                         </TableRow>
@@ -906,7 +961,7 @@ export default function DataList() {
                                             assignments.map((assignment) => (
                                                 <TableRow key={assignment.id}>
                                                     <TableCell className="font-medium">{assignment.title}</TableCell>
-                                                    <TableCell>{assignment.instructions?.substring(0, 50)}...</TableCell>
+                                                    <TableCell>{assignment.description?.substring(0, 50)}...</TableCell>
                                                     <TableCell>{formatDate(assignment.due_date)}</TableCell>
                                                     <TableCell className="space-x-2">
                                                         <Button
