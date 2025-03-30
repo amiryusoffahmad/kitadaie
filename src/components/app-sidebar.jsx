@@ -61,17 +61,17 @@ const data = {
   projects: [
     {
       title: "TProg",
-      url: "#",
+      url: "/admin-tprog",
       icon: SquareChartGantt,
       isActive: true,
       items: [
         {
           title: "Class",
-          url: "#",
+          url: "/admin-tprog/class",
         },
         {
           title: "User",
-          url: "#",
+          url: "/admin-tprog/user",
         },
       ],
     },
