@@ -195,7 +195,7 @@ export default function DataList() {
     });
     const [editAssignmentForm, setEditAssignmentForm] = useState({
         title: '',
-        description: '',
+        instructions: '',
         due_date: '',
         is_published: true
     });
@@ -214,7 +214,7 @@ export default function DataList() {
 
     const [newAssignmentForm, setNewAssignmentForm] = useState({
         title: '',
-        description: '',
+        instructions: '',
         due_date: '',
         is_published: true
     });
@@ -336,7 +336,7 @@ export default function DataList() {
             setAssignments(prevAssignments => [...prevAssignments, newAssignment]);
             setNewAssignmentForm({
                 title: '',
-                description: '',
+                instructions: '',
                 due_date: '',
                 is_published: true
             });
@@ -468,7 +468,7 @@ export default function DataList() {
 
         setEditAssignmentForm({
             title: assignment.title,
-            description: assignment.description || '',
+            instructions: assignment.instructions || '',
             due_date: formattedDate,
             is_published: assignment.is_published
         });
@@ -766,13 +766,13 @@ export default function DataList() {
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                                <Label htmlFor="edit-description" className="text-right">
-                                    Description
+                                <Label htmlFor="edit-instructions" className="text-right">
+                                    Instructions
                                 </Label>
                                 <Textarea
-                                    id="edit-description"
-                                    value={editAssignmentForm.description}
-                                    onChange={(e) => setEditAssignmentForm({ ...editAssignmentForm, description: e.target.value })}
+                                    id="edit-instructions"
+                                    value={editAssignmentForm.instructions}
+                                    onChange={(e) => setEditAssignmentForm({ ...editAssignmentForm, instructions: e.target.value })}
                                     className="col-span-3"
                                     rows={3}
                                 />
@@ -905,13 +905,13 @@ export default function DataList() {
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-4 items-center gap-4">
-                                                    <Label htmlFor="description" className="text-right">
-                                                        Description
+                                                    <Label htmlFor="instructions" className="text-right">
+                                                        Instructions
                                                     </Label>
                                                     <Textarea
-                                                        id="description"
-                                                        value={newAssignmentForm.description}
-                                                        onChange={(e) => setNewAssignmentForm({ ...newAssignmentForm, description: e.target.value })}
+                                                        id="instructions"
+                                                        value={newAssignmentForm.instructions}
+                                                        onChange={(e) => setNewAssignmentForm({ ...newAssignmentForm, instructions: e.target.value })}
                                                         className="col-span-3"
                                                         rows={3}
                                                     />
@@ -945,7 +945,7 @@ export default function DataList() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Title</TableHead>
-                                            <TableHead>Description</TableHead>
+                                            <TableHead>Instructions</TableHead>
                                             <TableHead>Due Date</TableHead>
                                             <TableHead className="w-[150px]">Actions</TableHead>
                                         </TableRow>
@@ -961,7 +961,7 @@ export default function DataList() {
                                             assignments.map((assignment) => (
                                                 <TableRow key={assignment.id}>
                                                     <TableCell className="font-medium">{assignment.title}</TableCell>
-                                                    <TableCell>{assignment.description?.substring(0, 50)}...</TableCell>
+                                                    <TableCell>{assignment.instructions?.substring(0, 50)}</TableCell>
                                                     <TableCell>{formatDate(assignment.due_date)}</TableCell>
                                                     <TableCell className="space-x-2">
                                                         <Button
