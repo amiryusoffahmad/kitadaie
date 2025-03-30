@@ -167,7 +167,7 @@ export default function DataList() {
             <h1 className="text-3xl font-bold tracking-tight">Tarbiah Progress</h1>
 
             <Tabs defaultValue="enrolled" className="w-full">
-                <TabsList className={`grid w-full grid-cols-${numTabs}`}>
+                <TabsList className={`grid w-full ${numTabs === 2 ? 'grid-cols-2' : numTabs === 3 ? 'grid-cols-3' : 'grid-cols-1'}`}>
                     <TabsTrigger value="enrolled">My Classes</TabsTrigger>
                     <TabsTrigger value="past">Past Classes</TabsTrigger>
                     {showMyStudentsTab && (
