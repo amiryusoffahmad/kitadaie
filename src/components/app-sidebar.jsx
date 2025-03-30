@@ -28,11 +28,6 @@ const data = {
       icon: SquareTerminal,
     }
   ],
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "LKD SLT",
@@ -92,7 +87,7 @@ export function AppSidebar({
         <NavProjects items={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>)
