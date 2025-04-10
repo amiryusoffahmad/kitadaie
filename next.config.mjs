@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+import withPWA from "next-pwa";
+
 const nextConfig = {
   serverExternalPackages: ["knex"],
   // Configure environment variables for the upload API
@@ -35,4 +37,12 @@ const nextConfig = {
   // },
 };
 
-export default nextConfig;
+// Apply PWA configuration
+const pwaConfig = withPWA({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development", // Disable in development
+  register: true,
+  skipWaiting: true,
+});
+
+export default pwaConfig(nextConfig);
