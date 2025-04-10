@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { PlusCircle, Edit, Trash2, Plus, Calendar } from 'lucide-react'
+import { PlusCircle, Edit, Trash2, Plus, Calendar, FileText, FileUp, Download } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
@@ -80,7 +80,31 @@ async function fetchAssignments(classId) {
             const errorData = await response.json();
             throw new Error(errorData.error || 'Failed to fetch assignments');
         }
-        return await response.json();
+
+        const assignments = await response.json();
+
+        // Fetch file information for assignments with file_id
+        const assignmentsWithFileInfo = await Promise.all(
+            assignments.map(async (assignment) => {
+                if (assignment.file_id) {
+                    try {
+                        const fileResponse = await fetch(`${API_ENDPOINT}/uploads/${assignment.file_id}`);
+                        if (fileResponse.ok) {
+                            const fileInfo = await fileResponse.json();
+                            return {
+                                ...assignment,
+                                fileInfo
+                            };
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching file info for assignment ${assignment.id}:`, error);
+                    }
+                }
+                return assignment;
+            })
+        );
+
+        return assignmentsWithFileInfo;
     } catch (error) {
         console.error('Error fetching assignments:', error);
         throw error;
@@ -89,18 +113,41 @@ async function fetchAssignments(classId) {
 
 async function createAssignment(classId, assignmentData) {
     try {
-        const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(assignmentData)
-        });
+        // Create a FormData object if there's a file to upload
+        if (assignmentData.instructionFile) {
+            const formData = new FormData();
+            formData.append('title', assignmentData.title);
+            formData.append('instructions', assignmentData.instructions || '');
+            formData.append('due_date', assignmentData.due_date);
+            formData.append('is_published', assignmentData.is_published || true);
+            formData.append('file', assignmentData.instructionFile);
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to create assignment');
+            const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments/upload`, {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create assignment');
+            }
+
+            return await response.json();
+        } else {
+            // Regular JSON request if no file
+            const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to create assignment');
+            }
+
+            return await response.json();
         }
-
-        return await response.json();
     } catch (error) {
         console.error('Error creating assignment:', error);
         throw error;
@@ -167,18 +214,41 @@ async function updateClass(classId, classData) {
 
 async function updateAssignment(classId, assignmentId, assignmentData) {
     try {
-        const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments/${assignmentId}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(assignmentData)
-        });
+        // Create a FormData object if there's a file to upload
+        if (assignmentData.instructionFile) {
+            const formData = new FormData();
+            formData.append('title', assignmentData.title);
+            formData.append('instructions', assignmentData.instructions || '');
+            formData.append('due_date', assignmentData.due_date);
+            formData.append('is_published', assignmentData.is_published || true);
+            formData.append('file', assignmentData.instructionFile);
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Failed to update assignment');
+            const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments/${assignmentId}/upload`, {
+                method: 'PUT',
+                body: formData,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update assignment');
+            }
+
+            return await response.json();
+        } else {
+            // Regular JSON request if no file
+            const response = await fetch(`${API_ENDPOINT}/classes/${classId}/assignments/${assignmentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(assignmentData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to update assignment');
+            }
+
+            return await response.json();
         }
-
-        return await response.json();
     } catch (error) {
         console.error('Error updating assignment:', error);
         throw error;
@@ -204,7 +274,9 @@ export default function DataList() {
         title: '',
         instructions: '',
         due_date: '',
-        is_published: true
+        is_published: true,
+        instructionFile: null,
+        fileInfo: null
     });
 
     // Confirmation dialogs
@@ -223,7 +295,8 @@ export default function DataList() {
         title: '',
         instructions: '',
         due_date: '',
-        is_published: true
+        is_published: true,
+        instructionFile: null
     });
 
     // Add isLoading to state variables
@@ -353,7 +426,8 @@ export default function DataList() {
                 title: '',
                 instructions: '',
                 due_date: '',
-                is_published: true
+                is_published: true,
+                instructionFile: null
             });
             setIsAddAssignmentDialogOpen(false);
 
@@ -472,7 +546,7 @@ export default function DataList() {
     };
 
     // Handle edit assignment form initialization
-    const handleEditAssignmentClick = (assignment) => {
+    const handleEditAssignmentClick = async (assignment) => {
         setItemToEdit(assignment);
 
         // Format the date for the datetime-local input
@@ -481,11 +555,28 @@ export default function DataList() {
         // Format to YYYY-MM-DDThh:mm
         const formattedDate = dueDate.toISOString().slice(0, 16);
 
+        // Check if assignment has a file_id
+        let fileInfo = null;
+        if (assignment.file_id) {
+            try {
+                // Get the file details from the uploads table
+                const response = await fetch(`${API_ENDPOINT}/uploads/${assignment.file_id}`);
+                if (response.ok) {
+                    fileInfo = await response.json();
+                }
+            } catch (error) {
+                console.error('Error fetching file info:', error);
+            }
+        }
+
         setEditAssignmentForm({
             title: assignment.title,
             instructions: assignment.instructions || '',
             due_date: formattedDate,
-            is_published: assignment.is_published
+            is_published: assignment.is_published,
+            instructionFile: null,
+            // Store the file info for display
+            fileInfo: fileInfo
         });
         setIsEditAssignmentDialogOpen(true);
     };
@@ -793,6 +884,32 @@ export default function DataList() {
                                 />
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="edit-instruction-file" className="text-right">
+                                    Instruction File
+                                </Label>
+                                <div className="col-span-3">
+                                    <Input
+                                        id="edit-instruction-file"
+                                        type="file"
+                                        accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                        onChange={(e) => setEditAssignmentForm({
+                                            ...editAssignmentForm,
+                                            instructionFile: e.target.files[0] || null
+                                        })}
+                                        className="col-span-3"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                        Upload PDF or Word document (max 10MB)
+                                    </p>
+                                    {itemToEdit?.file_id && editAssignmentForm.fileInfo && (
+                                        <div className="flex items-center gap-2 mt-2 text-sm">
+                                            <FileText className="h-4 w-4" />
+                                            <span>Current file: {editAssignmentForm.fileInfo.original_filename || "Instruction file"}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
                                 <Label htmlFor="edit-due-date" className="text-right">
                                     Due Date
                                 </Label>
@@ -932,6 +1049,26 @@ export default function DataList() {
                                                     />
                                                 </div>
                                                 <div className="grid grid-cols-4 items-center gap-4">
+                                                    <Label htmlFor="instruction-file" className="text-right">
+                                                        Instruction File
+                                                    </Label>
+                                                    <div className="col-span-3">
+                                                        <Input
+                                                            id="instruction-file"
+                                                            type="file"
+                                                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                                            onChange={(e) => setNewAssignmentForm({
+                                                                ...newAssignmentForm,
+                                                                instructionFile: e.target.files[0] || null
+                                                            })}
+                                                            className="col-span-3"
+                                                        />
+                                                        <p className="text-xs text-muted-foreground mt-1">
+                                                            Upload PDF or Word document (max 10MB)
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-4 items-center gap-4">
                                                     <Label htmlFor="due-date" className="text-right">
                                                         Due Date
                                                     </Label>
@@ -976,7 +1113,23 @@ export default function DataList() {
                                             assignments.map((assignment) => (
                                                 <TableRow key={assignment.id}>
                                                     <TableCell className="font-medium">{assignment.title}</TableCell>
-                                                    <TableCell>{assignment.instructions?.substring(0, 50)}</TableCell>
+                                                    <TableCell>
+                                                        {assignment.instructions?.substring(0, 50)}
+                                                        {assignment.file_id && (
+                                                            <div className="flex items-center gap-1 mt-1 text-xs">
+                                                                <FileText className="h-3 w-3" />
+                                                                <a
+                                                                    href={assignment.fileInfo?.path || `/uploads/${assignment.file_id}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-blue-500 hover:underline flex items-center"
+                                                                >
+                                                                    {assignment.fileInfo?.original_filename || "Download Instructions"}
+                                                                    <Download className="h-3 w-3 ml-1" />
+                                                                </a>
+                                                            </div>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>{formatDate(assignment.due_date)}</TableCell>
                                                     <TableCell className="space-x-2">
                                                         <Button

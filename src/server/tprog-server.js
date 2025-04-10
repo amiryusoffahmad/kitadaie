@@ -201,6 +201,27 @@ export async function getAssignmentDetails(assignmentId, userId) {
       throw new Error("Assignment not found");
     }
 
+    // If there's a file_id, fetch the file details from uploads
+    if (assignmentWithSubmission.file_id) {
+      console.log("[SERVER] Assignment has file_id, fetching file info");
+      try {
+        const fileInfo = await tprogData.getFileById(
+          assignmentWithSubmission.file_id
+        );
+        if (fileInfo) {
+          assignmentWithSubmission.file = {
+            id: fileInfo.id,
+            path: fileInfo.path,
+            original_filename: fileInfo.original_filename,
+            mimetype: fileInfo.mimetype,
+          };
+        }
+      } catch (fileError) {
+        console.error("[SERVER] Error fetching file info:", fileError);
+        // Continue without file info if there's an error
+      }
+    }
+
     const now = new Date();
     const dueDate = new Date(assignmentWithSubmission.due_date);
 

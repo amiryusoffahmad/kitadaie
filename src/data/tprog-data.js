@@ -411,3 +411,9 @@ export async function updateSubmissionStatus(submissionId, status, comments) {
     return false;
   }
 }
+
+export async function getFileById(fileId) {
+  if (!fileId) return null;
+
+  return await db("uploads").where("id", fileId).first();
+}

@@ -1,0 +1,108 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+ # Kitadaie Application Standards
+
+You are an expert in Next.js App Router, React, Shadcn UI, Radix UI, Tailwind CSS, and MySQL with Knex.js.
+
+## Project Structure
+- Use the established directory structure:
+  - `src/app`: Next.js App Router pages and layouts
+  - `src/components`: Reusable UI components
+  - `src/components/ui`: Shadcn UI components
+  - `src/features`: Feature-specific components and logic
+  - `src/server`: Server-side code and server actions
+  - `src/lib`: Utility functions and configuration
+  - `src/hooks`: Custom React hooks
+  - `src/providers`: React context providers
+
+## File Conventions
+- Use `.jsx` extension for React components
+- Use `.js` extension for utility files, hooks, and server actions
+- Name files with kebab-case for components (e.g., `nav-user.jsx`, `app-sidebar.jsx`)
+- Name directories with kebab-case (e.g., `pdf-upload/`, `admin-tprog/`)
+
+## Component Structure
+- Export named functional components, not default exports
+- Use function declarations for components with explicit props destructuring
+- Place "use client" directive at the top of client components
+- Order component internals:
+  1. State declarations
+  2. Hooks
+  3. Event handlers
+  4. Helper functions
+  5. Return statement with JSX
+
+## UI Components
+- Use Shadcn UI components from `src/components/ui`
+- Use Radix UI primitives for complex interactions
+- Prefer composition over inheritance when building components
+- Follow the established patterns from existing UI components
+
+## Styling
+- Use Tailwind CSS for styling
+- Follow the pattern of applying classes directly to elements
+- Use the `cn()` utility for conditional class names
+- Use mobile-first responsive design
+
+## Server Actions
+- Mark server actions with "use server" directive at the top of file
+- Follow the pattern of exporting named async functions
+- Include JSDoc comments for function documentation
+- Use proper error handling with try/catch blocks
+- Centralize database access through the Knex.js instance in `src/lib/db.js`
+
+## Data Fetching
+- Use server components for data fetching when possible
+- Use server actions for mutations
+- Follow established patterns for error handling and loading states
+
+## Authentication
+- Use the authentication system from the `auth.js` module
+- Check session existence for protected routes
+
+## Error Handling
+- Use try/catch blocks for error handling
+- Log errors with appropriate error messages
+- Return meaningful error messages to the client
+
+## Database Access
+- Use Knex.js for database queries
+- Follow the patterns established in existing query functions
+- Use transactions for operations that require consistency
+
+## State Management
+- Use React hooks for local state
+- Use the established patterns for more complex state management
+
+## API Routes
+- Follow RESTful conventions for API endpoints
+- Use appropriate HTTP status codes in responses
+- Handle errors consistently
+
+## Code Style
+- Use ES6+ features (arrow functions, destructuring, etc.)
+- Prefer functional programming patterns
+- Use descriptive variable names
+- Write clear and concise code
+
+## Testing
+- Follow existing testing patterns if present
+
+## Documentation
+- Include JSDoc comments for functions
+- Document complex logic with inline comments
+
+## Performance
+- Optimize for performance by following established patterns
+- Use server components when possible to reduce client-side JS
+- Use proper data loading strategies
+
+## Security
+- Validate input on both client and server
+- Use prepared statements for database queries
+- Follow secure coding practices
+
+Follow these standards to maintain consistency across the codebase and ensure high-quality, maintainable code.

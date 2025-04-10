@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertTriangle, Upload, FileText, Loader2, File, Download, Trash } from 'lucide-react'
+import { AlertTriangle, Upload, FileText, Loader2, File, Download, Trash, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import { useSession } from '@/lib/auth-client'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -291,185 +291,230 @@ export default function AssignmentDetails({ params }) {
 
     if (isLoading) {
         return (
-            <div className="container mx-auto py-6 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                <p className="mt-2">Loading assignment details...</p>
-            </div>
+            <Card className="min-h-[300px] flex items-center justify-center">
+                <CardContent>
+                    <Loader2 className="h-12 w-12 animate-spin mx-auto text-muted-foreground" />
+                    <p className="text-center mt-4 text-muted-foreground">Loading assignment details...</p>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    if (!assignment) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Assignment Not Found</CardTitle>
+                    <CardDescription>The assignment you're looking for doesn't exist or you don't have access to it.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>
+                            We couldn't find the assignment you're looking for. Please check the URL and try again.
+                        </AlertDescription>
+                    </Alert>
+                    <div className="mt-6">
+                        <Link href={`/tprog/${classId}`} passHref>
+                            <Button>Return to Class</Button>
+                        </Link>
+                    </div>
+                </CardContent>
+            </Card>
         )
     }
 
     return (
-        <div className="container mx-auto py-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold">Assignment Details</h1>
-                <Link href={`/tprog/${classId}`}>
-                    <Button variant="outline">Back to Assignments</Button>
-                </Link>
-            </div>
-
+        <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <CardTitle>{assignment?.title}</CardTitle>
-                            <CardDescription>
-                                Due: {new Date(assignment?.due_date).toLocaleString()}
-                            </CardDescription>
-                        </div>
-                        {getStatusBadge(assignment?.status)}
-                    </div>
+                    <CardTitle className="text-2xl">{assignment.title}</CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                        <span>Due: {new Date(assignment.due_date).toLocaleString()}</span>
+                        {getStatusBadge(isOverdue(assignment.due_date) ? 'overdue' : 'open')}
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div>
-                        <h3 className="font-semibold mb-2">Instructions</h3>
-                        <p className="text-sm text-muted-foreground">
-                            {assignment?.instructions}
-                        </p>
+                    {/* Assignment Instructions */}
+                    <div className="space-y-4">
+                        <h3 className="text-lg font-semibold">Instructions</h3>
+                        <div className="prose max-w-none dark:prose-invert">
+                            <p>{assignment.instructions || 'No detailed instructions provided.'}</p>
+                        </div>
+
+                        {/* Instruction File Download */}
+                        {assignment.file_id && assignment.file && (
+                            <div className="bg-muted p-4 rounded-md mt-4">
+                                <div className="flex items-start gap-3">
+                                    <FileText className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div className="flex-1">
+                                        <h4 className="font-medium text-sm">Instruction Document</h4>
+                                        <p className="text-xs text-muted-foreground mb-2">
+                                            The instructor has provided a detailed instruction document for this assignment.
+                                        </p>
+                                        <div className="flex items-center gap-2">
+                                            <a
+                                                href={assignment.file.path}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                                            >
+                                                <BookOpen className="h-4 w-4" />
+                                                View Document
+                                            </a>
+                                            <a
+                                                href={assignment.file.path}
+                                                download={assignment.file.original_filename || "assignment-instructions"}
+                                                className="flex items-center gap-1 text-primary hover:underline text-sm"
+                                            >
+                                                <Download className="h-4 w-4" />
+                                                Download
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    {isOverdue(assignment?.due_date) && assignment?.status === 'not_submitted' ? (
-                        <Alert variant="destructive">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Assignment Overdue</AlertTitle>
-                            <AlertDescription>
-                                This assignment is past its due date and can no longer be submitted.
-                            </AlertDescription>
-                        </Alert>
-                    ) : (
+                    {/* Existing Submission Display */}
+                    {assignment.submission && (
                         <div className="space-y-4">
-                            {assignment?.submission ? (
-                                <div className="border rounded-lg p-4 space-y-4">
-                                    <div className="grid grid-cols-2 items-center gap-8 text-sm text-muted-foreground">
-                                        <div>
-                                            <FileText className="h-4 w-4" />
-                                            <span>{assignment.submission.fileName}</span>
-                                        </div>
-                                        <span className="ml-auto">
-                                            Submitted: {new Date(assignment.submission.submitted_at).toLocaleString()}
-                                        </span>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-2">
-                                        <Button variant="secondary" onClick={handleFileDownload}>Download</Button>
-                                        <Button
-                                            variant="destructive"
-                                            disabled={isDeleting}
-                                            onClick={() => handleDeleteSubmission(assignment.submission.id)}
-                                        >
-                                            {isDeleting ? (
-                                                <>
-                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                    Deleting...
-                                                </>
-                                            ) : (
-                                                "Delete Submission"
-                                            )}
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="border-2 border-dashed rounded-lg p-6">
-                                    <div className="text-center space-y-4">
-                                        <Upload className="mx-auto h-8 w-8 text-muted-foreground" />
-                                        <div className="flex flex-col gap-2">
-                                            {selectedFile && (
-                                                <div className="text-sm text-muted-foreground">
-                                                    Selected: {selectedFile.name}
-                                                </div>
-                                            )}
-
-                                            {uploadError && (
-                                                <Alert variant="destructive" className="my-2">
-                                                    <AlertTriangle className="h-4 w-4" />
-                                                    <AlertTitle>Error</AlertTitle>
-                                                    <AlertDescription>{uploadError}</AlertDescription>
-                                                </Alert>
-                                            )}
-
-                                            <Button
-                                                variant="outline"
-                                                disabled={isUploading}
-                                                onClick={() => document.getElementById('file-upload').click()}
-                                            >
-                                                Select File
-                                            </Button>
-
-                                            <Button
-                                                variant="secondary"
-                                                disabled={isUploading || !selectedFile}
-                                                onClick={handleFileUpload}
-                                            >
-                                                {isUploading ? (
-                                                    <>
-                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                        Uploading...
-                                                    </>
-                                                ) : 'Upload File'}
-                                            </Button>
-
-                                            <input
-                                                id="file-upload"
-                                                type="file"
-                                                className="hidden"
-                                                onChange={handleFileSelect}
-                                            />
-                                        </div>
-                                        <p className="text-sm text-muted-foreground">
-                                            Upload your assignment file here
+                            <h3 className="text-lg font-semibold">Your Submission</h3>
+                            <div className="bg-muted p-4 rounded-md">
+                                <div className="flex items-start gap-3">
+                                    <File className="h-5 w-5 mt-0.5 text-primary" />
+                                    <div className="flex-1">
+                                        <h4 className="font-medium">{assignment.submission.fileName || 'Submission File'}</h4>
+                                        <p className="text-sm text-muted-foreground mb-2">
+                                            Submitted on: {new Date(assignment.submission.submitted_at).toLocaleString()}
                                         </p>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Display current attachments if they exist */}
-                            {assignment?.submission?.filename && (
-                                <div className="mt-4 border rounded-md p-4 bg-gray-50">
-                                    <h3 className="text-md font-medium mb-2">Current Attachment</h3>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center">
-                                            <File className="h-4 w-4 mr-2" />
-                                            <span className="text-sm">{assignment.submission.filename}</span>
-                                        </div>
-                                        <div className="flex space-x-2">
+                                        <div className="flex flex-wrap gap-2">
                                             <Button
-                                                size="sm"
                                                 variant="outline"
+                                                size="sm"
                                                 onClick={() => handleDownload(assignment.submission.id)}
                                                 disabled={isDownloading}
                                             >
                                                 {isDownloading ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                    <>
+                                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                        Downloading...
+                                                    </>
                                                 ) : (
-                                                    <Download className="h-4 w-4" />
+                                                    <>
+                                                        <Download className="mr-2 h-4 w-4" />
+                                                        Download
+                                                    </>
                                                 )}
                                             </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                className="text-red-500 hover:text-red-700"
-                                                onClick={() => handleDeleteSubmission(assignment.submission.id)}
-                                                disabled={isDeleting}
-                                            >
-                                                {isDeleting ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <Trash className="h-4 w-4" />
-                                                )}
-                                            </Button>
+                                            {!isOverdue(assignment.due_date) && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="text-destructive hover:bg-destructive/10"
+                                                    onClick={() => handleDeleteSubmission(assignment.submission.id)}
+                                                    disabled={isDeleting || deleteMutation.isPending}
+                                                >
+                                                    {deleteMutation.isPending || isDeleting ? (
+                                                        <>
+                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                            Deleting...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Trash className="mr-2 h-4 w-4" />
+                                                            Delete & Resubmit
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                            )}
+                                {assignment.submission.status === 'graded' && (
+                                    <div className="mt-4 border-t pt-4">
+                                        <h4 className="font-medium">Feedback</h4>
+                                        <p className="text-sm mt-1">
+                                            {assignment.submission.feedback || 'No feedback provided yet.'}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
-                    {/* Display advisor feedback/comments if available */}
-                    {assignment?.submission?.feedback && (
-                        <div className="mt-6 border rounded-lg p-4 ">
-                            <h3 className="font-semibold mb-2">Advisor Feedback</h3>
-                            <div className="prose prose-sm max-w-none">
-                                <p className="text-sm whitespace-pre-wrap">{assignment.submission.feedback}</p>
+                    {/* Submit New Assignment */}
+                    {!isOverdue(assignment.due_date) && (!assignment.submission || deleteMutation.isSuccess) && (
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Submit Assignment</h3>
+                            <div className="bg-muted/50 border border-dashed border-muted-foreground/20 rounded-lg p-4 text-center">
+                                <form onSubmit={handleFileUpload} className="space-y-4">
+                                    <div className="flex flex-col items-center justify-center p-4">
+                                        <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                                        <p className="text-sm font-medium">
+                                            {selectedFile
+                                                ? `Selected: ${selectedFile.name}`
+                                                : 'Upload your assignment file'}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                            Upload a PDF or Word document
+                                        </p>
+                                        <input
+                                            type="file"
+                                            id="file-upload"
+                                            className="hidden"
+                                            onChange={handleFileSelect}
+                                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-center gap-4">
+                                        <label htmlFor="file-upload" className="cursor-pointer">
+                                            <div className="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md text-sm font-medium">
+                                                Select File
+                                            </div>
+                                        </label>
+
+                                        <Button
+                                            type="submit"
+                                            disabled={!selectedFile || isUploading}
+                                        >
+                                            {isUploading ? (
+                                                <>
+                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                    Uploading...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="mr-2 h-4 w-4" />
+                                                    Submit
+                                                </>
+                                            )}
+                                        </Button>
+                                    </div>
+
+                                    {uploadError && (
+                                        <Alert variant="destructive" className="mt-4">
+                                            <AlertTriangle className="h-4 w-4" />
+                                            <AlertTitle>Error</AlertTitle>
+                                            <AlertDescription>{uploadError}</AlertDescription>
+                                        </Alert>
+                                    )}
+                                </form>
                             </div>
                         </div>
+                    )}
+
+                    {isOverdue(assignment.due_date) && !assignment.submission && (
+                        <Alert variant="destructive">
+                            <AlertTriangle className="h-4 w-4" />
+                            <AlertTitle>Assignment Overdue</AlertTitle>
+                            <AlertDescription>
+                                The deadline for this assignment has passed. Contact your instructor if you need an extension.
+                            </AlertDescription>
+                        </Alert>
                     )}
                 </CardContent>
             </Card>
