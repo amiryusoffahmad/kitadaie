@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 
 export async function middleware(request) {
+  // Check if the path is exactly the root path
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/home", request.url));
+  }
+
   const cookieHeader = request.headers.get("cookie");
   const cookies = cookieHeader?.split("; ").reduce((acc, cookie) => {
     const [key, value] = cookie.split("=");
@@ -28,5 +33,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/home/:path*", "/sign-in"],
+  matcher: ["/", "/dashboard/:path*", "/home/:path*", "/sign-in"],
 };
