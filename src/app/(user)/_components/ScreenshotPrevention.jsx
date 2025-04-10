@@ -181,7 +181,6 @@ export default function ScreenshotPrevention() {
 
         // Setup monitors
         const cleanupUIMonitor = monitorUIInteractions();
-        const cleanupIOSDetection = detectIOSScreenshot();
 
         // Add event listeners
         document.addEventListener('keydown', handleKeyDown);
@@ -195,7 +194,7 @@ export default function ScreenshotPrevention() {
             window.removeEventListener('blur', handleWindowBlur);
 
             cleanupUIMonitor();
-            cleanupIOSDetection();
+
 
             if (screenObserver.current) {
                 screenObserver.current.disconnect();

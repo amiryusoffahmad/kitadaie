@@ -48,10 +48,17 @@ async function fetchClasses() {
 
 async function createClass(classData) {
     try {
+        // Create a properly formatted payload with correct field names
+        const payload = {
+            name: classData.name,
+            class_code: classData.code, // Map 'code' to 'class_code'
+            description: classData.description || ''
+        };
+
         const response = await fetch(`${API_ENDPOINT}/classes`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(classData)
+            body: JSON.stringify(payload)
         });
 
         if (!response.ok) {
@@ -293,19 +300,27 @@ export default function DataList() {
                 throw new Error('Class name is required');
             }
 
+            if (!newClassForm.code) {
+                throw new Error('Class code is required');
+            }
+
+            console.log("[ADMIN] Creating class with data:", JSON.stringify(newClassForm, null, 2));
             const newClass = await createClass(newClassForm);
+            console.log("[ADMIN] Class created successfully:", newClass);
 
             // Update state and reset form
             setClasses(prevClasses => [...prevClasses, newClass]);
             setNewClassForm({
                 name: '',
-                code: ''
+                code: '',
+                description: ''
             });
             setIsAddClassDialogOpen(false);
 
             // Show success message
             safeToast.success("Class created successfully");
         } catch (error) {
+            console.error("[ADMIN] Class creation error:", error);
             let errorMessage = "Failed to create class";
             if (typeof error === 'string') {
                 errorMessage = error;
