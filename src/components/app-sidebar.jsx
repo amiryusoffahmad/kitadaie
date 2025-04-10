@@ -26,6 +26,11 @@ const data = {
       title: "Dashboard",
       url: "/dashboard",
       icon: SquareTerminal,
+    },
+    {
+      title: "Homepage",
+      url: "/home",
+      icon: SquareTerminal,
     }
   ],
   teams: [
