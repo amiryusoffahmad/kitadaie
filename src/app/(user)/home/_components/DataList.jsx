@@ -8,6 +8,8 @@ import { Terminal } from 'lucide-react'
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import EventCarousel from './EventCarousel';
+
 export default function DataList() {
     const { data: session } = useSession()
     const { data: personalData, isLoading } = usePersonalData(session?.user?.id)
@@ -25,6 +27,7 @@ export default function DataList() {
                     'No name assigned'
                 )}
             </h1>
+            <EventCarousel />
             <Alert>
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
