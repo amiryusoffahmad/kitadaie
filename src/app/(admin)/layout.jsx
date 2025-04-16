@@ -40,7 +40,7 @@ export default async function Layout({ children }) {
                         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
                         <AdminBreadcrumb />
                         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-                        <Button variant="ghost" className="gap-2">
+                        <Button className="gap-2">
                             <Smartphone className="h-4 w-4" />
                             <span className="text-sm">Go to App</span>
                         </Button>
