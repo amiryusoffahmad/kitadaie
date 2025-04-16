@@ -40,7 +40,8 @@ export default function RootLayout({ children }) {
         <Providers>
           {children}
           <OfflineIndicator />
-          <PWAInstallPrompt />
+          {/* Uncomment this to enable PWA Install Prompt */}
+          {/* <PWAInstallPrompt /> */}
         </Providers>
       </body>
     </html>
