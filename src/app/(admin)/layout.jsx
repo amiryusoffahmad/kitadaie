@@ -10,6 +10,8 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { getRole } from "@/server/user/user.server"
 import AdminBreadcrumb from "@/components/admin-breadcrumb"
+import { Smartphone } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default async function Layout({ children }) {
     const session = await auth.api.getSession(
@@ -37,6 +39,11 @@ export default async function Layout({ children }) {
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
                         <AdminBreadcrumb />
+                        <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+                        <Button variant="ghost" className="gap-2">
+                            <Smartphone className="h-4 w-4" />
+                            <span className="text-sm">Go to App</span>
+                        </Button>
                     </div>
                 </header>
                 <div>
