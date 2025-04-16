@@ -153,7 +153,7 @@ export default function FamilyList() {
     if (isFormOpen) {
         return (
             <ScrollArea>
-                <div className="flex flex-col max-w-md mx-auto pb-16">
+                <div className="flex flex-col max-w-md mx-auto">
                     <div className="flex flex-col items-center w-full">
                         <header className="bg-background w-full flex justify-center">
                             <div className="container flex flex-col max-w-md items-start gap-3 px-4">
@@ -188,7 +188,7 @@ export default function FamilyList() {
 
     return (
         <ScrollArea>
-            <div className="flex flex-col max-w-md mx-auto pb-16">
+            <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
                     <header className="bg-background w-full flex justify-center">
                         <div className="container flex flex-col max-w-md items-start gap-3 px-4">
