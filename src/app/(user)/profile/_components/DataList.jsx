@@ -15,8 +15,8 @@ export default function DataList() {
     const firstName = personalData?.first_name || session?.user?.name?.split(' ')[0] || 'User'
 
     return (
-        <div className="flex min-h-screen flex-col">
-            <main className="flex-1 flex flex-col px-5 pt-10">
+        <div className="flex flex-col">
+            <main className="flex-1 flex flex-col px-5">
                 <h1 className="text-2xl font-bold pb-6">{firstName}</h1>
                 <div className="grid grid-cols-2 gap-3 min-h-[170px] pb-12">
                     <div className="bg-secondary rounded-[7px]"></div>
