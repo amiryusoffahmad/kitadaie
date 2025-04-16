@@ -26,12 +26,18 @@ export default function DataList() {
                 ) : first_name ? (
                     <>Ahlan, {first_name}</>
                 ) : (
-                    'No name assigned'
+                    'Ahlan!'
                 )}
             </h1>
             {/* Uncomment to display EventCarousel */}
             {/* <EventCarousel /> */}
-
+            <Alert>
+                <Terminal className="h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                    The content of this application is strictly private and confidential; any breach of confidentiality will be treated with the utmost seriousness and may result in appropriate action.
+                </AlertDescription>
+            </Alert>
             {/* Profile Completion Section */}
             <div className="border border-amber-200 p-4 rounded-md bg-amber-50/50">
                 <div className="flex flex-col gap-2 mb-4">
@@ -154,13 +160,6 @@ export default function DataList() {
                 </div>
             </div>
 
-            <Alert>
-                <Terminal className="h-4 w-4" />
-                <AlertTitle>Heads up!</AlertTitle>
-                <AlertDescription>
-                    The content of this application is strictly private and confidential; any breach of confidentiality will be treated with the utmost seriousness and may result in appropriate action.
-                </AlertDescription>
-            </Alert>
             <Button
                 variant="destructive"
                 className="mt-2"
