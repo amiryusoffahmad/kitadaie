@@ -95,7 +95,7 @@ export default function EventCarousel() {
                 <CarouselContent className="-ml-2">
                     {events.map((event) => (
                         <CarouselItem key={event.id} className="pl-2 basis-[85%] md:basis-[80%]">
-                            <Card className="border shadow-sm hover:shadow transition-shadow duration-200">
+                            <Card className="border shadow-sm hover:shadow transition-shadow">
                                 <CardContent className="h-full flex flex-col">
                                     <div className="text-xs text-muted-foreground mb-1">
                                         {formatSimpleDate(event.start_date)}
@@ -116,8 +116,6 @@ export default function EventCarousel() {
                                     <p className="text-xs text-muted-foreground line-clamp-2 mt-auto">
                                         {event.description || "No description available"}
                                     </p>
-
-
                                 </CardContent>
                             </Card>
                         </CarouselItem>

@@ -3,7 +3,7 @@ description:
 globs: 
 alwaysApply: true
 ---
- # Kitadaie Application Standards
+# Kitadaie Application Standards
 
 You are an expert in Next.js App Router, React, Shadcn UI, Radix UI, Tailwind CSS, and MySQL with Knex.js.
 

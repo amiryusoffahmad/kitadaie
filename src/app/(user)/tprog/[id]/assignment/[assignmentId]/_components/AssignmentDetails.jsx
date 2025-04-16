@@ -15,6 +15,17 @@ import { useParams } from 'next/navigation'
 
 const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
 
+// Helper function to format dates
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear().toString().slice(-2);
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
 export default function AssignmentDetails({ params }) {
     const { data: session } = useSession()
     const queryClient = useQueryClient()
@@ -331,7 +342,7 @@ export default function AssignmentDetails({ params }) {
                 <CardHeader>
                     <CardTitle className="text-2xl">{assignment.title}</CardTitle>
                     <CardDescription className="flex items-center gap-2">
-                        <span>Due: {new Date(assignment.due_date).toLocaleString()}</span>
+                        <span>Due: {formatDate(assignment.due_date)}</span>
                         {getStatusBadge(isOverdue(assignment.due_date) ? 'overdue' : 'open')}
                     </CardDescription>
                 </CardHeader>
@@ -388,7 +399,7 @@ export default function AssignmentDetails({ params }) {
                                     <div className="flex-1">
                                         <h4 className="font-medium">{assignment.submission.fileName || 'Submission File'}</h4>
                                         <p className="text-sm text-muted-foreground mb-2">
-                                            Submitted on: {new Date(assignment.submission.submitted_at).toLocaleString()}
+                                            Submitted on: {formatDate(assignment.submission.submitted_at)}
                                         </p>
                                         <div className="flex flex-wrap gap-2">
                                             <Button

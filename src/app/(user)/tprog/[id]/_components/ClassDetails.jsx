@@ -12,6 +12,22 @@ import { useQuery } from '@tanstack/react-query'
 import { getClassDetails, getAssignments } from '@/app/api/tprog-api'
 import { useParams } from 'next/navigation'
 
+// Helper function to format dates
+function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    // Get day, month, year
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear().toString().slice(-2); // Get last two digits of year
+
+    // Get hours and minutes in 24h format
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+
 export default function ClassDetails({ params }) {
     const { data: session } = useSession()
     const routeParams = useParams()
@@ -114,7 +130,7 @@ export default function ClassDetails({ params }) {
                                     <div>
                                         <CardTitle>{assignment.title}</CardTitle>
                                         <CardDescription>
-                                            Due: {new Date(assignment.due_date).toLocaleString()}
+                                            Due: {formatDate(assignment.due_date)}
                                         </CardDescription>
                                     </div>
                                     {getStatusBadge(assignment.status)}

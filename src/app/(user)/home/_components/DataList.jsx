@@ -27,7 +27,8 @@ export default function DataList() {
                     'No name assigned'
                 )}
             </h1>
-            <EventCarousel />
+            {/* Uncomment to display EventCarousel */}
+            {/* <EventCarousel /> */}
             <Alert>
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
