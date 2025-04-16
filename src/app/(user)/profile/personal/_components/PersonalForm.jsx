@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { Info } from 'lucide-react'
 
 /**
  * @typedef {Object} PersonalFormData
@@ -166,7 +168,20 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="murobbi_id">Murobbi ID</Label>
+                    <span className="flex items-center gap-1">
+                        <Label htmlFor="murobbi_id">Murobbi ID</Label>
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                    <p>Ask your Murobbi, if he/she didn't have yet, ask he/she to register to this application</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </span>
+
                     <Input
                         id="murobbi_id"
                         value={formData.murobbi_id || ""}

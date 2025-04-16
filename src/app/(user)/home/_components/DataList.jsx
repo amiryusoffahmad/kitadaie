@@ -4,7 +4,7 @@ import { useSession } from '@/lib/auth-client'
 import { usePersonalData } from '@/app/api/profile/user-api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Terminal, LogOut, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle } from 'lucide-react'
+import { Terminal, LogOut, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle, Info } from 'lucide-react'
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -141,7 +141,9 @@ export default function DataList() {
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-amber-100">
                     <div className="text-sm flex items-center gap-1">
                         <AlertCircle className="h-4 w-4 text-amber-600" />
-                        <span>Your KitaDaie ID: </span>
+                        <span className="flex items-center gap-1">
+                            Your KitaDaie ID:
+                        </span>
                         <code className="px-1 py-0.5 bg-muted rounded text-xs font-mono">
                             {personalData?.username || 'Loading...'}
                         </code>
