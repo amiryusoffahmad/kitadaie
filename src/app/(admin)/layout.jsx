@@ -12,7 +12,21 @@ import { getRole } from "@/server/user/user.server"
 import AdminBreadcrumb from "@/components/admin-breadcrumb"
 import { Smartphone } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
+// Client component separated into its own component with its own 'use client' directive
+const AppButton = () => {
+    return (
+        <Button asChild className="gap-2">
+            <Link href="/home">
+                <Smartphone className="h-4 w-4" />
+                <span className="text-sm">Go to App</span>
+            </Link>
+        </Button>
+    )
+}
+
+// Make this a server component (no 'use client' directive)
 export default async function Layout({ children }) {
     const session = await auth.api.getSession(
         {
@@ -40,10 +54,7 @@ export default async function Layout({ children }) {
                         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
                         <AdminBreadcrumb />
                         <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
-                        <Button className="gap-2">
-                            <Smartphone className="h-4 w-4" />
-                            <span className="text-sm">Go to App</span>
-                        </Button>
+                        <AppButton />
                     </div>
                 </header>
                 <div>
