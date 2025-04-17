@@ -49,14 +49,14 @@ export const menuData = [
       },
     ],
   },
-  {
-    title: "Settings",
-    items: [
-      {
-        title: "Security",
-        href: "/profile/security",
-        icon: Icons.ShieldCheck,
-      },
-    ],
-  },
+  // {
+  //   title: "Settings",
+  //   items: [
+  //     {
+  //       title: "Security",
+  //       href: "/profile/security",
+  //       icon: Icons.ShieldCheck,
+  //     },
+  //   ],
+  // },
 ];
