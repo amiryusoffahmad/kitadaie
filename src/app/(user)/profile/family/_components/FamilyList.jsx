@@ -97,7 +97,7 @@ export default function FamilyList() {
             <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
                     <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col max-w-md items-start gap-3 px-4">
+                        <div className="container flex flex-col max-w-md items-start gap-3 ">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -110,7 +110,7 @@ export default function FamilyList() {
                             <h1 className="text-2xl font-bold">Family</h1>
                         </div>
                     </header>
-                    <main className="container max-w-md w-full px-4 py-4">
+                    <main className="container max-w-md w-full  py-4">
                         <div>Loading...</div>
                     </main>
                 </div>
@@ -127,7 +127,7 @@ export default function FamilyList() {
             <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
                     <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col max-w-md items-start gap-3 px-4">
+                        <div className="container flex flex-col max-w-md items-start gap-3 ">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -140,7 +140,7 @@ export default function FamilyList() {
                             <h1 className="text-2xl font-bold">Family</h1>
                         </div>
                     </header>
-                    <main className="container max-w-md w-full px-4 py-4">
+                    <main className="container max-w-md w-full  py-4">
                         <div className="p-4 text-red-500 border border-red-200 rounded-md bg-red-50">
                             {errorMessage}
                         </div>
@@ -156,7 +156,7 @@ export default function FamilyList() {
                 <div className="flex flex-col max-w-md mx-auto">
                     <div className="flex flex-col items-center w-full">
                         <header className="bg-background w-full flex justify-center">
-                            <div className="container flex flex-col max-w-md items-start gap-3 px-4">
+                            <div className="container flex flex-col max-w-md items-start gap-3 ">
                                 <Button
                                     variant="ghost"
                                     className="p-0"
@@ -172,7 +172,7 @@ export default function FamilyList() {
                             </div>
                         </header>
 
-                        <main className="container max-w-md w-full px-4 py-4">
+                        <main className="container max-w-md w-full  py-4">
                             <FamilyForm
                                 initialData={currentFamily}
                                 onSubmit={handleSubmit}
@@ -191,7 +191,7 @@ export default function FamilyList() {
             <div className="flex flex-col max-w-md mx-auto">
                 <div className="flex flex-col items-center w-full">
                     <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col max-w-md items-start gap-3 px-4">
+                        <div className="container flex flex-col max-w-md items-start gap-3 ">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -210,7 +210,7 @@ export default function FamilyList() {
                         </div>
                     </header>
 
-                    <main className="container max-w-md w-full px-4 py-4">
+                    <main className="container max-w-md w-full  py-4">
                         {(!familyData || familyData.length === 0) ? (
                             <div className="p-4 text-gray-500 border border-gray-200 rounded-md bg-gray-50 text-center">
                                 No family members found. Click "Add" to add your family members.
