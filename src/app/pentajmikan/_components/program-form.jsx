@@ -61,7 +61,8 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
     useEffect(() => {
         console.log('Initializing program form with data:', {
             image_url: initialData?.image_url,
-            image_id: initialData?.image_id
+            image_id: initialData?.image_id,
+            date: initialData?.date
         });
 
         if (initialData?.image_url) {
@@ -79,7 +80,36 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
             // Initialize participants from initialData
             setParticipants(initialData.participants || []);
         }
-    }, [initialData]);
+
+        // Format date for datetime-local input if it exists
+        if (initialData?.date) {
+            try {
+                // Create a date object from the initialData date
+                const date = new Date(initialData.date);
+
+                // Check if it's a valid date
+                if (!isNaN(date.getTime())) {
+                    // Format the date to the format required by datetime-local input: YYYY-MM-DDThh:mm
+                    // This ensures the date is in local timezone and properly formatted
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const hours = String(date.getHours()).padStart(2, '0');
+                    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+                    const formattedDate = `${year}-${month}-${day}T${hours}:${minutes}`;
+                    console.log('Setting date input value to:', formattedDate);
+
+                    // Set the value in the form
+                    setValue('date', formattedDate);
+                } else {
+                    console.error('Invalid date received:', initialData.date);
+                }
+            } catch (error) {
+                console.error('Error formatting date:', error);
+            }
+        }
+    }, [initialData, setValue]);
 
     // Handle image selection
     const handleImageChange = (e) => {
