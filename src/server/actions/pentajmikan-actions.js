@@ -79,7 +79,36 @@ export async function getAllPentajmikan() {
     }
 
     const programs = await PentajmikanModel.getAll();
-    return { success: true, data: programs };
+
+    // Process programs to include image URLs
+    const processedPrograms = await Promise.all(
+      programs.map(async (program) => {
+        // If there's an image_id, fetch detailed image information
+        let imageUrl = null;
+        if (program.image_id) {
+          try {
+            const imageInfo = await db("uploads")
+              .where({ id: program.image_id })
+              .first();
+            if (imageInfo) {
+              imageUrl = imageInfo.path;
+            }
+          } catch (imageError) {
+            console.error(
+              `Error fetching image details for program ${program.id}:`,
+              imageError
+            );
+          }
+        }
+
+        return {
+          ...program,
+          image_url: imageUrl,
+        };
+      })
+    );
+
+    return { success: true, data: processedPrograms };
   } catch (error) {
     console.error("Error fetching pentajmikan programs:", error);
     return {

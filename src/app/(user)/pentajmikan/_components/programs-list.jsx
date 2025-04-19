@@ -72,16 +72,25 @@ export default function ProgramsList() {
                     <div className="relative h-48 w-full bg-gray-100">
                         {program.image_id ? (
                             <Image
-                                src={`/uploads/${program.image_id}`}
+                                src={program.image_url || `/uploads/${program.image_id}`}
                                 alt={program.name}
                                 fill
+                                priority
                                 className="object-cover"
+                                onError={(e) => {
+                                    console.error('Image failed to load:', e);
+                                    e.target.style.display = 'none';
+                                    e.target.nextSibling.style.display = 'flex';
+                                }}
                             />
                         ) : (
                             <div className="flex h-full w-full items-center justify-center">
                                 <p className="text-muted-foreground">No image</p>
                             </div>
                         )}
+                        <div className="hidden flex h-full w-full items-center justify-center">
+                            <p className="text-muted-foreground">Image not available</p>
+                        </div>
                     </div>
 
                     <CardHeader className="pb-2">
