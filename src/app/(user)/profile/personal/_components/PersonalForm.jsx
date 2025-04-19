@@ -176,7 +176,7 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
                                     <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                                 </TooltipTrigger>
                                 <TooltipContent className="max-w-xs">
-                                    <p>Ask your Murobbi, if he/she didn't have yet, ask he/she to register to this application</p>
+                                    <p>Enter your Murobbi's ID or username here. If your Murobbi doesn't have an account yet, ask them to register. Your Murobbi will be able to see your profile in their HQ Tree.</p>
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
@@ -189,6 +189,7 @@ export default function PersonalForm({ initialData, onSubmit, onCancel, isSubmit
                             setFormData((prev) => ({ ...prev, murobbi_id: e.target.value }))
                         }
                         disabled={isSubmitting}
+                        placeholder="Enter your Murobbi's ID or username"
                     />
                 </div>
 

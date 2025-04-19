@@ -38,8 +38,8 @@ import { useRouter } from "next/navigation"
 export default function UpdateDrawer() {
     const router = useRouter()
 
-    const handleNavigate = () => {
-        router.push('/coming-soon')
+    const handleNavigate = (path) => {
+        router.push(path || '/coming-soon')
     }
 
     return (
@@ -58,7 +58,7 @@ export default function UpdateDrawer() {
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate('/hq-tree')}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -69,7 +69,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -80,7 +80,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -91,7 +91,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -102,7 +102,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -113,7 +113,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -133,7 +133,7 @@ export default function UpdateDrawer() {
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -144,7 +144,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -155,7 +155,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -166,7 +166,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -177,7 +177,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -188,7 +188,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={handleNavigate}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
