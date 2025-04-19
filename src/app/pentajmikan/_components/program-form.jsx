@@ -134,7 +134,7 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
     const handleSearch = async (query) => {
         setSearchQuery(query);
 
-        if (query.length < 2) {
+        if (!query || query.length < 2) {
             setSearchResults([]);
             return;
         }
@@ -145,14 +145,10 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
 
             try {
                 results = await searchUsers(query);
+                // Ensure results is an array
+                results = Array.isArray(results) ? results : [];
             } catch (searchError) {
                 console.error('Error calling searchUsers:', searchError);
-                results = [];
-            }
-
-            // Ensure results is always an array
-            if (!results || !Array.isArray(results)) {
-                console.error('Search results is not an array:', results);
                 results = [];
             }
 
@@ -474,79 +470,118 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
                     <div className="space-y-4">
                         <Label>Participants</Label>
 
-                        {/* Search/Add Participant */}
-                        <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    aria-expanded={openCombobox}
-                                    className="w-full justify-between"
-                                >
-                                    Search for participants
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-full p-0" align="start">
-                                <Command>
-                                    <CommandInput
-                                        placeholder="Search users..."
+                        {/* Custom Search Implementation */}
+                        <div className="relative">
+                            <div className="flex gap-2">
+                                <div className="relative flex-grow">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search for participants"
                                         value={searchQuery}
-                                        onValueChange={handleSearch}
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            setSearchQuery(value);
+
+                                            if (!value || value.length < 2) {
+                                                setSearchResults([]);
+                                                setOpenCombobox(false);
+                                                return;
+                                            }
+
+                                            setOpenCombobox(true);
+                                            handleSearch(value);
+                                        }}
+                                        className="w-full"
                                     />
-                                    {isSearching && (
-                                        <div className="flex items-center justify-center py-6">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
-                                            <span className="ml-2 text-sm">Searching...</span>
-                                        </div>
-                                    )}
-                                    {!isSearching && (
-                                        <>
-                                            <CommandEmpty>No users found.</CommandEmpty>
-                                            <CommandGroup>
-                                                {searchQuery.length < 2 ? (
-                                                    <div className="py-6 px-4 text-sm text-center text-muted-foreground">
-                                                        Type at least 2 characters to search...
-                                                    </div>
-                                                ) : Array.isArray(searchResults) && searchResults.length > 0 ? (
-                                                    searchResults.map((user) => (
-                                                        <CommandItem
-                                                            key={user.id}
-                                                            value={user.id.toString()}
-                                                            onSelect={() => {
-                                                                addParticipant(user);
-                                                                setOpenCombobox(false);
-                                                            }}
-                                                        >
-                                                            <div className="flex items-center">
-                                                                {user.avatar && (
-                                                                    <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                                                                        <Image
-                                                                            src={user.avatar}
-                                                                            alt={user.name}
-                                                                            width={24}
-                                                                            height={24}
-                                                                        />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        className="absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
+                                        onClick={() => setOpenCombobox(!openCombobox)}
+                                    >
+                                        <ChevronsUpDown className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setSearchResults([]);
+                                        setOpenCombobox(false);
+                                    }}
+                                >
+                                    Clear
+                                </Button>
+                            </div>
+
+                            {/* Results dropdown */}
+                            {openCombobox && (
+                                <div className="absolute z-10 mt-1 w-full rounded-md border border-input bg-popover shadow-md">
+                                    <div className="max-h-60 overflow-auto p-1">
+                                        {isSearching ? (
+                                            <div className="flex items-center justify-center py-6">
+                                                <Loader2 className="h-4 w-4 animate-spin" />
+                                                <span className="ml-2 text-sm">Searching...</span>
+                                            </div>
+                                        ) : searchQuery.length < 2 ? (
+                                            <div className="py-6 px-4 text-sm text-center text-muted-foreground">
+                                                Type at least 2 characters to search...
+                                            </div>
+                                        ) : Array.isArray(searchResults) && searchResults.length > 0 ? (
+                                            <div className="py-1">
+                                                {searchResults.map((user) => (
+                                                    <div
+                                                        key={user.id}
+                                                        className="flex items-center px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-accent"
+                                                        onClick={() => {
+                                                            addParticipant(user);
+                                                            setOpenCombobox(false);
+                                                            setSearchQuery('');
+                                                        }}
+                                                    >
+                                                        {user.avatar ? (
+                                                            <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
+                                                                {user.avatar.startsWith('data:') ||
+                                                                    user.avatar.startsWith('/') ? (
+                                                                    <Image
+                                                                        src={user.avatar}
+                                                                        alt={user.name}
+                                                                        width={24}
+                                                                        height={24}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
+                                                                        <span className="text-xs font-medium">
+                                                                            {user.name ? user.name.substring(0, 2).toUpperCase() : '??'}
+                                                                        </span>
                                                                     </div>
                                                                 )}
-                                                                <span>{user.name}</span>
-                                                                <span className="ml-2 text-xs text-muted-foreground">
-                                                                    {user.email}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center mr-2">
+                                                                <span className="text-xs font-medium">
+                                                                    {user.name ? user.name.substring(0, 2).toUpperCase() : '??'}
                                                                 </span>
                                                             </div>
-                                                        </CommandItem>
-                                                    ))
-                                                ) : (
-                                                    <div className="py-6 px-4 text-sm text-center text-muted-foreground">
-                                                        No matching users found
+                                                        )}
+                                                        <span>{user.name}</span>
+                                                        <span className="ml-2 text-xs text-muted-foreground">
+                                                            {user.email}
+                                                        </span>
                                                     </div>
-                                                )}
-                                            </CommandGroup>
-                                        </>
-                                    )}
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="py-6 px-4 text-sm text-center text-muted-foreground">
+                                                No matching users found
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
 
                         {/* Selected Participants */}
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -555,6 +590,21 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
                             ) : (
                                 participants.map((participant) => (
                                     <Badge key={participant.id} variant="secondary" className="flex items-center gap-1">
+                                        {participant.avatar && participant.avatar.startsWith('/') ? (
+                                            <div className="w-4 h-4 rounded-full overflow-hidden mr-1">
+                                                <Image
+                                                    src={participant.avatar}
+                                                    alt={participant.name}
+                                                    width={16}
+                                                    height={16}
+                                                    className="object-cover"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <span className="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-[10px] text-primary-foreground mr-1">
+                                                {participant.name ? participant.name.substring(0, 2).toUpperCase() : '??'}
+                                            </span>
+                                        )}
                                         {participant.name}
                                         <Button
                                             type="button"
