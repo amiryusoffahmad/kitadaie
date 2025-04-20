@@ -69,6 +69,28 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
+                                    onClick={() => handleNavigate('/pentajmikan')}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
+                                        <Calendar className="h-5 w-5 text-blue-600" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">Pentajmikan</span>
+                                </Button>
+
+                                <Button
+                                    onClick={() => handleNavigate()}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
+                                        <Building className="h-5 w-5 text-blue-600" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">Binaan</span>
+                                </Button>
+
+                                <Button
                                     onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
@@ -90,27 +112,7 @@ export default function UpdateDrawer() {
                                     <span className="text-xs truncate w-full text-center">Our Experts</span>
                                 </Button>
 
-                                <Button
-                                    onClick={() => handleNavigate()}
-                                    variant="outline"
-                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
-                                >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Calendar className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <span className="text-xs truncate w-full text-center">Pentajmikan</span>
-                                </Button>
 
-                                <Button
-                                    onClick={() => handleNavigate()}
-                                    variant="outline"
-                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
-                                >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Building className="h-5 w-5 text-blue-600" />
-                                    </div>
-                                    <span className="text-xs truncate w-full text-center">Binaan</span>
-                                </Button>
 
                                 <Button
                                     onClick={() => handleNavigate()}
