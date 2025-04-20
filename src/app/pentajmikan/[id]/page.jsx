@@ -77,7 +77,8 @@ export default function ProgramDetailsPage() {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                 </Link>
-                <h1 className="text-3xl font-bold tracking-tight">{program.name}</h1>
+
+                <h1 className="text-2xl font-bold tracking-tight">{program.name}</h1>
             </div>
 
             <div className="flex flex-col gap-6">
@@ -113,14 +114,14 @@ export default function ProgramDetailsPage() {
                     {/* Program Details */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Program Details</CardTitle>
+                            <CardTitle className="text-xl">Program Details</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             {program.description && (
                                 <>
                                     <div>
-                                        <h3 className="font-medium mb-2">Description</h3>
-                                        <p className="text-muted-foreground">{program.description}</p>
+                                        <h3 className="text-md font-medium mb-2">Description</h3>
+                                        <p className="text-sm text-muted-foreground">{program.description}</p>
                                     </div>
                                     <Separator />
                                 </>
@@ -128,42 +129,42 @@ export default function ProgramDetailsPage() {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <h3 className="font-medium mb-2 flex items-center">
+                                    <h3 className="text-md font-medium mb-2 flex items-center">
                                         <Calendar className="h-4 w-4 mr-2" />
                                         Date and Time
                                     </h3>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground">
                                         {format(new Date(program.date), 'PPP')}
                                     </p>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground">
                                         {format(new Date(program.date), 'p')}
                                     </p>
                                 </div>
 
                                 <div>
-                                    <h3 className="font-medium mb-2 flex items-center">
+                                    <h3 className="text-md font-medium mb-2 flex items-center">
                                         <Users className="h-4 w-4 mr-2" />
                                         Participants
                                     </h3>
-                                    <p className="text-muted-foreground">
+                                    <p className="text-sm text-muted-foreground">
                                         {program.total_participants} total participants
                                     </p>
                                 </div>
 
                                 {program.niche && (
                                     <div>
-                                        <h3 className="font-medium mb-2 flex items-center">
+                                        <h3 className="text-md font-medium mb-2 flex items-center">
                                             <Tag className="h-4 w-4 mr-2" />
                                             Niche/Category
                                         </h3>
-                                        <Badge variant="outline">{program.niche}</Badge>
+                                        <Badge variant="outline" className="text-sm">{program.niche}</Badge>
                                     </div>
                                 )}
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-end gap-2">
+                        <CardFooter className="grid grid-cols-2 gap-2">
                             <Link href={`/pentajmikan/${program.id}/edit`}>
-                                <Button variant="outline">
+                                <Button variant="outline" className="w-full">
                                     <Edit className="h-4 w-4 mr-2" />
                                     Edit Program
                                 </Button>
@@ -210,7 +211,7 @@ export default function ProgramDetailsPage() {
                     {/* Participants Card */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Participants</CardTitle>
+                            <CardTitle className="text-xl">Participants</CardTitle>
                             <CardDescription>
                                 People involved in this program
                             </CardDescription>
