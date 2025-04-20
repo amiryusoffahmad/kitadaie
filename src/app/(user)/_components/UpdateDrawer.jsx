@@ -98,7 +98,7 @@ export default function UpdateDrawer() {
                                     <div className="bg-blue-100 p-3 rounded-md mb-2">
                                         <BookOpen className="h-5 w-5 text-blue-600" />
                                     </div>
-                                    <span className="text-xs truncate w-full text-center">Resources</span>
+                                    <span className="text-xs truncate w-full text-center">Resource</span>
                                 </Button>
 
                                 <Button
