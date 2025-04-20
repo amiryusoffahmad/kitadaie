@@ -31,22 +31,42 @@ async function parseFormData(request) {
  */
 export async function POST(request) {
   try {
+    console.log("[UPLOAD API] Processing upload request");
+
     // Get the authenticated user from the auth API with headers
     const session = await auth.api.getSession({
       headers: headers(),
     });
 
     if (!session?.user) {
+      console.log("[UPLOAD API] Unauthorized - no user session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse multipart form data
     const { file, metadata } = await parseFormData(request);
+    console.log("[UPLOAD API] File info:", {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      metadata,
+    });
 
-    // Check if file is a PDF
-    if (file.type !== "application/pdf") {
+    // Accept PDFs and images
+    const allowedTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/jpg",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      console.log("[UPLOAD API] Invalid file type:", file.type);
       return NextResponse.json(
-        { error: "Only PDF files are allowed" },
+        {
+          error: `Only PDF and image files are allowed. Received: ${file.type}`,
+        },
         { status: 400 }
       );
     }
@@ -66,8 +86,11 @@ export async function POST(request) {
       user_id: session.user.id,
     };
 
+    console.log("[UPLOAD API] Saving file with metadata:", uploadMetadata);
+
     // Save file and create database record
     const upload = await UploadService.saveFile(fileData, uploadMetadata);
+    console.log("[UPLOAD API] File saved successfully:", upload.id);
 
     return NextResponse.json({
       success: true,
@@ -80,7 +103,7 @@ export async function POST(request) {
       },
     });
   } catch (error) {
-    console.error("File upload error:", error);
+    console.error("[UPLOAD API] File upload error:", error);
     return NextResponse.json(
       { error: error.message || "Failed to upload file" },
       { status: 500 }

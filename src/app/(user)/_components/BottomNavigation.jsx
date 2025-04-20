@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Home, History, CirclePlus, Inbox, User } from "lucide-react";
+import { Home, History, CirclePlus, Mail, MailOpen, User } from "lucide-react";
 import UpdateDrawer from "./UpdateDrawer";
 import { useSession } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
 import { usePersonalData } from "@/app/api/profile/user-api";
+import { useNotifications } from "@/providers/notification-provider";
+import { Badge } from "@/components/ui/badge";
 
 export default function MobileNav() {
     const { data: session } = useSession();
     const [userInfo, setUserInfo] = useState({ username: "", email: "" });
+    const { unreadCount } = useNotifications();
 
     // Fetch user data from API using the user ID from session
     const { data: personalData, isLoading } = usePersonalData(session?.user?.id);
@@ -52,8 +55,22 @@ export default function MobileNav() {
 
                         <UpdateDrawer />
 
-                        <Link href="/inbox" className="flex flex-col items-center gap-1">
-                            <Inbox size={23} />
+                        <Link href="/user/notifications" className="flex flex-col items-center gap-1 relative">
+                            <div className="relative">
+                                {unreadCount > 0 ? (
+                                    <Mail size={23} />
+                                ) : (
+                                    <MailOpen size={23} />
+                                )}
+                                {unreadCount > 0 && (
+                                    <Badge
+                                        variant="destructive"
+                                        className="absolute -top-2 -right-2 px-1 min-w-4 h-4 text-[10px] flex items-center justify-center"
+                                    >
+                                        {unreadCount > 99 ? "99+" : unreadCount}
+                                    </Badge>
+                                )}
+                            </div>
                             <span className="text-xs">Inbox</span>
                         </Link>
 

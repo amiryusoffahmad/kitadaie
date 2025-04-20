@@ -559,13 +559,31 @@ export async function getStudentClasses(studentId) {
     );
 
     // Verify that the current user is an advisor of the student
-    const students = await tprogData.getAdvisorStudents(username);
-    console.log("[SERVER ACTION] Found students for advisor:", students.length);
+    const advisorStudents = await tprogData.getAdvisorStudents(username);
+    console.log(
+      "[SERVER ACTION] Found students for advisor:",
+      advisorStudents.length
+    );
 
-    const isAdvisor = students.some((student) => student.id === studentId);
+    const isAdvisor = advisorStudents.some(
+      (student) => student.id === studentId
+    );
     console.log("[SERVER ACTION] Is advisor of this student:", isAdvisor);
 
-    if (!isAdvisor) {
+    // Also check if the current user is a Murobbi for the student
+    const murobbiStudents = await tprogData.getMurobbiStudents(username);
+    console.log(
+      "[SERVER ACTION] Found students for murobbi:",
+      murobbiStudents.length
+    );
+
+    const isMurobbi = murobbiStudents.some(
+      (student) => student.id === studentId
+    );
+    console.log("[SERVER ACTION] Is murobbi of this student:", isMurobbi);
+
+    // Allow access if the user is either an advisor or a murobbi of the student
+    if (!isAdvisor && !isMurobbi) {
       throw new Error(
         "You are not authorized to view this student's information"
       );
@@ -594,10 +612,21 @@ export async function getStudentAssignments(studentId, classId) {
     );
 
     // Verify that the current user is an advisor of the student
-    const students = await tprogData.getAdvisorStudents(username);
-    const isAdvisor = students.some((student) => student.id === studentId);
+    const advisorStudents = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = advisorStudents.some(
+      (student) => student.id === studentId
+    );
+    console.log("[SERVER ACTION] Is advisor of this student:", isAdvisor);
 
-    if (!isAdvisor) {
+    // Also check if the current user is a Murobbi for the student
+    const murobbiStudents = await tprogData.getMurobbiStudents(username);
+    const isMurobbi = murobbiStudents.some(
+      (student) => student.id === studentId
+    );
+    console.log("[SERVER ACTION] Is murobbi of this student:", isMurobbi);
+
+    // Allow access if the user is either an advisor or a murobbi of the student
+    if (!isAdvisor && !isMurobbi) {
       throw new Error(
         "You are not authorized to view this student's information"
       );
@@ -632,10 +661,21 @@ export async function getStudentAssignmentDetails(assignmentId, studentId) {
     );
 
     // Verify that the current user is an advisor of the student
-    const students = await tprogData.getAdvisorStudents(username);
-    const isAdvisor = students.some((student) => student.id === studentId);
+    const advisorStudents = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = advisorStudents.some(
+      (student) => student.id === studentId
+    );
+    console.log("[SERVER ACTION] Is advisor of this student:", isAdvisor);
 
-    if (!isAdvisor) {
+    // Also check if the current user is a Murobbi for the student
+    const murobbiStudents = await tprogData.getMurobbiStudents(username);
+    const isMurobbi = murobbiStudents.some(
+      (student) => student.id === studentId
+    );
+    console.log("[SERVER ACTION] Is murobbi of this student:", isMurobbi);
+
+    // Allow access if the user is either an advisor or a murobbi of the student
+    if (!isAdvisor && !isMurobbi) {
       throw new Error(
         "You are not authorized to view this student's information"
       );
@@ -679,12 +719,21 @@ export async function updateSubmissionStatus(submissionId, status, comments) {
     );
 
     // Verify that the current user is an advisor of the student who made the submission
-    const students = await tprogData.getAdvisorStudents(username);
-    const isAdvisor = students.some(
+    const advisorStudents = await tprogData.getAdvisorStudents(username);
+    const isAdvisor = advisorStudents.some(
       (student) => student.id === submission.user_id
     );
+    console.log("[SERVER ACTION] Is advisor of this student:", isAdvisor);
 
-    if (!isAdvisor) {
+    // Also check if the current user is a Murobbi for the student
+    const murobbiStudents = await tprogData.getMurobbiStudents(username);
+    const isMurobbi = murobbiStudents.some(
+      (student) => student.id === submission.user_id
+    );
+    console.log("[SERVER ACTION] Is murobbi of this student:", isMurobbi);
+
+    // Allow access if the user is either an advisor or a murobbi of the student
+    if (!isAdvisor && !isMurobbi) {
       throw new Error("You are not authorized to update this submission");
     }
 
