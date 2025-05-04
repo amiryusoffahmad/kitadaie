@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 let actions;
 
@@ -70,5 +70,211 @@ export function useUserProfile(userId) {
       return response.data;
     },
     enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to get all HQs created by the current user
+ */
+export function useUserHQs() {
+  return useQuery({
+    queryKey: ["userHQs"],
+    queryFn: async () => {
+      console.log("[HQ TREE API] Fetching user HQs...");
+      const actions = await getActions();
+      const response = await actions.getUserHQs();
+
+      if (!response.success) {
+        console.error("[HQ TREE API] Error in response:", response.message);
+        throw new Error(response.message || "Failed to fetch HQs");
+      }
+
+      return response.data;
+    },
+    refetchOnWindowFocus: false,
+  });
+}
+
+/**
+ * Hook to get all users assigned to a specific HQ
+ */
+export function useHQAssignments(hqId) {
+  return useQuery({
+    queryKey: ["hqAssignments", hqId],
+    queryFn: async () => {
+      if (!hqId) return [];
+
+      console.log("[HQ TREE API] Fetching HQ assignments for ID:", hqId);
+      const actions = await getActions();
+      const response = await actions.getHQAssignments(hqId);
+
+      if (!response.success) {
+        console.error("[HQ TREE API] Error in response:", response.message);
+        throw new Error(response.message || "Failed to fetch HQ assignments");
+      }
+
+      return response.data;
+    },
+    enabled: !!hqId,
+  });
+}
+
+/**
+ * Hook to create a new HQ
+ */
+export function useCreateHQ() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (name) => {
+      console.log("[HQ TREE API] Creating new HQ:", name);
+      const actions = await getActions();
+      const response = await actions.createHQ(name);
+
+      if (!response.success) {
+        console.error("[HQ TREE API] Error creating HQ:", response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("HQ created successfully");
+      // Invalidate the userHQs query to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["userHQs"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to create HQ");
+    },
+  });
+}
+
+/**
+ * Hook to update an existing HQ
+ */
+export function useUpdateHQ() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, name }) => {
+      console.log("[HQ TREE API] Updating HQ:", id, name);
+      const actions = await getActions();
+      const response = await actions.updateHQ(id, name);
+
+      if (!response.success) {
+        console.error("[HQ TREE API] Error updating HQ:", response.message);
+        throw new Error(response.message);
+      }
+
+      return response.data;
+    },
+    onSuccess: () => {
+      toast.success("HQ updated successfully");
+      // Invalidate the userHQs query to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["userHQs"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update HQ");
+    },
+  });
+}
+
+/**
+ * Hook to delete an HQ
+ */
+export function useDeleteHQ() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id) => {
+      console.log("[HQ TREE API] Deleting HQ:", id);
+      const actions = await getActions();
+      const response = await actions.deleteHQ(id);
+
+      if (!response.success) {
+        console.error("[HQ TREE API] Error deleting HQ:", response.message);
+        throw new Error(response.message);
+      }
+
+      return response;
+    },
+    onSuccess: () => {
+      toast.success("HQ deleted successfully");
+      // Invalidate the userHQs query to refetch the data
+      queryClient.invalidateQueries({ queryKey: ["userHQs"] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete HQ");
+    },
+  });
+}
+
+/**
+ * Hook to assign a user to an HQ
+ */
+export function useAssignUserToHQ() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ hqId, userUsername }) => {
+      console.log("[HQ TREE API] Assigning user to HQ:", hqId, userUsername);
+      const actions = await getActions();
+      const response = await actions.assignUserToHQ(hqId, userUsername);
+
+      if (!response.success) {
+        console.error(
+          "[HQ TREE API] Error assigning user to HQ:",
+          response.message
+        );
+        throw new Error(response.message);
+      }
+
+      return response;
+    },
+    onSuccess: (_, variables) => {
+      toast.success("User assigned to HQ successfully");
+      // Invalidate the hqAssignments query to refetch the data
+      queryClient.invalidateQueries({
+        queryKey: ["hqAssignments", variables.hqId],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to assign user to HQ");
+    },
+  });
+}
+
+/**
+ * Hook to remove a user from an HQ
+ */
+export function useRemoveUserFromHQ() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ hqId, userUsername }) => {
+      console.log("[HQ TREE API] Removing user from HQ:", hqId, userUsername);
+      const actions = await getActions();
+      const response = await actions.removeUserFromHQ(hqId, userUsername);
+
+      if (!response.success) {
+        console.error(
+          "[HQ TREE API] Error removing user from HQ:",
+          response.message
+        );
+        throw new Error(response.message);
+      }
+
+      return response;
+    },
+    onSuccess: (_, variables) => {
+      toast.success("User removed from HQ successfully");
+      // Invalidate the hqAssignments query to refetch the data
+      queryClient.invalidateQueries({
+        queryKey: ["hqAssignments", variables.hqId],
+      });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to remove user from HQ");
+    },
   });
 }

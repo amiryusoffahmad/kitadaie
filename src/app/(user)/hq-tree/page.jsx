@@ -1,12 +1,46 @@
-'use client';
+import { Suspense } from 'react';
+import { HQManagement } from './_components/hq-management';
+import { Skeleton } from '@/components/ui/skeleton';
 
-import HQTreeView from './_components/hq-tree-view';
+export const metadata = {
+    title: 'HQ Tree',
+};
 
 export default function HQTreePage() {
     return (
-        <div className="container mx-auto py-6">
-            <h1 className="text-3xl font-bold tracking-tight mb-6">HQ Tree</h1>
-            <HQTreeView />
+        <div className="container py-6 space-y-6">
+            <h1 className="text-2xl font-bold tracking-tight">HQ Tree Management</h1>
+
+            <Suspense fallback={<HQTreeSkeleton />}>
+                <HQManagement />
+            </Suspense>
+        </div>
+    );
+}
+
+function HQTreeSkeleton() {
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-4 w-1/4" />
+            </div>
+            <div className="rounded-md border p-6 space-y-4">
+                <Skeleton className="h-6 w-1/2" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                </div>
+            </div>
+            <div className="rounded-md border p-6 space-y-4 mt-4">
+                <Skeleton className="h-6 w-1/2" />
+                <div className="space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                </div>
+            </div>
         </div>
     );
 } 
