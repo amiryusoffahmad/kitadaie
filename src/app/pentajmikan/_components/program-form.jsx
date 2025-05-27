@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useCreatePentajmikan, useUpdatePentajmikan, searchUsers } from '@/app/api/pentajmikan-api'
+import { useCreatePentajmikan, useUpdatePentajmikan } from '@/app/api/pentajmikan-api'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -16,31 +16,12 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-} from '@/components/ui/command'
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
-import { Check, ChevronsUpDown, Loader2, Upload, X } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
+import { Loader2, Upload, X } from 'lucide-react'
 import Image from 'next/image'
 
 export default function ProgramForm({ initialData, onSuccess, isEdit = false }) {
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(initialData?.image_url || null);
-    const [participants, setParticipants] = useState(initialData?.participants || []);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [openCombobox, setOpenCombobox] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     // Use the appropriate mutation
@@ -76,10 +57,7 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
             setImagePreview(imagePath);
         }
 
-        if (initialData?.participants) {
-            // Initialize participants from initialData
-            setParticipants(initialData.participants || []);
-        }
+
 
         // Format date for datetime-local input if it exists
         if (initialData?.date) {
@@ -130,54 +108,7 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
         setImagePreview(null);
     };
 
-    // Handle participant search
-    const handleSearch = async (query) => {
-        setSearchQuery(query);
 
-        if (!query || query.length < 2) {
-            setSearchResults([]);
-            return;
-        }
-
-        try {
-            setIsSearching(true);
-            let results = [];
-
-            try {
-                results = await searchUsers(query);
-                // Ensure results is an array
-                results = Array.isArray(results) ? results : [];
-            } catch (searchError) {
-                console.error('Error calling searchUsers:', searchError);
-                results = [];
-            }
-
-            // Filter out already selected participants
-            const filteredResults = results.filter(
-                (user) => !participants.some((p) => p.id === user.id)
-            );
-
-            setSearchResults(filteredResults);
-        } catch (error) {
-            console.error('Error in search handling:', error);
-            toast.error('Failed to search users');
-            setSearchResults([]);
-        } finally {
-            setIsSearching(false);
-        }
-    };
-
-    // Add a participant
-    const addParticipant = (user) => {
-        setParticipants((prev) => [...prev, user]);
-        setSearchResults([]);
-        setSearchQuery('');
-    };
-
-    // Remove a participant
-    const removeParticipant = (userId) => {
-        setParticipants((prev) => prev.filter((p) => p.id !== userId));
-    };
 
     // Upload image
     const uploadImage = async () => {
@@ -270,8 +201,7 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
             // Prepare form data
             const formData = {
                 ...data,
-                image_id: imageId, // Use uploaded image id or existing one
-                participants: participants.map(p => p.id)
+                image_id: imageId // Use uploaded image id or existing one
             };
 
             console.log('Submitting form data:', formData);
@@ -466,160 +396,7 @@ export default function ProgramForm({ initialData, onSuccess, isEdit = false }) 
                         />
                     </div>
 
-                    {/* Participants Selection */}
-                    <div className="space-y-4">
-                        <Label>Participants</Label>
 
-                        {/* Custom Search Implementation */}
-                        <div className="relative">
-                            <div className="flex gap-2">
-                                <div className="relative flex-grow">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search for participants"
-                                        value={searchQuery}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-                                            setSearchQuery(value);
-
-                                            if (!value || value.length < 2) {
-                                                setSearchResults([]);
-                                                setOpenCombobox(false);
-                                                return;
-                                            }
-
-                                            setOpenCombobox(true);
-                                            handleSearch(value);
-                                        }}
-                                        className="w-full"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        className="absolute right-2 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"
-                                        onClick={() => setOpenCombobox(!openCombobox)}
-                                    >
-                                        <ChevronsUpDown className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => {
-                                        setSearchQuery('');
-                                        setSearchResults([]);
-                                        setOpenCombobox(false);
-                                    }}
-                                >
-                                    Clear
-                                </Button>
-                            </div>
-
-                            {/* Results dropdown */}
-                            {openCombobox && (
-                                <div className="absolute z-10 mt-1 w-full rounded-md border border-input bg-popover shadow-md">
-                                    <div className="max-h-60 overflow-auto p-1">
-                                        {isSearching ? (
-                                            <div className="flex items-center justify-center py-6">
-                                                <Loader2 className="h-4 w-4 animate-spin" />
-                                                <span className="ml-2 text-sm">Searching...</span>
-                                            </div>
-                                        ) : searchQuery.length < 2 ? (
-                                            <div className="py-6 px-4 text-sm text-center text-muted-foreground">
-                                                Type at least 2 characters to search...
-                                            </div>
-                                        ) : Array.isArray(searchResults) && searchResults.length > 0 ? (
-                                            <div className="py-1">
-                                                {searchResults.map((user) => (
-                                                    <div
-                                                        key={user.id}
-                                                        className="flex items-center px-2 py-1.5 text-sm rounded cursor-pointer hover:bg-accent"
-                                                        onClick={() => {
-                                                            addParticipant(user);
-                                                            setOpenCombobox(false);
-                                                            setSearchQuery('');
-                                                        }}
-                                                    >
-                                                        {user.avatar ? (
-                                                            <div className="w-6 h-6 rounded-full overflow-hidden mr-2">
-                                                                {user.avatar.startsWith('data:') ||
-                                                                    user.avatar.startsWith('/') ? (
-                                                                    <Image
-                                                                        src={user.avatar}
-                                                                        alt={user.name}
-                                                                        width={24}
-                                                                        height={24}
-                                                                    />
-                                                                ) : (
-                                                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-primary-foreground">
-                                                                        <span className="text-xs font-medium">
-                                                                            {user.name ? user.name.substring(0, 2).toUpperCase() : '??'}
-                                                                        </span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        ) : (
-                                                            <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center mr-2">
-                                                                <span className="text-xs font-medium">
-                                                                    {user.name ? user.name.substring(0, 2).toUpperCase() : '??'}
-                                                                </span>
-                                                            </div>
-                                                        )}
-                                                        <span>{user.name}</span>
-                                                        <span className="ml-2 text-xs text-muted-foreground">
-                                                            {user.email}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="py-6 px-4 text-sm text-center text-muted-foreground">
-                                                No matching users found
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Selected Participants */}
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {participants.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No participants selected</p>
-                            ) : (
-                                participants.map((participant) => (
-                                    <Badge key={participant.id} variant="secondary" className="flex items-center gap-1">
-                                        {participant.avatar && participant.avatar.startsWith('/') ? (
-                                            <div className="w-4 h-4 rounded-full overflow-hidden mr-1">
-                                                <Image
-                                                    src={participant.avatar}
-                                                    alt={participant.name}
-                                                    width={16}
-                                                    height={16}
-                                                    className="object-cover"
-                                                />
-                                            </div>
-                                        ) : (
-                                            <span className="w-4 h-4 rounded-full bg-primary flex items-center justify-center text-[10px] text-primary-foreground mr-1">
-                                                {participant.name ? participant.name.substring(0, 2).toUpperCase() : '??'}
-                                            </span>
-                                        )}
-                                        {participant.name}
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-4 w-4 p-0"
-                                            onClick={() => removeParticipant(participant.id)}
-                                        >
-                                            <X className="h-3 w-3" />
-                                        </Button>
-                                    </Badge>
-                                ))
-                            )}
-                        </div>
-                    </div>
                 </CardContent>
 
                 <CardFooter className="flex justify-end space-x-2">
