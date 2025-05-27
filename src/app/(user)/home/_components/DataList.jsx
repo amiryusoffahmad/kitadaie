@@ -31,7 +31,7 @@ export default function DataList() {
             </h1>
             {/* Uncomment to display EventCarousel */}
             {/* <EventCarousel /> */}
-            <Alert>
+            <Alert className="bg-background border-border">
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
                 <AlertDescription>

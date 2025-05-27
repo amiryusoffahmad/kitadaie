@@ -62,8 +62,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Network className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Network className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">HQ Tree</span>
                                 </Button>
@@ -73,8 +73,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Calendar className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Calendar className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Pentajmikan</span>
                                 </Button>
@@ -84,8 +84,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Building className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Building className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Binaan</span>
                                 </Button>
@@ -95,8 +95,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <BookOpen className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <BookOpen className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Resource</span>
                                 </Button>
@@ -106,8 +106,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Users className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Users className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Our Experts</span>
                                 </Button>
@@ -119,8 +119,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Cog className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Cog className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">CCS</span>
                                 </Button>
@@ -139,8 +139,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Award className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Award className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Ikh/Akh Expertise</span>
                                 </Button>
@@ -150,8 +150,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <UserCircle className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <UserCircle className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Profile Ikh/Akh</span>
                                 </Button>
@@ -161,8 +161,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <MessageSquare className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Invitation Pengisian</span>
                                 </Button>
@@ -172,8 +172,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <CheckSquare className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <CheckSquare className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Evaluation Pengisian</span>
                                 </Button>
@@ -183,8 +183,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Target className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Target className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Mad'u Core</span>
                                 </Button>
@@ -194,8 +194,8 @@ export default function UpdateDrawer() {
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
-                                    <div className="bg-blue-100 p-3 rounded-md mb-2">
-                                        <Globe className="h-5 w-5 text-blue-600" />
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Globe className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Insights Overseas</span>
                                 </Button>
