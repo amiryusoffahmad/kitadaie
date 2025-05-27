@@ -206,59 +206,7 @@ export default function ProgramDetailsPage() {
                     </Card>
                 </div>
 
-                {/* Sidebar */}
-                <div className="space-y-6">
-                    {/* Participants Card */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="text-xl">Participants</CardTitle>
-                            <CardDescription>
-                                People involved in this program
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {program.participants && Array.isArray(program.participants) && program.participants.length > 0 ? (
-                                <div className="space-y-4">
-                                    {program.participants.map((participant) => (
-                                        <div key={participant.id} className="flex items-center gap-3">
-                                            {participant.avatar ? (
-                                                <div className="w-10 h-10 rounded-full overflow-hidden">
-                                                    <Image
-                                                        src={participant.avatar}
-                                                        alt={participant.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className="object-cover"
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                                                    <span className="text-xs font-medium">
-                                                        {participant.name ? participant.name.substring(0, 2).toUpperCase() : '??'}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <div>
-                                                <p className="font-medium">{participant.name || 'Unknown'}</p>
-                                                <p className="text-xs text-muted-foreground">{participant.email || ''}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-muted-foreground text-sm">No participants added yet</p>
-                            )}
-                        </CardContent>
-                        <CardFooter>
-                            <Link href={`/pentajmikan/${program.id}/edit`} className="w-full">
-                                <Button variant="outline" className="w-full">
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Edit Participants
-                                </Button>
-                            </Link>
-                        </CardFooter>
-                    </Card>
-                </div>
+
             </div>
         </div>
     )
