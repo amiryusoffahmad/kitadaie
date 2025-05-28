@@ -58,7 +58,7 @@ export default function UpdateDrawer() {
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
                                 <Button
-                                    onClick={() => handleNavigate('/hq-tree')}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -69,7 +69,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={() => handleNavigate('/pentajmikan')}
+                                    onClick={() => handleNavigate()}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
