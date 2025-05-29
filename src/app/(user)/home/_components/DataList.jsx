@@ -35,7 +35,7 @@ export default function DataList() {
                 <Terminal className="h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
                 <AlertDescription>
-                    The content of this application is strictly private and confidential; any breach of confidentiality will be treated with the utmost seriousness and may result in appropriate action.
+                    The content of this application is strictly private and confidential! Any breach of confidentiality will be treated with the utmost seriousness and may result in appropriate action.
                 </AlertDescription>
             </Alert>
 
