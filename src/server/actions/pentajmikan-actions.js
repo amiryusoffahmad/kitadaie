@@ -6,6 +6,7 @@ import { PentajmikanModel } from "@/lib/models/pentajmikan";
 import { UploadService } from "@/lib/services/upload-service";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import config from "@/lib/config";
 
 /**
  * Get the current user ID from session
@@ -91,7 +92,8 @@ export async function getAllPentajmikan() {
               .where({ id: program.image_id })
               .first();
             if (imageInfo) {
-              imageUrl = imageInfo.path;
+              // Use the full URL with the upload server domain
+              imageUrl = `${config.uploadApiUrl}${imageInfo.path}`;
             }
           } catch (imageError) {
             console.error(
@@ -146,7 +148,8 @@ export async function getPentajmikanById(id) {
           .where({ id: program.image_id })
           .first();
         if (imageInfo) {
-          imageUrl = imageInfo.path;
+          // Use the full URL with the upload server domain
+          imageUrl = `${config.uploadApiUrl}${imageInfo.path}`;
         }
       } catch (imageError) {
         console.error("Error fetching image details:", imageError);
