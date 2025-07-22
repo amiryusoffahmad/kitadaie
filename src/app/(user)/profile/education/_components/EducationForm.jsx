@@ -203,6 +203,7 @@ export default function EducationForm({
                 { value: "Universiti Kebangsaan Malaysia", label: "Universiti Kebangsaan Malaysia (UKM)" },
                 { value: "Universiti Putra Malaysia", label: "Universiti Putra Malaysia (UPM)" },
                 { value: "Universiti Teknologi Malaysia", label: "Universiti Teknologi Malaysia (UTM)" },
+                { value: "Universiti Teknologi PETRONAS", label: "Universiti Teknologi PETRONAS (UTP)" },
                 { value: "Universiti Malaysia Sarawak", label: "Universiti Malaysia Sarawak (UniMaS)" },
                 { value: "Universiti Islam Antarabangsa Malaysia", label: "Universiti Islam Antarabangsa Malaysia (UIAM)" },
                 { value: "Universiti Sains Islam Malaysia", label: "Universiti Sains Islam Malaysia (USIM)" },

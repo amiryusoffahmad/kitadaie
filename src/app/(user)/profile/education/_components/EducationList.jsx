@@ -289,8 +289,8 @@ export default function EducationList() {
                                             <CardHeader>
                                                 <CardTitle>{education.university}</CardTitle>
                                                 <CardDescription>
-                                                    {education.degree} in {education.field_of_study}
-                                                    {education.course && ` - ${education.course}`}
+                                                    {education.degree} in
+                                                    {education.course && ` ${education.course}`}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent className="space-y-2">
