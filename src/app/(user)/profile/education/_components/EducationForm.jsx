@@ -172,6 +172,7 @@ export default function EducationForm({
                 { value: "Asasi UMS", label: "Asasi UMS (AUMS)" },
                 { value: "Asasi UKM", label: "Asasi UKM (AsPin)" },
                 { value: "Asasi UM", label: "Asasi UM (PAsUM)" },
+                { value: "Asasi UTP", label: "Asasi UTP" },
                 { value: "Asasi UPM", label: "Asasi UPM (AsPutra)" },
                 { value: "Asasi USIM", label: "Asasi USIM (Tahmidi)" },
                 { value: "Asasi UNIMAS", label: "Asasi UNIMAS (AUniMaS)" },
