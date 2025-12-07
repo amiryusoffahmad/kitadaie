@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import {
     Drawer,
     DrawerClose,
@@ -10,19 +11,34 @@ import {
 } from '@/components/ui/drawer'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { X, Download, Tag } from 'lucide-react'
+import { X, Download, Tag, ExternalLink } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
 export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
     if (!resource) return null
 
+    // Debug: Log the file path when resource changes
+    useEffect(() => {
+        if (resource?.file_path) {
+            console.log('[PDF VIEWER] Resource file path:', resource.file_path)
+            console.log('[PDF VIEWER] Full resource:', resource)
+        }
+    }, [resource])
+
     const handleDownload = () => {
-        const link = document.createElement('a')
-        link.href = resource.file_path
-        link.download = resource.file_name || 'download.pdf'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        if (!resource.file_path) {
+            console.error('[PDF VIEWER] No file path available')
+            return
+        }
+        window.open(resource.file_path, '_blank')
+    }
+
+    const handleOpenNewTab = () => {
+        if (!resource.file_path) {
+            console.error('[PDF VIEWER] No file path available')
+            return
+        }
+        window.open(resource.file_path, '_blank')
     }
 
     return (
@@ -67,13 +83,25 @@ export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
                 <ScrollArea className='flex-1'>
                     <div className='p-4'>
                         {/* PDF Embed */}
-                        <div className='w-full' style={{ height: 'calc(90vh - 200px)' }}>
-                            <iframe
-                                src={resource.file_path}
-                                className='w-full h-full border rounded-lg'
-                                title={resource.title}
-                            />
-                        </div>
+                        {resource.file_path ? (
+                            <div className='w-full' style={{ height: 'calc(90vh - 200px)' }}>
+                                <iframe
+                                    src={resource.file_path}
+                                    className='w-full h-full border rounded-lg'
+                                    title={resource.title}
+                                    onError={(e) => {
+                                        console.error('[PDF VIEWER] Iframe error:', e)
+                                    }}
+                                    onLoad={() => {
+                                        console.log('[PDF VIEWER] Iframe loaded successfully')
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            <div className='text-center py-12'>
+                                <p className='text-muted-foreground'>No file available to display</p>
+                            </div>
+                        )}
 
                         {/* Description if available */}
                         {resource.description && (
@@ -88,10 +116,16 @@ export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
                 </ScrollArea>
 
                 <DrawerFooter className='border-t'>
-                    <Button onClick={handleDownload} className='w-full'>
-                        <Download className='h-4 w-4 mr-2' />
-                        Download PDF
-                    </Button>
+                    <div className='flex gap-2'>
+                        <Button onClick={handleOpenNewTab} className='flex-1'>
+                            <ExternalLink className='h-4 w-4 mr-2' />
+                            Open in New Tab
+                        </Button>
+                        <Button onClick={handleDownload} variant='outline' className='flex-1'>
+                            <Download className='h-4 w-4 mr-2' />
+                            Download
+                        </Button>
+                    </div>
                     <DrawerClose asChild>
                         <Button variant='outline' className='w-full'>
                             Close
