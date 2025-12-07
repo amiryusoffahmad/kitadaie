@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import {
     Drawer,
     DrawerClose,
@@ -29,7 +30,9 @@ import {
     MessageSquare,
     CheckSquare,
     Target,
-    Globe
+    Globe,
+    History,
+    CheckCircle
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
@@ -37,13 +40,15 @@ import { useRouter } from "next/navigation"
 
 export default function UpdateDrawer() {
     const router = useRouter()
+    const [open, setOpen] = useState(false)
 
     const handleNavigate = (path) => {
+        setOpen(false)
         router.push(path || '/coming-soon')
     }
 
     return (
-        <Drawer>
+        <Drawer open={open} onOpenChange={setOpen}>
             <DrawerTrigger className="flex flex-col items-center gap-1">
                 <CirclePlus size={23} />
                 <span className="text-xs">Update</span>
@@ -134,6 +139,28 @@ export default function UpdateDrawer() {
                         <h3 className="font-medium text-sm mb-3">Others</h3>
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
+                                <Button
+                                    onClick={() => handleNavigate('/tprog')}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <History className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">TProg</span>
+                                </Button>
+
+                                <Button
+                                    onClick={() => handleNavigate('/mutabaah')}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <CheckCircle className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">Mutaba'ah</span>
+                                </Button>
+
                                 <Button
                                     onClick={() => handleNavigate()}
                                     variant="outline"

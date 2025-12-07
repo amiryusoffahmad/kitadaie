@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, History, CirclePlus, Mail, MailOpen, User, CheckCircle } from "lucide-react";
+import { Home, BookOpen, CirclePlus, Mail, MailOpen, User } from "lucide-react";
 import UpdateDrawer from "./UpdateDrawer";
 import { useSession } from "@/lib/auth-client";
 import { useState, useEffect } from "react";
@@ -48,14 +48,9 @@ export default function MobileNav() {
                             <span className="text-xs">Home</span>
                         </Link>
 
-                        <Link href="/tprog" className="flex flex-col items-center gap-1">
-                            <History size={23} />
-                            <span className="text-xs">TProg</span>
-                        </Link>
-
-                        <Link href="/mutabaah" className="flex flex-col items-center gap-1">
-                            <CheckCircle size={23} />
-                            <span className="text-xs">Mutabaah</span>
+                        <Link href="/coming-soon" className="flex flex-col items-center gap-1">
+                            <BookOpen size={23} />
+                            <span className="text-xs">Resources</span>
                         </Link>
 
                         <UpdateDrawer />
