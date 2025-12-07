@@ -91,17 +91,25 @@ export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
                         {/* PDF Embed */}
                         {fullFileUrl ? (
                             <div className='w-full' style={{ height: 'calc(90vh - 200px)' }}>
-                                <iframe
-                                    src={fullFileUrl}
+                                <object
+                                    data={fullFileUrl}
+                                    type='application/pdf'
                                     className='w-full h-full border rounded-lg'
-                                    title={resource.title}
                                     onError={(e) => {
-                                        console.error('[PDF VIEWER] Iframe error:', e)
+                                        console.error('[PDF VIEWER] Object error:', e)
                                     }}
                                     onLoad={() => {
-                                        console.log('[PDF VIEWER] Iframe loaded successfully')
+                                        console.log('[PDF VIEWER] Object loaded successfully')
                                     }}
-                                />
+                                >
+                                    <div className='flex flex-col items-center justify-center h-full space-y-4'>
+                                        <p className='text-muted-foreground'>Unable to display PDF in browser</p>
+                                        <Button onClick={handleOpenNewTab}>
+                                            <ExternalLink className='h-4 w-4 mr-2' />
+                                            Open in New Tab
+                                        </Button>
+                                    </div>
+                                </object>
                             </div>
                         ) : (
                             <div className='text-center py-12'>
