@@ -7,12 +7,9 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Tag } from 'lucide-react'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
-import PDFViewerDrawer from './_components/PDFViewerDrawer'
 
 export default function ResourcesPage() {
     const [selectedCategory, setSelectedCategory] = useState('all')
-    const [selectedResource, setSelectedResource] = useState(null)
-    const [drawerOpen, setDrawerOpen] = useState(false)
 
     // Fetch categories
     const { data: categoriesData } = useQuery({
@@ -41,8 +38,10 @@ export default function ResourcesPage() {
     const resources = resourcesData?.data || []
 
     const handleResourceClick = (resource) => {
-        setSelectedResource(resource)
-        setDrawerOpen(true)
+        // Open file in new tab using relative path (will use kitadaie.com domain)
+        if (resource.file_path) {
+            window.open(resource.file_path, '_blank')
+        }
     }
 
     return (
@@ -143,13 +142,6 @@ export default function ResourcesPage() {
                     </div>
                 )}
             </div>
-
-            {/* PDF Viewer Drawer */}
-            <PDFViewerDrawer
-                open={drawerOpen}
-                onOpenChange={setDrawerOpen}
-                resource={selectedResource}
-            />
         </div>
     )
 }
