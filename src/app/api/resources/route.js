@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { UploadService } from "@/lib/services/upload-service";
+import config from "@/lib/config";
 
 // Helper function to check if user is admin
 async function isAdmin(userId) {
@@ -31,19 +31,13 @@ export async function GET(request) {
         "resources.*",
         "resource_categories.name as category_name",
         "resource_categories.slug as category_slug",
-        "resource_categories.color as category_color",
-        "uploads.filename",
-        "uploads.original_filename as file_name",
-        "uploads.path as file_path",
-        "uploads.size as file_size",
-        "uploads.mimetype"
+        "resource_categories.color as category_color"
       )
       .leftJoin(
         "resource_categories",
         "resources.category_id",
         "resource_categories.id"
       )
-      .leftJoin("uploads", "resources.upload_id", "uploads.id")
       .where("resources.is_active", 1)
       .orderBy("resources.created_at", "desc");
 
@@ -53,17 +47,42 @@ export async function GET(request) {
 
     const resources = await query;
 
-    // Parse tags from string to array
-    const formattedResources = resources.map((resource) => ({
-      ...resource,
-      tags: resource.tags
-        ? resource.tags.split(",").map((tag) => tag.trim())
-        : [],
-    }));
+    // Fetch file information for each resource
+    const resourcesWithFiles = await Promise.all(
+      resources.map(async (resource) => {
+        let fileInfo = null;
+        if (resource.file_id) {
+          try {
+            const uploadRecord = await db("uploads")
+              .where("id", resource.file_id)
+              .first();
+
+            if (uploadRecord) {
+              fileInfo = {
+                file_name: uploadRecord.original_filename,
+                file_path: `${config.uploadApiUrl}${uploadRecord.path}`,
+                file_size: uploadRecord.size,
+                mimetype: uploadRecord.mimetype,
+              };
+            }
+          } catch (error) {
+            console.error(`Error fetching file info for resource ${resource.id}:`, error);
+          }
+        }
+
+        return {
+          ...resource,
+          ...fileInfo,
+          tags: resource.tags
+            ? resource.tags.split(",").map((tag) => tag.trim())
+            : [],
+        };
+      })
+    );
 
     return NextResponse.json({
       success: true,
-      data: formattedResources,
+      data: resourcesWithFiles,
     });
   } catch (error) {
     console.error("Error fetching resources:", error);
@@ -117,27 +136,62 @@ export async function POST(request) {
       );
     }
 
-    // Convert File object to format expected by UploadService
-    const fileBuffer = await file.arrayBuffer();
-    const fileData = {
-      originalname: file.name,
-      mimetype: file.type,
-      size: file.size,
-      buffer: Buffer.from(fileBuffer),
-    };
+    // Upload file to external upload server
+    console.log("[RESOURCES API] Uploading file to:", config.uploadApiUrl);
 
-    // Use UploadService to save file and create upload record
-    const uploadMetadata = {
-      user_id: session.user.id,
-      document_type: "resource",
-    };
+    const uploadFormData = new FormData();
+    uploadFormData.append("file", file);
+    uploadFormData.append("type", "resource");
 
-    const upload = await UploadService.saveFile(fileData, uploadMetadata);
+    let uploadResponse;
+    try {
+      uploadResponse = await fetch(config.uploadApiUrl, {
+        method: "POST",
+        body: uploadFormData,
+      });
+    } catch (networkError) {
+      console.error("[RESOURCES API] Network error during file upload:", networkError);
+      return NextResponse.json(
+        { success: false, error: `Upload server not available. Please check that the upload server at ${config.uploadApiUrl} is running.` },
+        { status: 503 }
+      );
+    }
 
-    // Create resource record
+    if (!uploadResponse.ok) {
+      const errorText = await uploadResponse.text();
+      console.error("[RESOURCES API] Upload response error:", errorText);
+      return NextResponse.json(
+        { success: false, error: `Failed to upload file: ${errorText}` },
+        { status: 500 }
+      );
+    }
+
+    let uploadResult;
+    try {
+      uploadResult = await uploadResponse.json();
+    } catch (parseError) {
+      console.error("[RESOURCES API] Error parsing upload response:", parseError);
+      return NextResponse.json(
+        { success: false, error: "Failed to parse upload response. The server may not be configured correctly." },
+        { status: 500 }
+      );
+    }
+
+    if (!uploadResult || !uploadResult.fileId) {
+      console.error("[RESOURCES API] Invalid upload result:", uploadResult);
+      return NextResponse.json(
+        { success: false, error: "Invalid response from upload server. File ID is missing." },
+        { status: 500 }
+      );
+    }
+
+    const fileId = uploadResult.fileId;
+    console.log("[RESOURCES API] File uploaded successfully, ID:", fileId);
+
+    // Create resource record with file_id
     const [resourceId] = await db("resources").insert({
       title,
-      upload_id: upload.id,
+      file_id: fileId,
       category_id: categoryId || null,
       tags: tags || null,
       description: description || null,
@@ -150,12 +204,12 @@ export async function POST(request) {
       data: {
         id: resourceId,
         title,
-        file_path: upload.path,
+        file_id: fileId,
         message: "Resource uploaded successfully",
       },
     });
   } catch (error) {
-    console.error("Error uploading resource:", error);
+    console.error("[RESOURCES API] Error uploading resource:", error);
     return NextResponse.json(
       { success: false, error: "Failed to upload resource" },
       { status: 500 }

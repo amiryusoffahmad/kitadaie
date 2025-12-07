@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
-import { UploadService } from '@/lib/services/upload-service'
+import config from '@/lib/config'
 
 // Helper function to check if user is admin
 async function isAdmin(userId) {
@@ -30,15 +30,9 @@ export async function GET(request, { params }) {
                 'resources.*',
                 'resource_categories.name as category_name',
                 'resource_categories.slug as category_slug',
-                'resource_categories.color as category_color',
-                'uploads.filename',
-                'uploads.original_filename as file_name',
-                'uploads.path as file_path',
-                'uploads.size as file_size',
-                'uploads.mimetype'
+                'resource_categories.color as category_color'
             )
             .leftJoin('resource_categories', 'resources.category_id', 'resource_categories.id')
-            .leftJoin('uploads', 'resources.upload_id', 'uploads.id')
             .where('resources.id', id)
             .where('resources.is_active', 1)
             .first()
@@ -50,9 +44,31 @@ export async function GET(request, { params }) {
             )
         }
 
+        // Fetch file information
+        let fileInfo = null
+        if (resource.file_id) {
+            try {
+                const uploadRecord = await db('uploads')
+                    .where('id', resource.file_id)
+                    .first()
+
+                if (uploadRecord) {
+                    fileInfo = {
+                        file_name: uploadRecord.original_filename,
+                        file_path: `${config.uploadApiUrl}${uploadRecord.path}`,
+                        file_size: uploadRecord.size,
+                        mimetype: uploadRecord.mimetype,
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching file info:', error)
+            }
+        }
+
         // Parse tags
         const formattedResource = {
             ...resource,
+            ...fileInfo,
             tags: resource.tags ? resource.tags.split(',').map(tag => tag.trim()) : []
         }
 
@@ -92,7 +108,7 @@ export async function DELETE(request, { params }) {
 
         const { id } = params
 
-        // Get resource to get upload_id
+        // Get resource to get file_id
         const resource = await db('resources')
             .where('id', id)
             .first()
@@ -104,10 +120,14 @@ export async function DELETE(request, { params }) {
             )
         }
 
-        // Delete the file using UploadService (deletes both file and upload record)
-        await UploadService.deleteFile(resource.upload_id)
+        // Delete from uploads table
+        if (resource.file_id) {
+            await db('uploads')
+                .where('id', resource.file_id)
+                .delete()
+        }
 
-        // Delete resource record (upload will cascade delete due to FK)
+        // Delete resource record
         await db('resources')
             .where('id', id)
             .delete()
