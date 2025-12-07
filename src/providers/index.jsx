@@ -11,7 +11,7 @@ export const Providers = ({ children }) => {
         <ThemeProvider
             attribute='class'
             defaultTheme='light'
-            enableSystem
+            enableSystem={false}
             disableTransitionOnChange
         >
             <ReactQueryProvider>
