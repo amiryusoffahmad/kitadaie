@@ -48,7 +48,7 @@ export default function MobileNav() {
                             <span className="text-xs">Home</span>
                         </Link>
 
-                        <Link href="/coming-soon" className="flex flex-col items-center gap-1">
+                        <Link href="/resources" className="flex flex-col items-center gap-1">
                             <BookOpen size={23} />
                             <span className="text-xs">Resources</span>
                         </Link>
