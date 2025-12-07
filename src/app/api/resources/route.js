@@ -47,16 +47,11 @@ export async function GET(request) {
 
     const resources = await query;
 
-    // Format resources with full file URLs
+    // Format resources - keep file_path as relative path (client will construct full URL)
     const formattedResources = resources.map((resource) => {
-      // Construct full file URL from stored path
-      const fullFileUrl = resource.file_path
-        ? `${config.uploadApiUrl}${resource.file_path}`
-        : null;
-
       return {
         ...resource,
-        file_path: fullFileUrl,
+        file_path: resource.file_path || (resource.file_id ? `/uploads/${resource.file_id}` : null),
         tags: resource.tags
           ? resource.tags.split(",").map((tag) => tag.trim())
           : [],
@@ -166,7 +161,7 @@ export async function POST(request) {
     // Get the file path from the response
     let filePath = uploadResult.filePath || uploadResult.path || '';
 
-    // Normalize the path format to ensure consistency
+    // Normalize the path format to ensure consistency (match assignment pattern)
     if (!filePath.startsWith('/uploads/') && filePath.includes('/uploads/')) {
       const parts = filePath.split('/uploads/');
       filePath = '/uploads/' + parts[parts.length - 1];
@@ -176,35 +171,45 @@ export async function POST(request) {
 
     console.log("[RESOURCES API] Normalized file path:", filePath);
 
-    // Get fileId from response (could be fileId, filename, or extracted from path)
+    // Get fileId from response (used as fallback if file_path column doesn't exist)
     const fileId = uploadResult.fileId || uploadResult.filename || filePath.split('/').pop();
 
-    if (!fileId) {
-      console.error("[RESOURCES API] Invalid upload result:", uploadResult);
-      return NextResponse.json(
-        { success: false, error: "Invalid response from upload server. File ID is missing." },
-        { status: 500 }
-      );
-    }
-
-    console.log("[RESOURCES API] File uploaded successfully, ID:", fileId);
-    console.log("[RESOURCES API] File path:", filePath);
-
-    // Construct full file URL
-    const fullFileUrl = `${config.uploadApiUrl}${filePath}`;
-    console.log("[RESOURCES API] Full file URL:", fullFileUrl);
+    console.log("[RESOURCES API] File uploaded successfully, path:", filePath, "fileId:", fileId);
 
     // Create resource record with file_id and file_path
-    const [resourceId] = await db("resources").insert({
-      title,
-      file_id: fileId,
-      file_path: filePath, // Store the path from upload server
-      category_id: categoryId || null,
-      tags: tags || null,
-      description: description || null,
-      created_by: session.user.id,
-      is_active: 1,
-    });
+    let resourceId;
+    try {
+      [resourceId] = await db("resources").insert({
+        title,
+        file_id: fileId,
+        file_path: filePath, // Store the path from upload server
+        category_id: categoryId || null,
+        tags: tags || null,
+        description: description || null,
+        created_by: session.user.id,
+        is_active: 1,
+      });
+      console.log("[RESOURCES API] Resource created with ID:", resourceId);
+    } catch (dbError) {
+      console.error("[RESOURCES API] Database insert error:", dbError);
+
+      // If file_path column doesn't exist yet, try without it
+      if (dbError.code === 'ER_BAD_FIELD_ERROR') {
+        console.log("[RESOURCES API] file_path column doesn't exist, inserting without it");
+        [resourceId] = await db("resources").insert({
+          title,
+          file_id: fileId,
+          category_id: categoryId || null,
+          tags: tags || null,
+          description: description || null,
+          created_by: session.user.id,
+          is_active: 1,
+        });
+        console.log("[RESOURCES API] Resource created without file_path, ID:", resourceId);
+      } else {
+        throw dbError;
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -212,7 +217,7 @@ export async function POST(request) {
         id: resourceId,
         title,
         file_id: fileId,
-        file_path: fullFileUrl,
+        file_path: filePath,
         message: "Resource uploaded successfully",
       },
     });

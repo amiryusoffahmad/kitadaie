@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { auth } from '@/lib/auth'
 import { headers } from 'next/headers'
-import config from '@/lib/config'
 
 // Helper function to check if user is admin
 async function isAdmin(userId) {
@@ -44,15 +43,10 @@ export async function GET(request, { params }) {
             )
         }
 
-        // Construct full file URL from stored path
-        const fullFileUrl = resource.file_path
-            ? `${config.uploadApiUrl}${resource.file_path}`
-            : null
-
-        // Parse tags
+        // Parse tags - keep file_path as relative path (client will construct full URL)
         const formattedResource = {
             ...resource,
-            file_path: fullFileUrl,
+            file_path: resource.file_path || (resource.file_id ? `/uploads/${resource.file_id}` : null),
             tags: resource.tags ? resource.tags.split(',').map(tag => tag.trim()) : []
         }
 

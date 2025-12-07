@@ -14,31 +14,37 @@ import { Badge } from '@/components/ui/badge'
 import { X, Download, Tag, ExternalLink } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
+
 export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
     if (!resource) return null
+
+    // Construct full file URL (match assignment pattern)
+    const fullFileUrl = resource.file_path ? `${uriUpload}${resource.file_path}` : null
 
     // Debug: Log the file path when resource changes
     useEffect(() => {
         if (resource?.file_path) {
             console.log('[PDF VIEWER] Resource file path:', resource.file_path)
+            console.log('[PDF VIEWER] Full file URL:', fullFileUrl)
             console.log('[PDF VIEWER] Full resource:', resource)
         }
-    }, [resource])
+    }, [resource, fullFileUrl])
 
     const handleDownload = () => {
-        if (!resource.file_path) {
+        if (!fullFileUrl) {
             console.error('[PDF VIEWER] No file path available')
             return
         }
-        window.open(resource.file_path, '_blank')
+        window.open(fullFileUrl, '_blank')
     }
 
     const handleOpenNewTab = () => {
-        if (!resource.file_path) {
+        if (!fullFileUrl) {
             console.error('[PDF VIEWER] No file path available')
             return
         }
-        window.open(resource.file_path, '_blank')
+        window.open(fullFileUrl, '_blank')
     }
 
     return (
@@ -83,10 +89,10 @@ export default function PDFViewerDrawer({ open, onOpenChange, resource }) {
                 <ScrollArea className='flex-1'>
                     <div className='p-4'>
                         {/* PDF Embed */}
-                        {resource.file_path ? (
+                        {fullFileUrl ? (
                             <div className='w-full' style={{ height: 'calc(90vh - 200px)' }}>
                                 <iframe
-                                    src={resource.file_path}
+                                    src={fullFileUrl}
                                     className='w-full h-full border rounded-lg'
                                     title={resource.title}
                                     onError={(e) => {
