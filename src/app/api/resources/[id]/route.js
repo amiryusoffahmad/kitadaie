@@ -44,31 +44,15 @@ export async function GET(request, { params }) {
             )
         }
 
-        // Fetch file information
-        let fileInfo = null
-        if (resource.file_id) {
-            try {
-                const uploadRecord = await db('uploads')
-                    .where('id', resource.file_id)
-                    .first()
-
-                if (uploadRecord) {
-                    fileInfo = {
-                        file_name: uploadRecord.original_filename,
-                        file_path: `${config.uploadApiUrl}${uploadRecord.path}`,
-                        file_size: uploadRecord.size,
-                        mimetype: uploadRecord.mimetype,
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching file info:', error)
-            }
-        }
+        // Construct full file URL from stored path
+        const fullFileUrl = resource.file_path
+            ? `${config.uploadApiUrl}${resource.file_path}`
+            : null
 
         // Parse tags
         const formattedResource = {
             ...resource,
-            ...fileInfo,
+            file_path: fullFileUrl,
             tags: resource.tags ? resource.tags.split(',').map(tag => tag.trim()) : []
         }
 
@@ -108,7 +92,7 @@ export async function DELETE(request, { params }) {
 
         const { id } = params
 
-        // Get resource to get file_id
+        // Get resource
         const resource = await db('resources')
             .where('id', id)
             .first()
@@ -120,12 +104,8 @@ export async function DELETE(request, { params }) {
             )
         }
 
-        // Delete from uploads table
-        if (resource.file_id) {
-            await db('uploads')
-                .where('id', resource.file_id)
-                .delete()
-        }
+        // Note: Physical file on external upload server is NOT deleted
+        // This matches tprog behavior - files remain on the server
 
         // Delete resource record
         await db('resources')

@@ -47,42 +47,25 @@ export async function GET(request) {
 
     const resources = await query;
 
-    // Fetch file information for each resource
-    const resourcesWithFiles = await Promise.all(
-      resources.map(async (resource) => {
-        let fileInfo = null;
-        if (resource.file_id) {
-          try {
-            const uploadRecord = await db("uploads")
-              .where("id", resource.file_id)
-              .first();
+    // Format resources with full file URLs
+    const formattedResources = resources.map((resource) => {
+      // Construct full file URL from stored path
+      const fullFileUrl = resource.file_path
+        ? `${config.uploadApiUrl}${resource.file_path}`
+        : null;
 
-            if (uploadRecord) {
-              fileInfo = {
-                file_name: uploadRecord.original_filename,
-                file_path: `${config.uploadApiUrl}${uploadRecord.path}`,
-                file_size: uploadRecord.size,
-                mimetype: uploadRecord.mimetype,
-              };
-            }
-          } catch (error) {
-            console.error(`Error fetching file info for resource ${resource.id}:`, error);
-          }
-        }
-
-        return {
-          ...resource,
-          ...fileInfo,
-          tags: resource.tags
-            ? resource.tags.split(",").map((tag) => tag.trim())
-            : [],
-        };
-      })
-    );
+      return {
+        ...resource,
+        file_path: fullFileUrl,
+        tags: resource.tags
+          ? resource.tags.split(",").map((tag) => tag.trim())
+          : [],
+      };
+    });
 
     return NextResponse.json({
       success: true,
-      data: resourcesWithFiles,
+      data: formattedResources,
     });
   } catch (error) {
     console.error("Error fetching resources:", error);
@@ -205,11 +188,17 @@ export async function POST(request) {
     }
 
     console.log("[RESOURCES API] File uploaded successfully, ID:", fileId);
+    console.log("[RESOURCES API] File path:", filePath);
 
-    // Create resource record with file_id
+    // Construct full file URL
+    const fullFileUrl = `${config.uploadApiUrl}${filePath}`;
+    console.log("[RESOURCES API] Full file URL:", fullFileUrl);
+
+    // Create resource record with file_id and file_path
     const [resourceId] = await db("resources").insert({
       title,
       file_id: fileId,
+      file_path: filePath, // Store the path from upload server
       category_id: categoryId || null,
       tags: tags || null,
       description: description || null,
@@ -223,6 +212,7 @@ export async function POST(request) {
         id: resourceId,
         title,
         file_id: fileId,
+        file_path: fullFileUrl,
         message: "Resource uploaded successfully",
       },
     });
