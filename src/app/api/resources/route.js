@@ -137,7 +137,8 @@ export async function POST(request) {
     }
 
     // Upload file to external upload server
-    console.log("[RESOURCES API] Uploading file to:", config.uploadApiUrl);
+    const uploadUrl = `${config.uploadApiUrl}/upload`;
+    console.log("[RESOURCES API] Uploading file to:", uploadUrl);
 
     const uploadFormData = new FormData();
     uploadFormData.append("file", file);
@@ -145,14 +146,14 @@ export async function POST(request) {
 
     let uploadResponse;
     try {
-      uploadResponse = await fetch(config.uploadApiUrl, {
+      uploadResponse = await fetch(uploadUrl, {
         method: "POST",
         body: uploadFormData,
       });
     } catch (networkError) {
       console.error("[RESOURCES API] Network error during file upload:", networkError);
       return NextResponse.json(
-        { success: false, error: `Upload server not available. Please check that the upload server at ${config.uploadApiUrl} is running.` },
+        { success: false, error: `Upload server not available. Please check that the upload server at ${uploadUrl} is running.` },
         { status: 503 }
       );
     }
@@ -177,7 +178,25 @@ export async function POST(request) {
       );
     }
 
-    if (!uploadResult || !uploadResult.fileId) {
+    console.log("[RESOURCES API] Upload response data:", uploadResult);
+
+    // Get the file path from the response
+    let filePath = uploadResult.filePath || uploadResult.path || '';
+
+    // Normalize the path format to ensure consistency
+    if (!filePath.startsWith('/uploads/') && filePath.includes('/uploads/')) {
+      const parts = filePath.split('/uploads/');
+      filePath = '/uploads/' + parts[parts.length - 1];
+    } else if (filePath.startsWith('uploads/')) {
+      filePath = '/' + filePath;
+    }
+
+    console.log("[RESOURCES API] Normalized file path:", filePath);
+
+    // Get fileId from response (could be fileId, filename, or extracted from path)
+    const fileId = uploadResult.fileId || uploadResult.filename || filePath.split('/').pop();
+
+    if (!fileId) {
       console.error("[RESOURCES API] Invalid upload result:", uploadResult);
       return NextResponse.json(
         { success: false, error: "Invalid response from upload server. File ID is missing." },
@@ -185,7 +204,6 @@ export async function POST(request) {
       );
     }
 
-    const fileId = uploadResult.fileId;
     console.log("[RESOURCES API] File uploaded successfully, ID:", fileId);
 
     // Create resource record with file_id
