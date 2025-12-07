@@ -27,6 +27,8 @@ import {
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 
+const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
+
 export default function AdminResourcesPage() {
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -180,7 +182,10 @@ export default function AdminResourcesPage() {
                                                 <Button
                                                     variant='ghost'
                                                     size='icon'
-                                                    onClick={() => window.open(resource.file_path, '_blank')}
+                                                    onClick={() => {
+                                                        const fullUrl = `${uriUpload}${resource.file_path}`
+                                                        window.open(fullUrl, '_blank')
+                                                    }}
                                                 >
                                                     <Eye className='h-4 w-4' />
                                                 </Button>

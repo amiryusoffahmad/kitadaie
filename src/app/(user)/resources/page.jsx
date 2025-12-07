@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Tag } from 'lucide-react'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
+const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
+
 export default function ResourcesPage() {
     const [selectedCategory, setSelectedCategory] = useState('all')
 
@@ -38,9 +40,10 @@ export default function ResourcesPage() {
     const resources = resourcesData?.data || []
 
     const handleResourceClick = (resource) => {
-        // Open file in new tab using relative path (will use kitadaie.com domain)
+        // Open file in new tab using full URL with upload server
         if (resource.file_path) {
-            window.open(resource.file_path, '_blank')
+            const fullUrl = `${uriUpload}${resource.file_path}`
+            window.open(fullUrl, '_blank')
         }
     }
 
