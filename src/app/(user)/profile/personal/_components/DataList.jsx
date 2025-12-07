@@ -48,10 +48,10 @@ export default function DataList() {
 
     if (isLoading) {
         return (
-            <div className="flex flex-col -w-md mx-auto">
+            <div className="flex flex-col space-y-4">
                 <div className="flex flex-col items-center w-full">
-                    <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col -w-md items-start gap-3 ">
+                    <header className="bg-background w-full">
+                        <div className="flex flex-col items-start gap-3">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -78,10 +78,10 @@ export default function DataList() {
             : `Error loading profile data: ${error?.message || "Unknown error"}`;
 
         return (
-            <div className="flex flex-col -w-md mx-auto">
+            <div className="flex flex-col space-y-4">
                 <div className="flex flex-col items-center w-full">
-                    <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col -w-md items-start gap-3 ">
+                    <header className="bg-background w-full">
+                        <div className="flex flex-col items-start gap-3">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -106,10 +106,10 @@ export default function DataList() {
 
     return (
         <ScrollArea>
-            <div className="flex flex-col -w-md mx-auto">
+            <div className="flex flex-col space-y-4">
                 <div className="flex flex-col items-center w-full">
-                    <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col -w-md items-start gap-3 ">
+                    <header className="bg-background w-full">
+                        <div className="flex flex-col items-start gap-3">
                             <Button
                                 variant="ghost"
                                 className="p-0"
@@ -119,11 +119,11 @@ export default function DataList() {
                                     style={{ width: "25px", height: "25px", padding: "0" }}
                                 />
                             </Button>
-                            <h1 className="text-2xl font-bold">Personal Information</h1>
+                            <h1 className="text-2xl font-bold mb-4">Personal Information</h1>
                         </div>
                     </header>
 
-                    <main className="container -w-md w-full  py-4">
+                    <main className="w-full">
                         <PersonalForm
                             initialData={personalData || undefined}
                             onSubmit={handleSubmit}

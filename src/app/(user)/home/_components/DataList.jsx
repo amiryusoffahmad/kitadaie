@@ -19,8 +19,8 @@ export default function DataList() {
     const router = useRouter()
 
     return (
-        <div className="flex flex-col gap-4">
-            <h1 className="text-2xl font-bold pb-6">
+        <div className="space-y-4">
+            <h1 className="text-2xl font-bold mb-4">
                 {isLoading ? (
                     <Skeleton className="h-8 w-40" />
                 ) : first_name ? (

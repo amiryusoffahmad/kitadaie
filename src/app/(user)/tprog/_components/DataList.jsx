@@ -163,8 +163,8 @@ export default function DataList() {
     };
 
     return (
-        <div className="container mx-auto py-6 space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Tarbiah Progress</h1>
+        <div className="space-y-4">
+            <h1 className="text-2xl font-bold mb-4">Tarbiah Progress</h1>
 
             <Tabs defaultValue="enrolled" className="w-full">
                 <TabsList className={`grid w-full ${numTabs === 2 ? 'grid-cols-2' : numTabs === 3 ? 'grid-cols-3' : 'grid-cols-1'}`}>

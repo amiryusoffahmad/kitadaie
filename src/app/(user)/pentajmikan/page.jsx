@@ -7,9 +7,9 @@ import { Plus } from 'lucide-react'
 
 export default function PentajmikanPage() {
     return (
-        <div className="container mx-auto py-6 space-y-6">
+        <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Pentajmikan</h2>
+                <h1 className="text-2xl font-bold mb-4">Pentajmikan</h1>
                 <Link href="/pentajmikan/add">
                     <Button>
                         <Plus className="h-4 w-4 mr-2" />
@@ -18,9 +18,7 @@ export default function PentajmikanPage() {
                 </Link>
             </div>
 
-            <div className="mt-6">
-                <ProgramsList />
-            </div>
+            <ProgramsList />
         </div>
     )
 } 

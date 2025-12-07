@@ -48,40 +48,38 @@ export default function ResourcesPage() {
     }
 
     return (
-        <div className='pb-20 px-4'>
+        <div className='space-y-4'>
             {/* Header */}
-            <div className='sticky top-0 bg-background z-10 py-4 -mx-4 px-4'>
-                <h1 className='text-2xl font-bold mb-4'>Resources</h1>
+            <h1 className='text-2xl font-bold mb-4'>Resources</h1>
 
-                {/* Category Filter */}
-                <ScrollArea className='w-full whitespace-nowrap'>
-                    <div className='flex space-x-2 pb-2'>
+            {/* Category Filter */}
+            <ScrollArea className='w-full whitespace-nowrap'>
+                <div className='flex space-x-2 pb-2'>
+                    <Button
+                        variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                        size='sm'
+                        onClick={() => setSelectedCategory('all')}
+                        className='shrink-0'
+                    >
+                        All
+                    </Button>
+                    {categories.map((category) => (
                         <Button
-                            variant={selectedCategory === 'all' ? 'default' : 'outline'}
+                            key={category.id}
+                            variant={selectedCategory === category.id ? 'default' : 'outline'}
                             size='sm'
-                            onClick={() => setSelectedCategory('all')}
+                            onClick={() => setSelectedCategory(category.id)}
                             className='shrink-0'
                         >
-                            All
+                            {category.name}
                         </Button>
-                        {categories.map((category) => (
-                            <Button
-                                key={category.id}
-                                variant={selectedCategory === category.id ? 'default' : 'outline'}
-                                size='sm'
-                                onClick={() => setSelectedCategory(category.id)}
-                                className='shrink-0'
-                            >
-                                {category.name}
-                            </Button>
-                        ))}
-                    </div>
-                    <ScrollBar orientation='horizontal' />
-                </ScrollArea>
-            </div>
+                    ))}
+                </div>
+                <ScrollBar orientation='horizontal' />
+            </ScrollArea>
 
             {/* Resources Grid */}
-            <div className='mt-4'>
+            <div>
                 {isLoading ? (
                     <div className='grid grid-cols-2 gap-3'>
                         {[1, 2, 3, 4].map((i) => (

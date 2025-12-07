@@ -15,17 +15,15 @@ export default function DataList() {
     const firstName = personalData?.first_name || session?.user?.name?.split(' ')[0] || 'User'
 
     return (
-        <div className="flex flex-col">
-            <main className="flex-1 flex flex-col">
-                <h1 className="text-2xl font-bold pb-6">{firstName}</h1>
-                <div className="grid grid-cols-2 gap-3 min-h-[170px] pb-12">
-                    <div className="bg-secondary rounded-[7px]"></div>
-                    <div className="bg-secondary rounded-[7px]"></div>
-                </div>
-                {menuData.map((section, index) => (
-                    <ProfileSection key={section.title} section={section} />
-                ))}
-            </main>
+        <div className="space-y-4">
+            <h1 className="text-2xl font-bold mb-4">{firstName}</h1>
+            <div className="grid grid-cols-2 gap-3 min-h-[170px]">
+                <div className="bg-secondary rounded-[7px]"></div>
+                <div className="bg-secondary rounded-[7px]"></div>
+            </div>
+            {menuData.map((section, index) => (
+                <ProfileSection key={section.title} section={section} />
+            ))}
         </div>
     )
 }
