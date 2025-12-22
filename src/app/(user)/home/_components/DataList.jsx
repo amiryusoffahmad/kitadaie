@@ -24,7 +24,7 @@ export default function DataList() {
                 {isLoading ? (
                     <Skeleton className="h-8 w-40" />
                 ) : first_name ? (
-                    <>Ahlan {first_name}👋</>
+                    <>Ahlan {first_name}</>
                 ) : (
                     'Ahlan!'
                 )}
