@@ -4,6 +4,8 @@ import { ProfileSection } from "./ProfileSection"
 import { useSession } from '@/lib/auth-client'
 import { useQuery } from '@tanstack/react-query'
 import { usePersonalData } from '@/app/api/profile/user-api'
+import { CompletionWidget, SectionBreakdownWidget } from './CompletionWidget'
+import { getProfileCompletion } from '@/server/actions/profile-completion'
 
 export default function DataList() {
     const { data: session } = useSession()
@@ -11,19 +13,46 @@ export default function DataList() {
     // Fetch user profile data using the proper hook
     const { data: personalData } = usePersonalData(session?.user?.id)
 
+    // Fetch profile completion data
+    const { data: completion, isLoading: isLoadingCompletion } = useQuery({
+        queryKey: ['profile-completion', session?.user?.id],
+        queryFn: async () => {
+            if (!session?.user?.id) return null
+            return await getProfileCompletion(session.user.id)
+        },
+        enabled: !!session?.user?.id,
+        staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    })
+
     // Get first name from personal data or fallback to display name
     const firstName = personalData?.first_name || session?.user?.name?.split(' ')[0] || 'User'
 
     return (
-        <div className="space-y-4">
-            <h1 className="text-2xl font-bold mb-4">{firstName}</h1>
-            <div className="grid grid-cols-2 gap-3 min-h-[170px]">
-                <div className="bg-secondary rounded-[7px]"></div>
-                <div className="bg-secondary rounded-[7px]"></div>
-            </div>
-            {menuData.map((section, index) => (
-                <ProfileSection key={section.title} section={section} />
-            ))}
+        <div className="flex flex-col">
+            <main className="flex-1 flex flex-col">
+                <h1 className="text-2xl font-bold pb-6">{firstName}</h1>
+
+                {/* Profile Completion Widgets */}
+                <div className="grid grid-cols-2 gap-3 pb-12">
+                    <CompletionWidget
+                        completion={completion}
+                        isLoading={isLoadingCompletion}
+                    />
+                    <SectionBreakdownWidget
+                        breakdown={completion?.breakdown}
+                        isLoading={isLoadingCompletion}
+                    />
+                </div>
+
+                {/* Profile Sections */}
+                {menuData.map((section, index) => (
+                    <ProfileSection
+                        key={section.title}
+                        section={section}
+                        completion={completion}
+                    />
+                ))}
+            </main>
         </div>
     )
 }

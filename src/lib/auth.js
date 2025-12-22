@@ -12,6 +12,10 @@ export const auth = betterAuth({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
   }),
+  emailAndPassword: {
+    enabled: true,
+    autoSignIn: true,
+  },
   socialProviders: {
     google: {
       clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,

@@ -43,4 +43,4 @@ bun.lockb
 next-env.d.ts
 /better-auth_migrations
 kd-rule.mdc
-src/db/migrations
+src/db/migrations.claude/

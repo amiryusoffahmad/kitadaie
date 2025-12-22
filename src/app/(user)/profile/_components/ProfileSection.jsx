@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { MenuItem } from "./MenuItem";
 import React from "react";
 
-export function ProfileSection({ section }) {
+export function ProfileSection({ section, completion }) {
     if (!section || !section.title || !Array.isArray(section.items)) {
         console.error("Invalid section data:", section);
         return null;
@@ -16,7 +16,11 @@ export function ProfileSection({ section }) {
             <Separator />
             <div className="space-y-[18px] pt-4">
                 {section.items.map((item) => (
-                    <MenuItem key={item.title} item={item} />
+                    <MenuItem
+                        key={item.title}
+                        item={item}
+                        completion={completion}
+                    />
                 ))}
             </div>
         </div>

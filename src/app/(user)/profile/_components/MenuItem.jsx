@@ -1,15 +1,47 @@
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, CheckCircle2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 import React from "react";
 
-export function MenuItem({ item }) {
+/**
+ * Map menu item titles to completion breakdown keys
+ */
+function getCompletionKey(title) {
+    const mapping = {
+        'Personal information': 'personal',
+        'Education': 'education',
+        'Family': 'family',
+        'Certification': 'role',
+        'Security': 'role'
+    }
+    return mapping[title] || null
+}
+
+/**
+ * Get completion badge color
+ */
+function getBadgeColor(percentage) {
+    if (percentage === 100) return 'bg-green-500'
+    if (percentage >= 76) return 'bg-blue-500'
+    if (percentage >= 51) return 'bg-yellow-500'
+    if (percentage >= 26) return 'bg-orange-500'
+    return 'bg-red-500'
+}
+
+export function MenuItem({ item, completion }) {
     const router = useRouter();
 
     const handleClick = () => {
         router.push(item.href);
     };
+
+    // Get completion percentage for this section
+    const completionKey = getCompletionKey(item.title)
+    const sectionCompletion = completionKey && completion?.breakdown?.[completionKey]
+    const percentage = sectionCompletion?.percentage || 0
+    const isComplete = percentage === 100
 
     return (
         <div>
@@ -28,7 +60,25 @@ export function MenuItem({ item }) {
                 <div className="w-full">
                     <div className="w-full flex flex-row justify-between pb-[18px]">
                         <span className="text-[15px]">{item.title}</span>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <div className="flex items-center gap-2">
+                            {/* Completion indicator */}
+                            {completion && completionKey && (
+                                <div className="flex items-center gap-1.5">
+                                    {isComplete ? (
+                                        <CheckCircle2 className="w-4 h-4 text-green-600" />
+                                    ) : (
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-xs text-muted-foreground">{percentage}%</span>
+                                            <div className={cn(
+                                                "w-1.5 h-1.5 rounded-full",
+                                                getBadgeColor(percentage)
+                                            )} />
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        </div>
                     </div>
                     <Separator />
                 </div>
