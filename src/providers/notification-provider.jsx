@@ -97,12 +97,14 @@ export function NotificationProvider({ children }) {
         // Check if browser supports notifications
         if (isNotificationSupported()) {
             // Check current permission status
-            const permission = Notification.permission;
-            setNotificationsEnabled(permission === "granted");
+            if (typeof window !== "undefined" && window.Notification) {
+                const permission = window.Notification.permission;
+                setNotificationsEnabled(permission === "granted");
 
-            // If permission already granted, initialize
-            if (permission === "granted") {
-                hasInitializedRef.current = false; // Will be set to true on first check
+                // If permission already granted, initialize
+                if (permission === "granted") {
+                    hasInitializedRef.current = false; // Will be set to true on first check
+                }
             }
         }
 
