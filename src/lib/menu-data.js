@@ -6,6 +6,7 @@ import {
   Users,
   Award,
   ShieldCheck,
+  Bell,
 } from "lucide-react";
 
 const Icons = {
@@ -16,6 +17,7 @@ const Icons = {
   Users,
   Award,
   ShieldCheck,
+  Bell,
 };
 
 // MenuItem now uses Lucide icon component
@@ -49,14 +51,19 @@ export const menuData = [
       },
     ],
   },
-  // {
-  //   title: "Settings",
-  //   items: [
-  //     {
-  //       title: "Security",
-  //       href: "/profile/security",
-  //       icon: Icons.ShieldCheck,
-  //     },
-  //   ],
-  // },
+  {
+    title: "Settings",
+    items: [
+      {
+        title: "Notifications",
+        href: "/user/notification-settings",
+        icon: Icons.Bell,
+      },
+      {
+        title: "Security",
+        href: "/profile/security",
+        icon: Icons.ShieldCheck,
+      },
+    ],
+  },
 ];

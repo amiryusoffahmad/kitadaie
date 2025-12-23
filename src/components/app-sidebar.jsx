@@ -5,6 +5,7 @@ import {
   GalleryVerticalEnd,
   SquareTerminal,
   SquareChartGantt,
+  CalendarCheck,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -72,6 +73,29 @@ const data = {
         {
           title: "User",
           url: "/admin-tprog/user",
+        },
+      ],
+    },
+    {
+      title: "Organizational",
+      url: "/admin-organizational",
+      icon: CalendarCheck,
+      items: [
+        {
+          title: "Tasks",
+          url: "/admin-organizational/tasks",
+        },
+        {
+          title: "Departments",
+          url: "/admin-organizational/departments",
+        },
+        {
+          title: "Roles",
+          url: "/admin-organizational/roles",
+        },
+        {
+          title: "User Assignments",
+          url: "/admin-organizational/assignments",
         },
       ],
     },

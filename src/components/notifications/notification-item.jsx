@@ -71,8 +71,14 @@ export function NotificationItem({
             await handleMarkAsRead();
         }
 
-        // Navigate to notification detail page
-        router.push(`/user/notifications/${notification.id}`);
+        // Navigate based on notification type
+        if (notification.type === "organizational_task" && notification.resource_id) {
+            // Navigate to task detail page
+            router.push(`/tasks/${notification.resource_id}`);
+        } else {
+            // Navigate to notification detail page
+            router.push(`/user/notifications/${notification.id}`);
+        }
     };
 
     return (
