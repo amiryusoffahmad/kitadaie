@@ -24,8 +24,10 @@ export default function NotificationSettingsPage() {
             title: "Test Notification",
             body: "This is a test notification from Kita Daie! If you can see this, notifications are working correctly.",
             onClick: () => {
-                window.focus();
-                toast.success("Notification clicked!");
+                if (typeof window !== "undefined") {
+                    window.focus();
+                    toast.success("Notification clicked!");
+                }
             },
         });
 

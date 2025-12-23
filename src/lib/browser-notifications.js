@@ -10,7 +10,7 @@
  * @returns {boolean}
  */
 export function isNotificationSupported() {
-  return "Notification" in window;
+  return typeof window !== "undefined" && "Notification" in window;
 }
 
 /**
@@ -21,7 +21,10 @@ export function getNotificationPermission() {
   if (!isNotificationSupported()) {
     return "denied";
   }
-  return Notification.permission;
+  if (typeof window !== "undefined" && window.Notification) {
+    return window.Notification.permission;
+  }
+  return "denied";
 }
 
 /**
@@ -34,17 +37,21 @@ export async function requestNotificationPermission() {
     return "denied";
   }
 
-  if (Notification.permission === "granted") {
-    return "granted";
+  if (typeof window !== "undefined" && window.Notification) {
+    if (window.Notification.permission === "granted") {
+      return "granted";
+    }
+
+    try {
+      const permission = await window.Notification.requestPermission();
+      return permission;
+    } catch (error) {
+      console.error("Error requesting notification permission:", error);
+      return "denied";
+    }
   }
 
-  try {
-    const permission = await Notification.requestPermission();
-    return permission;
-  } catch (error) {
-    console.error("Error requesting notification permission:", error);
-    return "denied";
-  }
+  return "denied";
 }
 
 /**
@@ -76,7 +83,12 @@ export function showBrowserNotification({
     return null;
   }
 
-  if (Notification.permission !== "granted") {
+  if (typeof window === "undefined" || !window.Notification) {
+    console.warn("Notification API not available");
+    return null;
+  }
+
+  if (window.Notification.permission !== "granted") {
     console.warn("Notification permission not granted");
     return null;
   }
@@ -101,7 +113,7 @@ export function showBrowserNotification({
     }
 
     // Create the notification
-    const notification = new Notification(title, options);
+    const notification = new window.Notification(title, options);
 
     // Add click handler if provided
     if (onClick && typeof onClick === "function") {
@@ -150,6 +162,8 @@ export function showTaskNotification(task) {
     data: { type: "task", taskId: task.id },
     onClick: (notification) => {
       // Focus window and navigate to task
+      if (typeof window === "undefined") return;
+
       window.focus();
       if (notification.data?.taskId) {
         window.location.href = `/tasks/${notification.data.taskId}`;
@@ -170,6 +184,8 @@ export function showTaskNotification(task) {
  */
 export function showNotificationFromData(notification) {
   const onClick = (browserNotif) => {
+    if (typeof window === "undefined") return;
+
     window.focus();
 
     // Navigate based on notification type and resource
