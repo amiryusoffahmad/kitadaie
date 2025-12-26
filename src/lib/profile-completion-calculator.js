@@ -3,7 +3,7 @@
  * Calculates user profile completion percentage based on filled fields
  *
  * Weight Distribution:
- * - Personal Info: 30%
+ * - Personal Info: 30% (9 fields, profile picture excluded)
  * - Education: 25%
  * - Family: 20%
  * - Spouse: 15%
@@ -20,16 +20,15 @@
  */
 export function calculatePersonalInfo(profile, personalInfo) {
   const fields = [
-    { key: 'first_name', value: profile?.first_name, weight: 3, label: 'First Name' },
-    { key: 'gender', value: profile?.gender, weight: 3, label: 'Gender' },
-    { key: 'phone', value: profile?.phone, weight: 3, label: 'Phone Number' },
-    { key: 'address', value: profile?.address, weight: 3, label: 'Address' },
-    { key: 'ic_no', value: personalInfo?.ic_no, weight: 3, label: 'IC Number' },
-    { key: 'marital_status', value: profile?.marital_status, weight: 3, label: 'Marital Status' },
-    { key: 'family_status', value: profile?.family_status, weight: 3, label: 'Family Status' },
-    { key: 'income_classification', value: profile?.income_classification, weight: 3, label: 'Income Classification' },
-    { key: 'branch', value: profile?.branch, weight: 3, label: 'Branch' },
-    { key: 'profile_picture', value: profile?.profile_picture, weight: 3, label: 'Profile Picture' }
+    { key: 'first_name', value: profile?.first_name, weight: 3.4, label: 'First Name' },
+    { key: 'gender', value: profile?.gender, weight: 3.4, label: 'Gender' },
+    { key: 'ic_no', value: personalInfo?.ic_no, weight: 3.4, label: 'IC Number' },
+    { key: 'phone', value: profile?.phone, weight: 3.3, label: 'Phone Number' },
+    { key: 'address', value: profile?.address, weight: 3.3, label: 'Address' },
+    { key: 'marital_status', value: profile?.marital_status, weight: 3.3, label: 'Marital Status' },
+    { key: 'family_status', value: profile?.family_status, weight: 3.3, label: 'Family Status' },
+    { key: 'income_classification', value: profile?.income_classification, weight: 3.3, label: 'Income Classification' },
+    { key: 'branch', value: profile?.branch, weight: 3.3, label: 'Branch' }
   ];
 
   let score = 0;
