@@ -21,7 +21,8 @@ export default function DataList() {
             return await getProfileCompletion(session.user.id)
         },
         enabled: !!session?.user?.id,
-        staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+        staleTime: 0, // Always fetch fresh data
+        refetchOnMount: true, // Refetch when component mounts
     })
 
     // Get first name from personal data or fallback to display name

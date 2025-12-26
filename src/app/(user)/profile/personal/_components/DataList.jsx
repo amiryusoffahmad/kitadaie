@@ -37,7 +37,8 @@ export default function DataList() {
             return;
         }
 
-        return mutation.mutateAsync({ data, userId });
+        await mutation.mutateAsync({ data, userId });
+        router.push('/profile');
     };
 
     // Combined loading state

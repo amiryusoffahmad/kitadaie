@@ -77,8 +77,9 @@ export default function FamilyList() {
             return;
         }
 
-        updateFamilyMutation.mutate({ data, userId });
+        await updateFamilyMutation.mutateAsync({ data, userId });
         setIsFormOpen(false);
+        router.push('/profile');
     };
 
     const handleCancel = () => {

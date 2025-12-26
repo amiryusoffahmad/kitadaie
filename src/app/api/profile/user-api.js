@@ -116,6 +116,8 @@ export function useUpdatePersonalData() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch personal data after successful update
       queryClient.invalidateQueries({ queryKey: ["personalData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -149,6 +151,8 @@ export function useUpdateEducationData() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch education data after successful update
       queryClient.invalidateQueries({ queryKey: ["educationData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -167,6 +171,8 @@ export function useDeleteEducation() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch education data after successful deletion
       queryClient.invalidateQueries({ queryKey: ["educationData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -200,6 +206,8 @@ export function useUpdateHighSchoolData() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch high school data after successful update
       queryClient.invalidateQueries({ queryKey: ["highSchoolData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -218,6 +226,8 @@ export function useDeleteHighSchool() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch high school data after successful deletion
       queryClient.invalidateQueries({ queryKey: ["highSchoolData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -253,6 +263,8 @@ export function useUpdateCertification() {
       queryClient.invalidateQueries({
         queryKey: ["certificationData", userId],
       });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -273,6 +285,8 @@ export function useDeleteCertification() {
       queryClient.invalidateQueries({
         queryKey: ["certificationData", userId],
       });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -306,6 +320,8 @@ export function useUpdateFamily() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch family data after successful update
       queryClient.invalidateQueries({ queryKey: ["familyData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }
@@ -324,6 +340,8 @@ export function useDeleteFamily() {
     onSuccess: (_, { userId }) => {
       // Invalidate and refetch family data after successful deletion
       queryClient.invalidateQueries({ queryKey: ["familyData", userId] });
+      // Invalidate profile completion to refresh the completion percentage
+      queryClient.invalidateQueries({ queryKey: ["profile-completion", userId] });
     },
   });
 }

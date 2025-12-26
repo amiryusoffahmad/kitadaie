@@ -144,7 +144,7 @@ export function ProfileCompletionCard({ completion, isLoading = false }) {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              {completion.missingFieldsCount || 0} fields remaining
+              {completion.missingFields?.length || 0} fields remaining
             </p>
           )}
         </div>

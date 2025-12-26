@@ -76,8 +76,9 @@ export default function CertificationList() {
             return;
         }
 
-        updateCertificationMutation.mutate({ data, userId });
+        await updateCertificationMutation.mutateAsync({ data, userId });
         setIsFormOpen(false);
+        router.push('/profile');
     };
 
     const handleCancel = () => {

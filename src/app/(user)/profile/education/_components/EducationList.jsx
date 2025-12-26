@@ -108,10 +108,11 @@ export default function EducationList() {
             return;
         }
 
-        updateEducationMutation.mutate({ data, userId });
+        await updateEducationMutation.mutateAsync({ data, userId });
         setIsFormOpen(false);
         setFormType(null);
         setSelectedDegree(null);
+        router.push('/profile');
     };
 
     const handleHighSchoolSubmit = async (data) => {
@@ -120,10 +121,11 @@ export default function EducationList() {
             return;
         }
 
-        updateHighSchoolMutation.mutate({ data, userId });
+        await updateHighSchoolMutation.mutateAsync({ data, userId });
         setIsFormOpen(false);
         setFormType(null);
         setSelectedDegree(null);
+        router.push('/profile');
     };
 
     const handleCancel = () => {
