@@ -1,42 +1,43 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { CheckCircle2, AlertCircle, Sparkles } from 'lucide-react'
+import { CheckCircle2, AlertCircle } from 'lucide-react'
+import { Card, CardContent } from '@/components/ui/card'
 
 /**
  * Get color based on completion percentage
  */
 function getCompletionColor(percentage) {
-  if (percentage === 100) return 'bg-green-500'
-  if (percentage >= 76) return 'bg-blue-500'
-  if (percentage >= 51) return 'bg-purple-500'
-  if (percentage >= 26) return 'bg-orange-500'
-  return 'bg-red-500'
+  if (percentage === 100) return 'text-green-600'
+  if (percentage >= 76) return 'text-blue-600'
+  if (percentage >= 51) return 'text-purple-600'
+  if (percentage >= 26) return 'text-orange-600'
+  return 'text-red-600'
 }
 
 /**
  * Get motivational message based on completion percentage
  */
 function getMotivationalMessage(percentage) {
-  if (percentage === 100) return { text: "Complete!", emoji: "🎉", color: "text-green-600" }
-  if (percentage >= 76) return { text: "Almost done!", emoji: "🎯", color: "text-blue-600" }
-  if (percentage >= 51) return { text: "Keep going!", emoji: "⭐", color: "text-purple-600" }
-  if (percentage >= 26) return { text: "Making progress!", emoji: "💪", color: "text-orange-600" }
-  return { text: "Let's start!", emoji: "🚀", color: "text-red-600" }
+  if (percentage === 100) return { text: "Complete!", color: "text-green-600" }
+  if (percentage >= 76) return { text: "Almost done!", color: "text-blue-600" }
+  if (percentage >= 51) return { text: "Keep going!", color: "text-purple-600" }
+  if (percentage >= 26) return { text: "Making progress!", color: "text-orange-600" }
+  return { text: "Let's start!", color: "text-red-600" }
 }
 
 /**
- * Modern Circular progress indicator with gradient
+ * Simple Circular progress indicator
  */
 function CircularProgress({ percentage, size = 'large' }) {
   const radius = size === 'large' ? 40 : 24
-  const stroke = size === 'large' ? 8 : 5
+  const stroke = size === 'large' ? 6 : 4
   const normalizedRadius = radius - stroke / 2
   const circumference = normalizedRadius * 2 * Math.PI
   const strokeDashoffset = circumference - (percentage / 100) * circumference
 
   const sizeClass = size === 'large' ? 'h-24 w-24' : 'h-14 w-14'
-  const textSize = size === 'large' ? 'text-2xl' : 'text-sm'
+  const textSize = size === 'large' ? 'text-xl' : 'text-sm'
 
   const getStrokeColor = () => {
     if (percentage === 100) return '#10b981' // green
@@ -54,11 +55,12 @@ function CircularProgress({ percentage, size = 'large' }) {
           cx={radius}
           cy={radius}
           r={normalizedRadius}
-          stroke="#e5e7eb"
+          stroke="currentColor"
           strokeWidth={stroke}
           fill="none"
+          className="text-muted"
         />
-        {/* Progress circle with gradient effect */}
+        {/* Progress circle */}
         <circle
           cx={radius}
           cy={radius}
@@ -69,18 +71,12 @@ function CircularProgress({ percentage, size = 'large' }) {
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
-          className="transition-all duration-1000 ease-out"
-          style={{
-            filter: 'drop-shadow(0 0 4px rgba(0, 0, 0, 0.1))'
-          }}
+          className="transition-all duration-500 ease-out"
         />
       </svg>
-      {/* Percentage text with gradient */}
+      {/* Percentage text */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className={cn(
-          "font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
-          textSize
-        )}>
+        <span className={cn("font-bold", textSize, getCompletionColor(percentage))}>
           {percentage}%
         </span>
       </div>
@@ -89,55 +85,77 @@ function CircularProgress({ percentage, size = 'large' }) {
 }
 
 /**
- * Large completion widget for profile overview - Modern Design
+ * Horizontal completion widget with progress bar
  */
 export function CompletionWidget({ completion, isLoading = false }) {
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-5 flex flex-col items-center justify-center shadow-sm">
-        <div className="h-24 w-24 rounded-full bg-muted/50 animate-pulse"></div>
-        <div className="h-4 w-20 bg-muted/50 rounded mt-3 animate-pulse"></div>
-      </div>
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-4 w-32 bg-muted/50 rounded animate-pulse"></div>
+            <div className="h-4 w-12 bg-muted/50 rounded animate-pulse"></div>
+          </div>
+          <div className="h-2 w-full bg-muted/50 rounded-full animate-pulse"></div>
+          <div className="h-3 w-24 bg-muted/50 rounded mt-2 animate-pulse"></div>
+        </CardContent>
+      </Card>
     )
   }
 
   if (!completion) {
     return (
-      <div className="bg-secondary rounded-xl p-5 flex flex-col items-center justify-center shadow-sm">
-        <AlertCircle className="h-12 w-12 text-muted-foreground" />
-        <p className="text-xs text-muted-foreground mt-2">No data</p>
-      </div>
+      <Card>
+        <CardContent className="p-4 flex items-center gap-3">
+          <AlertCircle className="h-5 w-5 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">No completion data available</p>
+        </CardContent>
+      </Card>
     )
   }
 
   const percentage = completion.percentage || 0
   const isComplete = percentage === 100
   const motivation = getMotivationalMessage(percentage)
+  const missingFieldsCount = completion.missingFields?.length || 0
 
   return (
-    <div className={cn(
-      "rounded-xl p-5 flex flex-col items-center justify-center space-y-3 shadow-lg transition-all duration-300 hover:shadow-xl border-2",
-      isComplete
-        ? "bg-gradient-to-br from-green-50 to-emerald-50 border-green-200"
-        : "bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 border-purple-200"
-    )}>
-      <CircularProgress percentage={percentage} size="large" />
-      <div className="text-center">
-        <p className={cn("text-sm font-bold mb-1", motivation.color)}>
-          {motivation.text} {motivation.emoji}
-        </p>
-        {isComplete ? (
-          <div className="flex items-center gap-1 justify-center text-green-600 mt-1">
-            <CheckCircle2 className="h-4 w-4" />
-            <span className="text-xs font-medium">Profile Complete</span>
+
+    <Card>
+      <CardContent className="py-0 px-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <p className="pb-2 font-semibold">Profile Completion</p>
+            {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground mt-1 font-medium">
-            {completion.missingFieldsCount || 0} fields remaining
+          <p className={cn("text-sm font-bold", getCompletionColor(percentage))}>
+            {percentage}%
           </p>
-        )}
-      </div>
-    </div>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+          <div
+            className={cn(
+              "h-full rounded-full transition-all duration-500 ease-out",
+              isComplete ? "bg-green-600" :
+                percentage >= 76 ? "bg-blue-600" :
+                  percentage >= 51 ? "bg-purple-600" :
+                    percentage >= 26 ? "bg-orange-600" :
+                      "bg-red-600"
+            )}
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+
+        <p className={cn("text-xs mt-2", motivation.color)}>
+          {isComplete
+            ? "All fields completed"
+            : `${missingFieldsCount} ${missingFieldsCount === 1 ? 'field' : 'fields'} remaining`
+          }
+        </p>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -147,7 +165,7 @@ export function CompletionWidget({ completion, isLoading = false }) {
 export function SectionCompletionWidget({ sectionName, percentage, isLoading = false }) {
   if (isLoading) {
     return (
-      <div className="bg-secondary rounded-[7px] p-4 flex flex-col items-center justify-center">
+      <div className="bg-card border rounded-lg p-4 flex flex-col items-center justify-center">
         <div className="h-14 w-14 rounded-full bg-muted/50 animate-pulse"></div>
         <div className="h-3 w-16 bg-muted/50 rounded mt-2 animate-pulse"></div>
       </div>
@@ -158,10 +176,7 @@ export function SectionCompletionWidget({ sectionName, percentage, isLoading = f
   const isComplete = completionPercentage === 100
 
   return (
-    <div className={cn(
-      "bg-secondary rounded-[7px] p-4 flex flex-col items-center justify-center space-y-2",
-      isComplete && "bg-green-50 dark:bg-green-950/20"
-    )}>
+    <div className="bg-card border rounded-lg p-4 flex flex-col items-center justify-center space-y-2">
       <CircularProgress percentage={completionPercentage} size="small" />
       <div className="text-center">
         <p className="text-xs font-medium capitalize">{sectionName}</p>

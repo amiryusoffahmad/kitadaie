@@ -32,14 +32,10 @@ export default function DataList() {
             <main className="flex-1 flex flex-col">
                 <h1 className="text-2xl font-bold pb-6">{firstName}</h1>
 
-                {/* Profile Completion Widgets */}
-                <div className="grid grid-cols-2 gap-3 pb-12">
+                {/* Profile Completion Widget */}
+                <div className="pb-6">
                     <CompletionWidget
                         completion={completion}
-                        isLoading={isLoadingCompletion}
-                    />
-                    <SectionBreakdownWidget
-                        breakdown={completion?.breakdown}
                         isLoading={isLoadingCompletion}
                     />
                 </div>
