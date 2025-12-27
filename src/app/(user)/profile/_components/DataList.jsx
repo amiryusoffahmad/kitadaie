@@ -33,14 +33,6 @@ export default function DataList() {
             <main className="flex-1 flex flex-col">
                 <h1 className="text-2xl font-bold pb-6">{firstName}</h1>
 
-                {/* Profile Completion Widget */}
-                <div className="pb-6">
-                    <CompletionWidget
-                        completion={completion}
-                        isLoading={isLoadingCompletion}
-                    />
-                </div>
-
                 {/* Profile Sections */}
                 {menuData.map((section, index) => (
                     <ProfileSection

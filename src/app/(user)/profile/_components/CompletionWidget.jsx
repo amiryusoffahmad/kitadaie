@@ -90,14 +90,14 @@ function CircularProgress({ percentage, size = 'large' }) {
 export function CompletionWidget({ completion, isLoading = false }) {
   if (isLoading) {
     return (
-      <Card>
+      <Card className="border-0 bg-white/80 backdrop-blur-sm">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="h-4 w-32 bg-muted/50 rounded animate-pulse"></div>
-            <div className="h-4 w-12 bg-muted/50 rounded animate-pulse"></div>
+            <div className="h-4 w-28 bg-gradient-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
+            <div className="h-5 w-12 bg-gradient-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
           </div>
-          <div className="h-2 w-full bg-muted/50 rounded-full animate-pulse"></div>
-          <div className="h-3 w-24 bg-muted/50 rounded mt-2 animate-pulse"></div>
+          <div className="h-2 w-full bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50 rounded-full animate-pulse"></div>
+          <div className="h-2.5 w-24 bg-gradient-to-r from-muted/50 to-muted/30 rounded mt-2 animate-pulse"></div>
         </CardContent>
       </Card>
     )
@@ -105,9 +105,9 @@ export function CompletionWidget({ completion, isLoading = false }) {
 
   if (!completion) {
     return (
-      <Card>
+      <Card className="border-0 bg-white/80 backdrop-blur-sm">
         <CardContent className="p-4 flex items-center gap-3">
-          <AlertCircle className="h-5 w-5 text-muted-foreground" />
+          <AlertCircle className="h-4 w-4 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">No completion data available</p>
         </CardContent>
       </Card>
@@ -120,40 +120,55 @@ export function CompletionWidget({ completion, isLoading = false }) {
   const missingFieldsCount = completion.missingFields?.length || 0
 
   return (
-
-    <Card>
-      <CardContent className="py-0 px-4">
+    <Card className="border-0 bg-white/80 backdrop-blur-sm">
+      <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <p className="pb-2 font-semibold">Profile Completion</p>
-            {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+              Profile Completion
+            </p>
+            {isComplete && (
+              <CheckCircle2 className="h-4 w-4 text-green-600 drop-shadow-sm" />
+            )}
           </div>
-          <p className={cn("text-sm font-bold", getCompletionColor(percentage))}>
+          <p className={cn(
+            "text-lg font-bold drop-shadow-sm",
+            getCompletionColor(percentage)
+          )}>
             {percentage}%
           </p>
         </div>
 
-        {/* Progress Bar */}
-        <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+        {/* Progress Bar with Gradient */}
+        <div className="relative w-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full h-2 overflow-hidden shadow-inner">
           <div
             className={cn(
-              "h-full rounded-full transition-all duration-500 ease-out",
-              isComplete ? "bg-green-600" :
-                percentage >= 76 ? "bg-blue-600" :
-                  percentage >= 51 ? "bg-purple-600" :
-                    percentage >= 26 ? "bg-orange-600" :
-                      "bg-red-600"
+              "h-full rounded-full transition-all duration-700 ease-out relative",
+              "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/30 before:to-white/0",
+              isComplete ? "bg-gradient-to-r from-green-500 to-green-600" :
+                percentage >= 76 ? "bg-gradient-to-r from-blue-500 to-blue-600" :
+                  percentage >= 51 ? "bg-gradient-to-r from-purple-500 to-purple-600" :
+                    percentage >= 26 ? "bg-gradient-to-r from-orange-500 to-orange-600" :
+                      "bg-gradient-to-r from-red-500 to-red-600"
             )}
             style={{ width: `${percentage}%` }}
-          />
+          >
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+          </div>
         </div>
 
-        <p className={cn("text-xs mt-2", motivation.color)}>
-          {isComplete
-            ? "All fields completed"
-            : `${missingFieldsCount} ${missingFieldsCount === 1 ? 'field' : 'fields'} remaining`
-          }
-        </p>
+        <div className="flex items-center justify-between mt-2">
+          <p className={cn("text-xs font-semibold", motivation.color)}>
+            {motivation.text}
+          </p>
+          <p className="text-xs text-muted-foreground font-medium">
+            {isComplete
+              ? "Complete!"
+              : `${missingFieldsCount} ${missingFieldsCount === 1 ? 'field' : 'fields'} left`
+            }
+          </p>
+        </div>
       </CardContent>
     </Card>
   )
