@@ -63,7 +63,7 @@ export default function UpdateDrawer() {
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
                                 <Button
-                                    onClick={() => handleNavigate()}
+                                    onClick={() => handleNavigate('/hq-tree')}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
@@ -71,6 +71,28 @@ export default function UpdateDrawer() {
                                         <Network className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">HQ Tree</span>
+                                </Button>
+
+                                <Button
+                                    onClick={() => handleNavigate('/resources')}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <BookOpen className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">Resource</span>
+                                </Button>
+
+                                <Button
+                                    onClick={() => handleNavigate()}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <Cog className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">CCS</span>
                                 </Button>
 
                                 <Button
@@ -101,33 +123,9 @@ export default function UpdateDrawer() {
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
                                     <div className="bg-foreground p-3 rounded-md mb-2">
-                                        <BookOpen className="h-5 w-5 text-primary-foreground" />
-                                    </div>
-                                    <span className="text-xs truncate w-full text-center">Resource</span>
-                                </Button>
-
-                                <Button
-                                    onClick={() => handleNavigate()}
-                                    variant="outline"
-                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
-                                >
-                                    <div className="bg-foreground p-3 rounded-md mb-2">
                                         <Users className="h-5 w-5 text-primary-foreground" />
                                     </div>
                                     <span className="text-xs truncate w-full text-center">Our Experts</span>
-                                </Button>
-
-
-
-                                <Button
-                                    onClick={() => handleNavigate()}
-                                    variant="outline"
-                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
-                                >
-                                    <div className="bg-foreground p-3 rounded-md mb-2">
-                                        <Cog className="h-5 w-5 text-primary-foreground" />
-                                    </div>
-                                    <span className="text-xs truncate w-full text-center">CCS</span>
                                 </Button>
                             </div>
                             <ScrollBar orientation="horizontal" />
@@ -140,6 +138,16 @@ export default function UpdateDrawer() {
                         <ScrollArea className="w-full whitespace-nowrap">
                             <div className="flex space-x-3 pb-2">
                                 <Button
+                                    onClick={() => handleNavigate('/mutabaah')}
+                                    variant="outline"
+                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
+                                >
+                                    <div className="bg-foreground p-3 rounded-md mb-2">
+                                        <CheckCircle className="h-5 w-5 text-primary-foreground" />
+                                    </div>
+                                    <span className="text-xs truncate w-full text-center">Mutaba'ah</span>
+                                </Button>
+                                <Button
                                     onClick={() => handleNavigate('/tprog')}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
@@ -150,16 +158,6 @@ export default function UpdateDrawer() {
                                     <span className="text-xs truncate w-full text-center">TProg</span>
                                 </Button>
 
-                                <Button
-                                    onClick={() => handleNavigate('/mutabaah')}
-                                    variant="outline"
-                                    className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
-                                >
-                                    <div className="bg-foreground p-3 rounded-md mb-2">
-                                        <CheckCircle className="h-5 w-5 text-primary-foreground" />
-                                    </div>
-                                    <span className="text-xs truncate w-full text-center">Mutaba'ah</span>
-                                </Button>
 
                                 <Button
                                     onClick={() => handleNavigate()}
