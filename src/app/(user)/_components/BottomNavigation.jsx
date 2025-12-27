@@ -41,8 +41,8 @@ export default function MobileNav() {
                         </div>
                     </div>
                 )}
-                <nav className="border-t bg-background h-16 w-full max-w-md">
-                    <div className="flex items-center justify-around pt-[17px] pb-[6px]">
+                <nav className="border-t bg-background w-full max-w-md pb-safe">
+                    <div className="flex items-center justify-around pt-2 pb-3">
                         <Link href="/home" className="flex flex-col items-center gap-1">
                             <Home size={23} />
                             <span className="text-xs">Home</span>
