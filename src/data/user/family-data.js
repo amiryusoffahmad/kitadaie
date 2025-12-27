@@ -25,7 +25,8 @@ export async function fetchFamilyData(userId) {
         "occupation",
         "company",
         "supports_dakwah",
-        "jemaah_name"
+        "jemaah_name",
+        "linked_user_id"
       )
       .where({ user_id: userId })
       .orderBy("relationship");

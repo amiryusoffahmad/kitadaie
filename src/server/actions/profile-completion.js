@@ -31,18 +31,10 @@ export async function getUserProfileData(userId) {
       .orderBy('created_at', 'desc')
       .select('*');
 
-    // Fetch family records
+    // Fetch family records (includes spouse)
     const family = await db('family')
       .where('user_id', userId)
       .select('*');
-
-    // Fetch spouse profile if linked
-    let spouseProfile = null;
-    if (profile && profile.spouse_id) {
-      spouseProfile = await db('users_profile')
-        .where('id', profile.spouse_id)
-        .first();
-    }
 
     // Fetch user role
     const role = await db('user_roles')
@@ -55,7 +47,6 @@ export async function getUserProfileData(userId) {
       highSchool,
       education,
       family,
-      spouseProfile,
       role
     };
   } catch (error) {

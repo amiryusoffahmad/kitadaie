@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Plus, Pencil, Trash2 } from 'lucide-react'
+import { ChevronLeft, Plus, Pencil, Trash2, Link2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -221,8 +221,18 @@ export default function FamilyList() {
                                 {familyData.map((member) => (
                                     <Card key={member.id}>
                                         <CardHeader>
-                                            <CardTitle>{member.full_name}</CardTitle>
-                                            <CardDescription>{member.relationship}</CardDescription>
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <CardTitle>{member.full_name}</CardTitle>
+                                                    <CardDescription>{member.relationship}</CardDescription>
+                                                </div>
+                                                {member.linked_user_id && member.relationship === 'Spouse' && (
+                                                    <Badge variant="secondary" className="flex items-center gap-1">
+                                                        <Link2 className="h-3 w-3" />
+                                                        Linked
+                                                    </Badge>
+                                                )}
+                                            </div>
                                         </CardHeader>
                                         <CardFooter className="flex justify-end space-x-2">
                                             <Button

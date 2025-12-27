@@ -222,12 +222,12 @@ export function calculateFamily(family) {
 }
 
 /**
- * Calculate spouse linking completion (15%)
+ * Calculate spouse completion (15%) - Now part of family
  * @param {Object} profile - Current user's profile
- * @param {Object} spouseProfile - Spouse's profile (if linked)
+ * @param {Array} family - family records array
  * @returns {Object} { score, missingFields }
  */
-export function calculateSpouse(profile, spouseProfile) {
+export function calculateSpouse(profile, family) {
   const missingFields = [];
   const maritalStatus = profile?.marital_status?.toLowerCase() || '';
 
@@ -236,49 +236,38 @@ export function calculateSpouse(profile, spouseProfile) {
     return { score: 15, missingFields: [] };
   }
 
-  // If married, check spouse_id
+  // If married, check for spouse in family records
   if (maritalStatus === 'married' || maritalStatus === 'berkahwin') {
-    if (!profile?.spouse_id) {
+    const spouse = family?.find(f => {
+      const rel = f.relationship?.toLowerCase() || '';
+      return rel === 'spouse' || rel === 'husband' || rel === 'wife' || rel === 'suami' || rel === 'isteri';
+    });
+
+    if (!spouse) {
       missingFields.push({
-        category: 'Spouse',
-        field: 'Spouse Linking',
+        category: 'Family',
+        field: 'Spouse Record',
         weight: 15
       });
       return { score: 0, missingFields };
     }
 
-    let score = 10; // Has spouse_id
+    let score = 10; // Has spouse record
 
-    // Verify mutual linking and opposite gender
-    if (spouseProfile) {
-      const mutualLink = spouseProfile.spouse_id === profile.id;
-      const oppositeGender = spouseProfile.gender !== profile.gender;
-
-      if (mutualLink && oppositeGender) {
-        score += 5; // Mutual linking verified
-      } else {
-        if (!mutualLink) {
-          missingFields.push({
-            category: 'Spouse',
-            field: 'Mutual Linking (spouse must link back)',
-            weight: 3
-          });
-        }
-        if (!oppositeGender) {
-          missingFields.push({
-            category: 'Spouse',
-            field: 'Opposite Gender Validation',
-            weight: 2
-          });
-        }
-      }
-    } else {
-      // Spouse profile not found
+    // Check if spouse has full_name
+    if (!spouse.full_name) {
       missingFields.push({
-        category: 'Spouse',
-        field: 'Valid Spouse Profile',
+        category: 'Family (Spouse)',
+        field: 'Spouse Name',
         weight: 5
       });
+    } else {
+      // Bonus points if spouse is linked to a user account
+      if (spouse.linked_user_id) {
+        score += 5; // Linked to registered user
+      } else {
+        score += 3; // Has name but not linked (manual entry is okay)
+      }
     }
 
     return { score, missingFields };
@@ -286,8 +275,8 @@ export function calculateSpouse(profile, spouseProfile) {
 
   // Unknown marital status
   missingFields.push({
-    category: 'Spouse',
-    field: 'Marital Status Clarification',
+    category: 'Personal',
+    field: 'Marital Status',
     weight: 15
   });
 
@@ -343,7 +332,6 @@ export function calculateProfileCompletion(data) {
     highSchool,
     education,
     family,
-    spouseProfile,
     role
   } = data;
 
@@ -351,7 +339,7 @@ export function calculateProfileCompletion(data) {
   const personalResult = calculatePersonalInfo(profile, personalInfo);
   const educationResult = calculateEducation(highSchool, education);
   const familyResult = calculateFamily(family);
-  const spouseResult = calculateSpouse(profile, spouseProfile);
+  const spouseResult = calculateSpouse(profile, family);
   const roleResult = calculateRole(role, profile);
 
   // Sum up scores

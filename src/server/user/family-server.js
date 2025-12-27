@@ -35,6 +35,7 @@ export async function updateFamily(data, userId) {
         company: data.company || null,
         supports_dakwah: data.supports_dakwah || false,
         jemaah_name: data.jemaah_name || null,
+        linked_user_id: data.linked_user_id || null,
       };
 
       let result;
