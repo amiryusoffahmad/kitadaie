@@ -3,9 +3,16 @@
 import * as React from "react"
 import {
   GalleryVerticalEnd,
-  SquareTerminal,
-  SquareChartGantt,
-  CalendarCheck,
+  LayoutDashboard,
+  Home,
+  Users,
+  GraduationCap,
+  Building2,
+  FileText,
+  BarChart3,
+  Settings,
+  Calendar,
+  Network,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -20,41 +27,51 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { NavTop } from "@/components/nav-top"
-// This is sample data.
+
+// Admin sidebar data
 const data = {
   main: [
     {
       title: "Dashboard",
       url: "/dashboard",
-      icon: SquareTerminal,
+      icon: LayoutDashboard,
+      isActive: true,
+      items: [
+        {
+          title: "Overview",
+          url: "/dashboard",
+        },
+        {
+          title: "Profile Report",
+          url: "/dashboard/profile-report",
+        },
+      ],
     },
     {
       title: "Homepage",
       url: "/home",
-      icon: SquareTerminal,
+      icon: Home,
     }
   ],
   teams: [
     {
       name: "LKD SLT",
       logo: GalleryVerticalEnd,
-      // plan: "Enterprise",
     },
   ],
   navMain: [
     {
-      title: "Master",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
+      title: "Resources",
+      url: "/admin-resources",
+      icon: FileText,
       items: [
         {
-          title: "Database User",
-          url: "#",
+          title: "All Resources",
+          url: "/admin-resources",
         },
         {
-          title: "Settings",
-          url: "#",
+          title: "Categories",
+          url: "/admin-resources/categories",
         },
       ],
     },
@@ -63,15 +80,18 @@ const data = {
     {
       title: "TProg",
       url: "/admin-tprog",
-      icon: SquareChartGantt,
-      isActive: true,
+      icon: GraduationCap,
       items: [
         {
-          title: "Class",
+          title: "All Classes",
+          url: "/admin-tprog",
+        },
+        {
+          title: "Class Management",
           url: "/admin-tprog/class",
         },
         {
-          title: "User",
+          title: "User Management",
           url: "/admin-tprog/user",
         },
       ],
@@ -79,7 +99,7 @@ const data = {
     {
       title: "Organizational",
       url: "/admin-organizational",
-      icon: CalendarCheck,
+      icon: Building2,
       items: [
         {
           title: "Tasks",
@@ -94,7 +114,7 @@ const data = {
           url: "/admin-organizational/roles",
         },
         {
-          title: "User Assignments",
+          title: "Assignments",
           url: "/admin-organizational/assignments",
         },
       ],
