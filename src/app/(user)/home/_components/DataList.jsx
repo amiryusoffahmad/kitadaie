@@ -4,7 +4,7 @@ import { useSession } from '@/lib/auth-client'
 import { usePersonalData } from '@/app/api/profile/user-api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Terminal, LogOut, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle, Info } from 'lucide-react'
+import { Terminal, LogOut, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle, Info, BookOpen, CheckSquare, FolderOpen, Network } from 'lucide-react'
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -69,6 +69,63 @@ export default function DataList() {
 
                     {/* Subtle shine effect on hover */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 translate-x-[-100%] group-hover:translate-x-[100%] transition-all duration-1000" />
+                </div>
+            </div>
+
+            {/* Quick Navigation */}
+            <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-3">
+                    {/* Mathurat */}
+                    <Card
+                        className="cursor-pointer hover:bg-accent/50 transition-colors active:scale-[0.98]"
+                        onClick={() => router.push('/Al-Mathurat-1.pdf')}
+                    >
+                        <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                                <BookOpen className="h-6 w-6 text-green-600" />
+                            </div>
+                            <p className="text-sm font-medium">Mathurat</p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Mutabaah */}
+                    <Card
+                        className="cursor-pointer hover:bg-accent/50 transition-colors active:scale-[0.98]"
+                        onClick={() => router.push('/mutabaah')}
+                    >
+                        <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
+                                <CheckSquare className="h-6 w-6 text-blue-600" />
+                            </div>
+                            <p className="text-sm font-medium">Mutabaah</p>
+                        </CardContent>
+                    </Card>
+
+                    {/* Resources */}
+                    <Card
+                        className="cursor-pointer hover:bg-accent/50 transition-colors active:scale-[0.98]"
+                        onClick={() => router.push('/resources')}
+                    >
+                        <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                                <FolderOpen className="h-6 w-6 text-orange-600" />
+                            </div>
+                            <p className="text-sm font-medium">Resources</p>
+                        </CardContent>
+                    </Card>
+
+                    {/* HQ Tree */}
+                    <Card
+                        className="cursor-pointer hover:bg-accent/50 transition-colors active:scale-[0.98]"
+                        onClick={() => router.push('/hq-tree')}
+                    >
+                        <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
+                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                                <Network className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <p className="text-sm font-medium">HQ Tree</p>
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
 
