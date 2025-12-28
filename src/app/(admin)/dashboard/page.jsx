@@ -1,10 +1,29 @@
+import { PageContainer, PageHeader } from "@/components/admin";
+import { Card, CardContent } from "@/components/ui/card";
+import { Activity } from "lucide-react";
+
+export const metadata = {
+  title: "Dashboard | Admin",
+  description: "Admin dashboard overview",
+};
+
 export default function DashboardPage() {
-    return (
-        <div className='flex items-center justify-center min-h-[calc(100vh-4rem)] p-4'>
-            <div className='text-center'>
-                <h1 className='text-2xl font-semibold mb-2'>Dashboard</h1>
-                <p className='text-muted-foreground'>This dashboard is currently in development, stay tuned</p>
-            </div>
-        </div>
-    )
+  return (
+    <PageContainer>
+      <PageHeader
+        title="Dashboard"
+        description="Overview of your administrative workspace"
+      />
+
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-16">
+          <Activity className="h-16 w-16 text-muted-foreground mb-4" />
+          <h2 className="text-lg font-medium mb-2">Dashboard Coming Soon</h2>
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            This dashboard is currently in development. Check back soon for analytics and insights.
+          </p>
+        </CardContent>
+      </Card>
+    </PageContainer>
+  );
 }

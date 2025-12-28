@@ -57,9 +57,9 @@ export default async function Layout({ children }) {
                         <AppButton />
                     </div>
                 </header>
-                <div>
+                <main className="flex flex-1 flex-col overflow-auto">
                     {children}
-                </div>
+                </main>
             </SidebarInset>
         </SidebarProvider>
     );

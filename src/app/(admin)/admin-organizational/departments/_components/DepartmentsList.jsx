@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, MessageSquare } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Building2 } from "lucide-react";
 import { toast } from "sonner";
 import { DepartmentDialog } from "./DepartmentDialog";
 import {
@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState, DataTableWrapper, LoadingText } from "@/components/admin";
 
 export function DepartmentsList() {
   const [departments, setDepartments] = useState([]);
@@ -99,7 +100,7 @@ export function DepartmentsList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading departments...</div>;
+    return <LoadingText />;
   }
 
   return (
@@ -112,25 +113,33 @@ export function DepartmentsList() {
           </Button>
         </div>
 
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Telegram Group</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {departments.length === 0 ? (
+        {departments.length === 0 ? (
+          <DataTableWrapper>
+            <EmptyState
+              icon={Building2}
+              title="No departments yet"
+              description="Create your first department to get started"
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Department
+                </Button>
+              }
+            />
+          </DataTableWrapper>
+        ) : (
+          <DataTableWrapper>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No departments found. Create your first department to get started.
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Telegram Group</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                departments.map((department) => (
+              </TableHeader>
+              <TableBody>
+                {departments.map((department) => (
                   <TableRow key={department.id}>
                     <TableCell className="font-medium">{department.name}</TableCell>
                     <TableCell>
@@ -167,11 +176,11 @@ export function DepartmentsList() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableWrapper>
+        )}
       </div>
 
       <DepartmentDialog

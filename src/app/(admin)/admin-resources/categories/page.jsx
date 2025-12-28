@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -13,7 +12,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, Edit, Folder } from 'lucide-react'
+import { Plus, Trash2, Folder } from 'lucide-react'
 import { toast } from 'sonner'
 import CreateCategoryDialog from '../_components/CreateCategoryDialog'
 import {
@@ -26,6 +25,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { PageContainer, PageHeader, EmptyState, DataTableWrapper, LoadingText } from '@/components/admin'
 
 export default function CategoriesPage() {
     const [createDialogOpen, setCreateDialogOpen] = useState(false)
@@ -88,106 +88,102 @@ export default function CategoriesPage() {
     }
 
     return (
-        <div className='p-6'>
-            <Card>
-                <CardHeader>
-                    <div className='flex items-center justify-between'>
-                        <div>
-                            <CardTitle>Resource Categories</CardTitle>
-                            <p className='text-sm text-muted-foreground mt-1'>
-                                Manage categories for organizing resources
-                            </p>
-                        </div>
-                        <Button onClick={() => setCreateDialogOpen(true)}>
-                            <Plus className='h-4 w-4 mr-2' />
-                            New Category
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className='text-center py-8 text-muted-foreground'>
-                            Loading categories...
-                        </div>
-                    ) : categories.length === 0 ? (
-                        <div className='text-center py-12'>
-                            <Folder className='h-12 w-12 mx-auto text-muted-foreground mb-3' />
-                            <p className='text-muted-foreground mb-4'>No categories created yet</p>
+        <PageContainer>
+            <PageHeader
+                title="Resource Categories"
+                description="Manage categories for organizing resources"
+                action={
+                    <Button onClick={() => setCreateDialogOpen(true)}>
+                        <Plus className='h-4 w-4 mr-2' />
+                        New Category
+                    </Button>
+                }
+            />
+
+            {isLoading ? (
+                <LoadingText />
+            ) : categories.length === 0 ? (
+                <DataTableWrapper>
+                    <EmptyState
+                        icon={Folder}
+                        title="No categories yet"
+                        description="Create your first category to organize resources"
+                        action={
                             <Button onClick={() => setCreateDialogOpen(true)}>
                                 <Plus className='h-4 w-4 mr-2' />
                                 Create First Category
                             </Button>
-                        </div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Slug</TableHead>
-                                    <TableHead>Color</TableHead>
-                                    <TableHead>Description</TableHead>
-                                    <TableHead>Created</TableHead>
-                                    <TableHead className='text-right'>Actions</TableHead>
+                        }
+                    />
+                </DataTableWrapper>
+            ) : (
+                <DataTableWrapper>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Slug</TableHead>
+                                <TableHead>Color</TableHead>
+                                <TableHead>Description</TableHead>
+                                <TableHead>Created</TableHead>
+                                <TableHead className='text-right'>Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {categories.map((category) => (
+                                <TableRow key={category.id}>
+                                    <TableCell className='font-medium'>
+                                        <Badge
+                                            variant='secondary'
+                                            style={{
+                                                backgroundColor: category.color + '20',
+                                                color: category.color
+                                            }}
+                                        >
+                                            {category.name}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell className='text-sm text-muted-foreground'>
+                                        {category.slug}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div className='flex items-center gap-2'>
+                                            <div
+                                                className='w-6 h-6 rounded border'
+                                                style={{ backgroundColor: category.color }}
+                                            />
+                                            <span className='text-sm text-muted-foreground'>
+                                                {category.color}
+                                            </span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className='max-w-xs truncate text-sm text-muted-foreground'>
+                                        {category.description || '-'}
+                                    </TableCell>
+                                    <TableCell className='text-sm text-muted-foreground'>
+                                        {formatDate(category.created_at)}
+                                    </TableCell>
+                                    <TableCell className='text-right'>
+                                        <Button
+                                            variant='ghost'
+                                            size='icon'
+                                            onClick={() => handleDeleteClick(category)}
+                                        >
+                                            <Trash2 className='h-4 w-4 text-destructive' />
+                                        </Button>
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {categories.map((category) => (
-                                    <TableRow key={category.id}>
-                                        <TableCell className='font-medium'>
-                                            <Badge
-                                                variant='secondary'
-                                                style={{
-                                                    backgroundColor: category.color + '20',
-                                                    color: category.color
-                                                }}
-                                            >
-                                                {category.name}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className='text-sm text-muted-foreground'>
-                                            {category.slug}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className='flex items-center gap-2'>
-                                                <div
-                                                    className='w-6 h-6 rounded border'
-                                                    style={{ backgroundColor: category.color }}
-                                                />
-                                                <span className='text-sm text-muted-foreground'>
-                                                    {category.color}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className='max-w-xs truncate text-sm text-muted-foreground'>
-                                            {category.description || '-'}
-                                        </TableCell>
-                                        <TableCell className='text-sm text-muted-foreground'>
-                                            {formatDate(category.created_at)}
-                                        </TableCell>
-                                        <TableCell className='text-right'>
-                                            <Button
-                                                variant='ghost'
-                                                size='icon'
-                                                onClick={() => handleDeleteClick(category)}
-                                            >
-                                                <Trash2 className='h-4 w-4 text-destructive' />
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </DataTableWrapper>
+            )}
 
-            {/* Create Dialog */}
             <CreateCategoryDialog
                 open={createDialogOpen}
                 onOpenChange={setCreateDialogOpen}
             />
 
-            {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -208,6 +204,6 @@ export default function CategoriesPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </PageContainer>
     )
 }

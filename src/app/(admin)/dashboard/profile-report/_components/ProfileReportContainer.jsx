@@ -8,6 +8,7 @@ import ProfileFilters from './ProfileFilters'
 import ProfileTable from './ProfileTable'
 import ExportButton from './ExportButton'
 import { toast } from 'sonner'
+import { PageHeader } from '@/components/admin'
 
 export default function ProfileReportContainer() {
   const [users, setUsers] = useState([])
@@ -112,18 +113,11 @@ export default function ProfileReportContainer() {
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold tracking-tight'>
-            Profile Completion Report
-          </h1>
-          <p className='text-muted-foreground mt-2'>
-            Monitor and track user profile completion status across the organization
-          </p>
-        </div>
-        <ExportButton />
-      </div>
+      <PageHeader
+        title="Profile Completion Report"
+        description="Monitor and track user profile completion status across the organization"
+        action={<ExportButton />}
+      />
 
       {/* Statistics */}
       <ProfileStats stats={stats} isLoading={isLoading} />

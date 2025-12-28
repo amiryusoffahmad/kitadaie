@@ -1,3 +1,4 @@
+import { PageContainer } from "@/components/admin";
 import { TaskDetail } from "../_components/TaskDetail";
 
 export const metadata = {
@@ -6,5 +7,9 @@ export const metadata = {
 };
 
 export default function CreateTaskPage() {
-  return <TaskDetail />;
+  return (
+    <PageContainer>
+      <TaskDetail />
+    </PageContainer>
+  );
 }

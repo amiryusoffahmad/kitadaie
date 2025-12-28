@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -26,6 +25,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
+import { PageContainer, PageHeader, EmptyState, DataTableWrapper, LoadingText } from '@/components/admin'
 
 const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
 
@@ -95,124 +95,125 @@ export default function AdminResourcesPage() {
     }
 
     return (
-        <div className='p-6'>
-            <Card>
-                <CardHeader>
-                    <div className='flex items-center justify-between'>
-                        <CardTitle>Resources Management</CardTitle>
-                        <Button onClick={() => setUploadDialogOpen(true)}>
-                            <Plus className='h-4 w-4 mr-2' />
-                            Upload Resource
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {isLoading ? (
-                        <div className='text-center py-8 text-muted-foreground'>
-                            Loading resources...
-                        </div>
-                    ) : resources.length === 0 ? (
-                        <div className='text-center py-12'>
-                            <FileText className='h-12 w-12 mx-auto text-muted-foreground mb-3' />
-                            <p className='text-muted-foreground mb-4'>No resources uploaded yet</p>
+        <PageContainer>
+            <PageHeader
+                title="Resources Management"
+                description="Upload and manage PDF resources for users"
+                action={
+                    <Button onClick={() => setUploadDialogOpen(true)}>
+                        <Plus className='h-4 w-4 mr-2' />
+                        Upload Resource
+                    </Button>
+                }
+            />
+
+            {isLoading ? (
+                <LoadingText />
+            ) : resources.length === 0 ? (
+                <DataTableWrapper>
+                    <EmptyState
+                        icon={FileText}
+                        title="No resources yet"
+                        description="Upload your first resource to get started"
+                        action={
                             <Button onClick={() => setUploadDialogOpen(true)}>
                                 <Plus className='h-4 w-4 mr-2' />
                                 Upload First Resource
                             </Button>
-                        </div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Title</TableHead>
-                                    <TableHead>Category</TableHead>
-                                    <TableHead>Tags</TableHead>
-                                    <TableHead>Size</TableHead>
-                                    <TableHead>Uploaded</TableHead>
-                                    <TableHead className='text-right'>Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {resources.map((resource) => (
-                                    <TableRow key={resource.id}>
-                                        <TableCell className='font-medium'>
-                                            {resource.title}
-                                        </TableCell>
-                                        <TableCell>
-                                            {resource.category_name ? (
-                                                <Badge
-                                                    variant='secondary'
-                                                    style={{
-                                                        backgroundColor: resource.category_color + '20',
-                                                        color: resource.category_color
-                                                    }}
-                                                >
-                                                    {resource.category_name}
-                                                </Badge>
-                                            ) : (
-                                                <span className='text-muted-foreground text-sm'>-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {resource.tags && resource.tags.length > 0 ? (
-                                                <div className='flex flex-wrap gap-1'>
-                                                    {resource.tags.slice(0, 2).map((tag, idx) => (
-                                                        <Badge key={idx} variant='outline' className='text-xs'>
-                                                            {tag}
-                                                        </Badge>
-                                                    ))}
-                                                    {resource.tags.length > 2 && (
-                                                        <Badge variant='outline' className='text-xs'>
-                                                            +{resource.tags.length - 2}
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            ) : (
-                                                <span className='text-muted-foreground text-sm'>-</span>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className='text-sm text-muted-foreground'>
-                                            {formatFileSize(resource.file_size)}
-                                        </TableCell>
-                                        <TableCell className='text-sm text-muted-foreground'>
-                                            {formatDate(resource.created_at)}
-                                        </TableCell>
-                                        <TableCell className='text-right'>
-                                            <div className='flex items-center justify-end gap-2'>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    onClick={() => {
-                                                        const fullUrl = `${uriUpload}${resource.file_path}`
-                                                        window.open(fullUrl, '_blank')
-                                                    }}
-                                                >
-                                                    <Eye className='h-4 w-4' />
-                                                </Button>
-                                                <Button
-                                                    variant='ghost'
-                                                    size='icon'
-                                                    onClick={() => handleDeleteClick(resource)}
-                                                >
-                                                    <Trash2 className='h-4 w-4 text-destructive' />
-                                                </Button>
+                        }
+                    />
+                </DataTableWrapper>
+            ) : (
+                <DataTableWrapper>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Title</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Tags</TableHead>
+                                <TableHead>Size</TableHead>
+                                <TableHead>Uploaded</TableHead>
+                                <TableHead className='text-right'>Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {resources.map((resource) => (
+                                <TableRow key={resource.id}>
+                                    <TableCell className='font-medium'>
+                                        {resource.title}
+                                    </TableCell>
+                                    <TableCell>
+                                        {resource.category_name ? (
+                                            <Badge
+                                                variant='secondary'
+                                                style={{
+                                                    backgroundColor: resource.category_color + '20',
+                                                    color: resource.category_color
+                                                }}
+                                            >
+                                                {resource.category_name}
+                                            </Badge>
+                                        ) : (
+                                            <span className='text-muted-foreground text-sm'>-</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        {resource.tags && resource.tags.length > 0 ? (
+                                            <div className='flex flex-wrap gap-1'>
+                                                {resource.tags.slice(0, 2).map((tag, idx) => (
+                                                    <Badge key={idx} variant='outline' className='text-xs'>
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                                {resource.tags.length > 2 && (
+                                                    <Badge variant='outline' className='text-xs'>
+                                                        +{resource.tags.length - 2}
+                                                    </Badge>
+                                                )}
                                             </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    )}
-                </CardContent>
-            </Card>
+                                        ) : (
+                                            <span className='text-muted-foreground text-sm'>-</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className='text-sm text-muted-foreground'>
+                                        {formatFileSize(resource.file_size)}
+                                    </TableCell>
+                                    <TableCell className='text-sm text-muted-foreground'>
+                                        {formatDate(resource.created_at)}
+                                    </TableCell>
+                                    <TableCell className='text-right'>
+                                        <div className='flex items-center justify-end gap-2'>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
+                                                onClick={() => {
+                                                    const fullUrl = `${uriUpload}${resource.file_path}`
+                                                    window.open(fullUrl, '_blank')
+                                                }}
+                                            >
+                                                <Eye className='h-4 w-4' />
+                                            </Button>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
+                                                onClick={() => handleDeleteClick(resource)}
+                                            >
+                                                <Trash2 className='h-4 w-4 text-destructive' />
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </DataTableWrapper>
+            )}
 
-            {/* Upload Dialog */}
             <UploadResourceDialog
                 open={uploadDialogOpen}
                 onOpenChange={setUploadDialogOpen}
             />
 
-            {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
@@ -232,6 +233,6 @@ export default function AdminResourcesPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </div>
+        </PageContainer>
     )
 }

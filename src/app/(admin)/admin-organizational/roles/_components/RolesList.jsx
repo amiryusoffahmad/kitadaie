@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, MessageSquare } from "lucide-react";
+import { Plus, Pencil, Trash2, MessageSquare, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { RoleDialog } from "./RoleDialog";
 import {
@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState, DataTableWrapper, LoadingText } from "@/components/admin";
 
 export function RolesList() {
   const [roles, setRoles] = useState([]);
@@ -99,7 +100,7 @@ export function RolesList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading roles...</div>;
+    return <LoadingText />;
   }
 
   return (
@@ -112,25 +113,33 @@ export function RolesList() {
           </Button>
         </div>
 
-        <div className="border rounded-lg">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Code</TableHead>
-                <TableHead>Telegram Group</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {roles.length === 0 ? (
+        {roles.length === 0 ? (
+          <DataTableWrapper>
+            <EmptyState
+              icon={Shield}
+              title="No roles yet"
+              description="Roles should be seeded during migration"
+              action={
+                <Button onClick={handleCreate}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Role
+                </Button>
+              }
+            />
+          </DataTableWrapper>
+        ) : (
+          <DataTableWrapper>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
-                    No roles found. Roles should be seeded during migration.
-                  </TableCell>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Telegram Group</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                roles.map((role) => (
+              </TableHeader>
+              <TableBody>
+                {roles.map((role) => (
                   <TableRow key={role.id}>
                     <TableCell className="font-medium">{role.name}</TableCell>
                     <TableCell>
@@ -167,11 +176,11 @@ export function RolesList() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ))}
+              </TableBody>
+            </Table>
+          </DataTableWrapper>
+        )}
       </div>
 
       <RoleDialog

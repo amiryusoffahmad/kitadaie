@@ -1,14 +1,15 @@
-import ProfileReportContainer from './_components/ProfileReportContainer'
+import { PageContainer } from "@/components/admin";
+import ProfileReportContainer from './_components/ProfileReportContainer';
 
 export const metadata = {
-  title: 'Profile Completion Report | Kita Daie',
+  title: 'Profile Completion Report | Admin',
   description: 'Admin report for user profile completion status'
 }
 
 export default function ProfileReportPage() {
   return (
-    <div className='container mx-auto p-6'>
+    <PageContainer>
       <ProfileReportContainer />
-    </div>
-  )
+    </PageContainer>
+  );
 }
