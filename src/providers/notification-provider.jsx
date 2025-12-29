@@ -7,6 +7,7 @@ import {
     showNotificationFromData,
     isNotificationSupported,
 } from "@/lib/browser-notifications";
+import { savePushSubscriptionAction } from "@/server/actions/push-subscription-actions";
 
 // Create context
 const NotificationContext = createContext({
@@ -85,10 +86,54 @@ export function NotificationProvider({ children }) {
         }
     };
 
-    // Request notification permission
+    // Request notification permission and create push subscription
     const requestPermission = async () => {
         const granted = await ensureNotificationPermission();
         setNotificationsEnabled(granted);
+
+        // If permission granted, subscribe to push notifications
+        if (granted) {
+            try {
+                // Register service worker for Web Push
+                if ("serviceWorker" in navigator && "PushManager" in window) {
+                    const registration = await navigator.serviceWorker.register(
+                        "/sw-push.js",
+                        { scope: "/" }
+                    );
+                    await navigator.serviceWorker.ready;
+
+                    // Subscribe to push notifications
+                    const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+                    if (!vapidPublicKey) {
+                        console.error("VAPID public key not configured");
+                        return granted;
+                    }
+
+                    const subscription = await registration.pushManager.subscribe({
+                        userVisibleOnly: true,
+                        applicationServerKey: vapidPublicKey,
+                    });
+
+                    // Save subscription to database
+                    const deviceInfo = {
+                        userAgent: navigator.userAgent,
+                        platform: navigator.platform,
+                        language: navigator.language,
+                        timestamp: new Date().toISOString(),
+                    };
+
+                    await savePushSubscriptionAction({
+                        subscription: subscription.toJSON(),
+                        deviceInfo,
+                    });
+
+                    console.log("Push subscription saved successfully");
+                }
+            } catch (error) {
+                console.error("Error setting up Web Push:", error);
+            }
+        }
+
         return granted;
     };
 
@@ -101,9 +146,53 @@ export function NotificationProvider({ children }) {
                 const permission = window.Notification.permission;
                 setNotificationsEnabled(permission === "granted");
 
-                // If permission already granted, initialize
+                // If permission already granted, initialize Web Push
                 if (permission === "granted") {
                     hasInitializedRef.current = false; // Will be set to true on first check
+
+                    // Set up Web Push if not already done
+                    (async () => {
+                        try {
+                            if ("serviceWorker" in navigator && "PushManager" in window) {
+                                const registration = await navigator.serviceWorker.register(
+                                    "/sw-push.js",
+                                    { scope: "/" }
+                                );
+                                await navigator.serviceWorker.ready;
+
+                                // Subscribe to push notifications if not already subscribed
+                                const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+                                if (vapidPublicKey) {
+                                    let subscription = await registration.pushManager.getSubscription();
+
+                                    // Create new subscription if doesn't exist
+                                    if (!subscription) {
+                                        subscription = await registration.pushManager.subscribe({
+                                            userVisibleOnly: true,
+                                            applicationServerKey: vapidPublicKey,
+                                        });
+
+                                        // Save subscription to database
+                                        const deviceInfo = {
+                                            userAgent: navigator.userAgent,
+                                            platform: navigator.platform,
+                                            language: navigator.language,
+                                            timestamp: new Date().toISOString(),
+                                        };
+
+                                        await savePushSubscriptionAction({
+                                            subscription: subscription.toJSON(),
+                                            deviceInfo,
+                                        });
+
+                                        console.log("Web Push initialized on mount");
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error("Error initializing Web Push on mount:", error);
+                        }
+                    })();
                 }
             }
         }

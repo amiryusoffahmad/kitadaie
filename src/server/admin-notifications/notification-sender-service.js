@@ -6,6 +6,8 @@ import {
   getAdminNotificationById,
   getRecipients,
 } from "./admin-notification-service";
+import { getAllPushSubscriptionsForUsers, deactivatePushSubscriptions } from "../push/push-subscription-service";
+import { sendWebPushNotificationBatch } from "@/lib/web-push-sender";
 
 /**
  * Send an admin notification immediately
@@ -70,6 +72,7 @@ export async function sendAdminNotification(adminNotificationId) {
 /**
  * Internal function to create individual notifications for recipients
  * Batches inserts for better performance
+ * Also sends FCM push notifications
  * @param {number} adminNotificationId
  * @param {Array} userIds
  * @param {string} title
@@ -84,6 +87,43 @@ async function createNotificationsForUsers(
 ) {
   const BATCH_SIZE = 100;
   let totalCreated = 0;
+
+  // Get push subscriptions for all users (before batching)
+  let pushSubscriptions = [];
+  try {
+    pushSubscriptions = await getAllPushSubscriptionsForUsers(userIds);
+    console.log(`Found ${pushSubscriptions.length} push subscriptions for ${userIds.length} users`);
+  } catch (error) {
+    console.error("Error getting push subscriptions:", error);
+  }
+
+  // Send Web Push notifications if subscriptions exist
+  if (pushSubscriptions.length > 0) {
+    try {
+      const pushResult = await sendWebPushNotificationBatch({
+        subscriptions: pushSubscriptions,
+        title,
+        body: message,
+        data: {
+          type: "admin_broadcast",
+          adminNotificationId: String(adminNotificationId),
+        },
+        clickAction: "/user/notifications",
+      });
+
+      console.log(
+        `Web Push sent: ${pushResult.successCount} succeeded, ${pushResult.failureCount} failed`
+      );
+
+      // Deactivate invalid subscriptions
+      if (pushResult.invalidSubscriptions && pushResult.invalidSubscriptions.length > 0) {
+        await deactivatePushSubscriptions(pushResult.invalidSubscriptions);
+      }
+    } catch (error) {
+      console.error("Error sending Web Push notifications:", error);
+      // Continue with in-app notifications even if Web Push fails
+    }
+  }
 
   // Process in batches to avoid overwhelming the database
   for (let i = 0; i < userIds.length; i += BATCH_SIZE) {
@@ -102,11 +142,12 @@ async function createNotificationsForUsers(
           resourceType: "admin_notification", // Resource type
         });
 
-        // Log the delivery
+        // Log the delivery (including Web Push status)
         await logNotificationRecipient(
           adminNotificationId,
           notification.id,
-          userId
+          userId,
+          pushSubscriptions.length > 0 // pushSent flag
         );
 
         return true;
@@ -131,17 +172,21 @@ async function createNotificationsForUsers(
  * @param {number} adminNotificationId
  * @param {number} notificationId
  * @param {string} userId
+ * @param {boolean} pushSent - Whether Web Push was sent
  */
 async function logNotificationRecipient(
   adminNotificationId,
   notificationId,
-  userId
+  userId,
+  pushSent = false
 ) {
   try {
     await db("admin_notification_recipients").insert({
       admin_notification_id: adminNotificationId,
       notification_id: notificationId,
       user_id: userId,
+      push_sent: pushSent ? 1 : 0,
+      push_sent_at: pushSent ? db.fn.now() : null,
     });
   } catch (error) {
     // Log but don't fail the notification send
