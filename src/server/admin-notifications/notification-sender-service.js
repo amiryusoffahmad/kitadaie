@@ -93,19 +93,19 @@ async function createNotificationsForUsers(
     const notificationPromises = batch.map(async (userId) => {
       try {
         // Create individual notification using existing service
-        const notificationId = await createNotification(
+        const notification = await createNotification({
           userId,
           title,
           message,
-          "admin_broadcast", // Type for admin notifications
-          adminNotificationId, // Resource ID points to admin notification
-          "admin_notification" // Resource type
-        );
+          type: "admin_broadcast", // Type for admin notifications
+          resourceId: String(adminNotificationId), // Resource ID points to admin notification
+          resourceType: "admin_notification", // Resource type
+        });
 
         // Log the delivery
         await logNotificationRecipient(
           adminNotificationId,
-          notificationId,
+          notification.id,
           userId
         );
 
