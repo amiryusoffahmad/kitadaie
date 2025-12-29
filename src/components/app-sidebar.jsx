@@ -13,6 +13,7 @@ import {
   Settings,
   Calendar,
   Network,
+  Bell,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -46,11 +47,6 @@ const data = {
           url: "/dashboard/profile-report",
         },
       ],
-    },
-    {
-      title: "Homepage",
-      url: "/home",
-      icon: Home,
     }
   ],
   teams: [
@@ -116,6 +112,29 @@ const data = {
         {
           title: "Assignments",
           url: "/admin-organizational/assignments",
+        },
+      ],
+    },
+    {
+      title: "Notifications",
+      url: "/admin-notifications",
+      icon: Bell,
+      items: [
+        {
+          title: "Dashboard",
+          url: "/admin-notifications",
+        },
+        {
+          title: "Send Notification",
+          url: "/admin-notifications/send",
+        },
+        {
+          title: "Templates",
+          url: "/admin-notifications/templates",
+        },
+        {
+          title: "History",
+          url: "/admin-notifications/history",
         },
       ],
     },
