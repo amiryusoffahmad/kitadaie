@@ -46,98 +46,102 @@
 
 @layer base {
   :root {
-    --radius: 0.3rem;
-    /* Using Isabelline (#F3F2EE) as main background */
-    --background: #F3F2EE;
-    /* Using Jet (#302F2B) as main text color */
-    --foreground: #302F2B;
-    /* Using Dun (#BEBAAC) as card background */
-    --card: #BEBAAC;
-    --card-foreground: #302F2B;
-    /* Using Isabelline for popovers */
-    --popover: #F3F2EE;
-    --popover-foreground: #302F2B;
-    /* Using Cafe (#473729) as primary */
-    --primary: #473729;
-    --primary-foreground: #F3F2EE;
-    /* Using Dun as secondary */
-    --secondary: #BEBAAC;
-    --secondary-foreground: #302F2B;
-    /* Using slightly darker Dun for muted */
-    --muted: #B5B1A3;
-    --muted-foreground: #6C5F54;
-    /* Using Amber (#FFBC2D) as accent */
-    --accent: #FFBC2D;
-    --accent-foreground: #302F2B;
-    /* Keep destructive red */
-    --destructive: oklch(0.577 0.245 27.325);
-    /* Using Walnut (#6C5F54) for borders */
-    --border: #6C5F54;
-    --input: #BEBAAC;
-    /* Using Amber for focus rings */
-    --ring: #FFBC2D;
-    /* Chart colors using the palette */
-    --chart-1: #FFBC2D;
-    --chart-2: #473729;
-    --chart-3: #6C5F54;
-    --chart-4: #BEBAAC;
-    --chart-5: #302F2B;
-    /* Sidebar using Cafe */
-    --sidebar: #473729;
-    --sidebar-foreground: #F3F2EE;
-    --sidebar-primary: #FFBC2D;
-    --sidebar-primary-foreground: #302F2B;
-    --sidebar-accent: #6C5F54;
-    --sidebar-accent-foreground: #F3F2EE;
-    --sidebar-border: #6C5F54;
-    --sidebar-ring: #FFBC2D;
+    --radius: 0.75rem;
+    /* Soft Modern - Inspired by Frame 3677 */
+    /* Very light blue-gray background - calm and clean */
+    --background: #F8FAFB;
+    /* Dark slate text for high readability */
+    --foreground: #1E293B;
+    /* Pure white cards with soft shadows */
+    --card: #FFFFFF;
+    --card-foreground: #1E293B;
+    /* White popovers */
+    --popover: #FFFFFF;
+    --popover-foreground: #1E293B;
+    /* Soft cyan primary - calm and professional */
+    --primary: #6BB9D1;
+    --primary-foreground: #FFFFFF;
+    /* Light blue secondary - subtle */
+    --secondary: #E8F4F8;
+    --secondary-foreground: #0F4A5E;
+    /* Soft blue-gray muted tones */
+    --muted: #F0F4F8;
+    --muted-foreground: #64748B;
+    /* Soft lavender accent - gentle and engaging */
+    --accent: #A78BFA;
+    --accent-foreground: #FFFFFF;
+    /* Soft red destructive */
+    --destructive: #F87171;
+    --destructive-foreground: #FFFFFF;
+    /* Light blue-gray borders */
+    --border: #E0E7EF;
+    --input: #F0F4F8;
+    /* Cyan focus rings */
+    --ring: #6BB9D1;
+    /* Chart colors - soft gradient palette */
+    --chart-1: #6BB9D1;
+    --chart-2: #A78BFA;
+    --chart-3: #7DD3FC;
+    --chart-4: #93C5FD;
+    --chart-5: #C4B5FD;
+    /* Sidebar - soft cyan theme */
+    --sidebar: #5BA8BE;
+    --sidebar-foreground: #FFFFFF;
+    --sidebar-primary: #A78BFA;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #7DD3FC;
+    --sidebar-accent-foreground: #0F172A;
+    --sidebar-border: #4A95AA;
+    --sidebar-ring: #A78BFA;
   }
-  
+
   .dark {
-    /* Using Jet (#302F2B) as dark background */
-    --background: #302F2B;
-    /* Using Isabelline (#F3F2EE) as light text */
-    --foreground: #F3F2EE;
-    /* Using Cafe (#473729) as dark card background */
-    --card: #473729;
-    --card-foreground: #F3F2EE;
-    /* Using darker Cafe for popovers */
-    --popover: #3A2F23;
-    --popover-foreground: #F3F2EE;
-    /* Using Amber (#FFBC2D) as primary in dark mode */
-    --primary: #FFBC2D;
-    --primary-foreground: #302F2B;
-    /* Using Walnut as secondary in dark */
-    --secondary: #6C5F54;
-    --secondary-foreground: #F3F2EE;
-    /* Using darker Walnut for muted */
-    --muted: #5A4F44;
-    --muted-foreground: #BEBAAC;
-    /* Using brighter Amber for accent */
-    --accent: #FFD666;
-    --accent-foreground: #302F2B;
-    /* Keep destructive red but darker */
-    --destructive: oklch(0.704 0.191 22.216);
-    /* Using Walnut for borders */
-    --border: #6C5F54;
-    --input: #473729;
-    /* Using Amber for focus rings */
-    --ring: #FFBC2D;
-    /* Chart colors using darker palette */
-    --chart-1: #FFBC2D;
-    --chart-2: #F3F2EE;
-    --chart-3: #BEBAAC;
-    --chart-4: #6C5F54;
-    --chart-5: #473729;
-    /* Sidebar using darker Jet */
-    --sidebar: #1F1E1B;
-    --sidebar-foreground: #F3F2EE;
-    --sidebar-primary: #FFBC2D;
-    --sidebar-primary-foreground: #302F2B;
-    --sidebar-accent: #473729;
-    --sidebar-accent-foreground: #F3F2EE;
-    --sidebar-border: #6C5F54;
-    --sidebar-ring: #FFBC2D;
+    /* Soft Modern Dark - Maintaining calm aesthetic */
+    /* Deep blue-gray background */
+    --background: #0F1419;
+    /* Clean light text */
+    --foreground: #F8FAFC;
+    /* Dark blue cards */
+    --card: #1A1F2E;
+    --card-foreground: #F8FAFC;
+    /* Dark popovers */
+    --popover: #1A1F2E;
+    --popover-foreground: #F8FAFC;
+    /* Bright cyan primary for dark mode */
+    --primary: #7DD3FC;
+    --primary-foreground: #0F172A;
+    /* Dark blue secondary */
+    --secondary: #1E293B;
+    --secondary-foreground: #F8FAFC;
+    /* Dark muted tones */
+    --muted: #1E293B;
+    --muted-foreground: #94A3B8;
+    /* Bright lavender accent */
+    --accent: #C4B5FD;
+    --accent-foreground: #0F172A;
+    /* Soft red destructive for dark */
+    --destructive: #FCA5A5;
+    --destructive-foreground: #0F172A;
+    /* Dark blue-gray borders */
+    --border: #334155;
+    --input: #1E293B;
+    /* Bright cyan focus rings */
+    --ring: #7DD3FC;
+    /* Chart colors - bright soft palette */
+    --chart-1: #7DD3FC;
+    --chart-2: #C4B5FD;
+    --chart-3: #93C5FD;
+    --chart-4: #A5B4FC;
+    --chart-5: #D8B4FE;
+    /* Sidebar - darker cyan for dark mode */
+    --sidebar: #155E75;
+    --sidebar-foreground: #F8FAFC;
+    --sidebar-primary: #C4B5FD;
+    --sidebar-primary-foreground: #0F172A;
+    --sidebar-accent: #7DD3FC;
+    --sidebar-accent-foreground: #0F172A;
+    --sidebar-border: #0E7490;
+    --sidebar-ring: #C4B5FD;
   }
   
   

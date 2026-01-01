@@ -47,7 +47,7 @@ export function MenuItem({ item, completion }) {
         <div>
             <Button
                 variant="ghost"
-                className="w-full items-start h-[38px] px-0 py-0 gap-[18px] hover:bg-transparent"
+                className="w-full items-start h-[38px] px-0 py-0 gap-[18px] hover:text-accent hover:bg-transparent"
                 onClick={handleClick}
             >
                 <div className="flex">
