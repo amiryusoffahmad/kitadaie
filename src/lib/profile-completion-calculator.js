@@ -20,28 +20,53 @@
  */
 export function calculatePersonalInfo(profile, personalInfo) {
   const fields = [
-    { key: 'first_name', value: profile?.first_name, weight: 3.4, label: 'First Name' },
-    { key: 'gender', value: profile?.gender, weight: 3.4, label: 'Gender' },
-    { key: 'ic_no', value: personalInfo?.ic_no, weight: 3.4, label: 'IC Number' },
-    { key: 'phone', value: profile?.phone, weight: 3.3, label: 'Phone Number' },
-    { key: 'address', value: profile?.address, weight: 3.3, label: 'Address' },
-    { key: 'marital_status', value: profile?.marital_status, weight: 3.3, label: 'Marital Status' },
-    { key: 'family_status', value: profile?.family_status, weight: 3.3, label: 'Family Status' },
-    { key: 'income_classification', value: profile?.income_classification, weight: 3.3, label: 'Income Classification' },
-    { key: 'branch', value: profile?.branch, weight: 3.3, label: 'Branch' }
+    {
+      key: "first_name",
+      value: profile?.first_name,
+      weight: 3.4,
+      label: "First Name",
+    },
+    { key: "gender", value: profile?.gender, weight: 3.4, label: "Gender" },
+    {
+      key: "ic_no",
+      value: personalInfo?.ic_no,
+      weight: 3.4,
+      label: "IC Number",
+    },
+    { key: "phone", value: profile?.phone, weight: 3.3, label: "Phone Number" },
+    { key: "address", value: profile?.address, weight: 3.3, label: "Address" },
+    {
+      key: "marital_status",
+      value: profile?.marital_status,
+      weight: 3.3,
+      label: "Marital Status",
+    },
+    {
+      key: "family_status",
+      value: profile?.family_status,
+      weight: 3.3,
+      label: "Family Status",
+    },
+    {
+      key: "income_classification",
+      value: profile?.income_classification,
+      weight: 3.3,
+      label: "Income Classification",
+    },
+    { key: "branch", value: profile?.branch, weight: 3.3, label: "Branch" },
   ];
 
   let score = 0;
   const missingFields = [];
 
-  fields.forEach(field => {
+  fields.forEach((field) => {
     if (field.value) {
       score += field.weight;
     } else {
       missingFields.push({
-        category: 'Personal Information',
+        category: "Personal Information",
         field: field.label,
-        weight: field.weight
+        weight: field.weight,
       });
     }
   });
@@ -61,31 +86,35 @@ export function calculateEducation(highSchool, education) {
 
   // High School Check (12%)
   const hsRequired = [
-    { key: 'school_name', value: highSchool?.school_name, label: 'High School Name' },
-    { key: 'state', value: highSchool?.state, label: 'State' },
-    { key: 'type', value: highSchool?.type, label: 'School Type' },
-    { key: 'spm_year', value: highSchool?.spm_year, label: 'SPM Year' },
-    { key: 'spm_result', value: highSchool?.spm_result, label: 'SPM Result' }
+    {
+      key: "school_name",
+      value: highSchool?.school_name,
+      label: "High School Name",
+    },
+    { key: "state", value: highSchool?.state, label: "State" },
+    { key: "type", value: highSchool?.type, label: "School Type" },
+    { key: "spm_year", value: highSchool?.spm_year, label: "SPM Year" },
+    { key: "spm_result", value: highSchool?.spm_result, label: "SPM Result" },
   ];
 
-  const hsComplete = hsRequired.every(field => field.value);
+  const hsComplete = hsRequired.every((field) => field.value);
 
   if (hsComplete) {
     score += 12;
   } else {
     if (!highSchool) {
       missingFields.push({
-        category: 'Education',
-        field: 'High School Record',
-        weight: 12
+        category: "Education",
+        field: "High School Record",
+        weight: 12,
       });
     } else {
-      hsRequired.forEach(field => {
+      hsRequired.forEach((field) => {
         if (!field.value) {
           missingFields.push({
-            category: 'Education (High School)',
+            category: "Education (High School)",
             field: field.label,
-            weight: 2.4 // 12% / 5 fields
+            weight: 2.4, // 12% / 5 fields
           });
         }
       });
@@ -96,33 +125,41 @@ export function calculateEducation(highSchool, education) {
   if (education && education.length > 0) {
     const uni = education[0]; // Check first/latest record
     const uniRequired = [
-      { key: 'university', value: uni.university, label: 'University Name' },
-      { key: 'field_of_study', value: uni.field_of_study, label: 'Field of Study' },
-      { key: 'degree', value: uni.degree, label: 'Degree' },
-      { key: 'start_year', value: uni.start_year, label: 'Start Year' },
-      { key: 'end_year', value: uni.end_year || uni.is_current, label: 'End Year or Current Status' }
+      { key: "university", value: uni.university, label: "University Name" },
+      {
+        key: "field_of_study",
+        value: uni.field_of_study,
+        label: "Field of Study",
+      },
+      { key: "degree", value: uni.degree, label: "Degree" },
+      { key: "start_year", value: uni.start_year, label: "Start Year" },
+      {
+        key: "end_year",
+        value: uni.end_year || uni.is_current,
+        label: "End Year or Current Status",
+      },
     ];
 
-    const uniComplete = uniRequired.every(field => field.value);
+    const uniComplete = uniRequired.every((field) => field.value);
 
     if (uniComplete) {
       score += 13;
     } else {
-      uniRequired.forEach(field => {
+      uniRequired.forEach((field) => {
         if (!field.value) {
           missingFields.push({
-            category: 'Education (University)',
+            category: "Education (University)",
             field: field.label,
-            weight: 2.6 // 13% / 5 fields
+            weight: 2.6, // 13% / 5 fields
           });
         }
       });
     }
   } else {
     missingFields.push({
-      category: 'Education',
-      field: 'University/College Record',
-      weight: 13
+      category: "Education",
+      field: "University/College Record",
+      weight: 13,
     });
   }
 
@@ -140,22 +177,22 @@ export function calculateFamily(family) {
 
   if (!family || family.length === 0) {
     missingFields.push({
-      category: 'Family',
-      field: 'Father Record',
-      weight: 10
+      category: "Family",
+      field: "Father Record",
+      weight: 10,
     });
     missingFields.push({
-      category: 'Family',
-      field: 'Mother Record',
-      weight: 10
+      category: "Family",
+      field: "Mother Record",
+      weight: 10,
     });
     return { score: 0, missingFields };
   }
 
   // Check for Father (10%)
-  const father = family.find(f => {
-    const rel = f.relationship?.toLowerCase() || '';
-    return rel === 'father' || rel === 'ayah' || rel === 'bapa';
+  const father = family.find((f) => {
+    const rel = f.relationship?.toLowerCase() || "";
+    return rel === "father" || rel === "ayah" || rel === "bapa";
   });
 
   if (father && father.full_name && father.occupation) {
@@ -163,32 +200,32 @@ export function calculateFamily(family) {
   } else {
     if (!father) {
       missingFields.push({
-        category: 'Family',
-        field: 'Father Record',
-        weight: 10
+        category: "Family",
+        field: "Father Record",
+        weight: 10,
       });
     } else {
       if (!father.full_name) {
         missingFields.push({
-          category: 'Family (Father)',
-          field: 'Full Name',
-          weight: 5
+          category: "Family (Father)",
+          field: "Full Name",
+          weight: 5,
         });
       }
       if (!father.occupation) {
         missingFields.push({
-          category: 'Family (Father)',
-          field: 'Occupation',
-          weight: 5
+          category: "Family (Father)",
+          field: "Occupation",
+          weight: 5,
         });
       }
     }
   }
 
   // Check for Mother (10%)
-  const mother = family.find(f => {
-    const rel = f.relationship?.toLowerCase() || '';
-    return rel === 'mother' || rel === 'ibu' || rel === 'mak';
+  const mother = family.find((f) => {
+    const rel = f.relationship?.toLowerCase() || "";
+    return rel === "mother" || rel === "ibu" || rel === "mak";
   });
 
   if (mother && mother.full_name && mother.occupation) {
@@ -196,23 +233,23 @@ export function calculateFamily(family) {
   } else {
     if (!mother) {
       missingFields.push({
-        category: 'Family',
-        field: 'Mother Record',
-        weight: 10
+        category: "Family",
+        field: "Mother Record",
+        weight: 10,
       });
     } else {
       if (!mother.full_name) {
         missingFields.push({
-          category: 'Family (Mother)',
-          field: 'Full Name',
-          weight: 5
+          category: "Family (Mother)",
+          field: "Full Name",
+          weight: 5,
         });
       }
       if (!mother.occupation) {
         missingFields.push({
-          category: 'Family (Mother)',
-          field: 'Occupation',
-          weight: 5
+          category: "Family (Mother)",
+          field: "Occupation",
+          weight: 5,
         });
       }
     }
@@ -229,25 +266,31 @@ export function calculateFamily(family) {
  */
 export function calculateSpouse(profile, family) {
   const missingFields = [];
-  const maritalStatus = profile?.marital_status?.toLowerCase() || '';
+  const maritalStatus = profile?.marital_status?.toLowerCase() || "";
 
   // If single, auto-complete
-  if (maritalStatus === 'single' || maritalStatus === 'bujang') {
+  if (maritalStatus === "single" || maritalStatus === "bujang") {
     return { score: 15, missingFields: [] };
   }
 
   // If married, check for spouse in family records
-  if (maritalStatus === 'married' || maritalStatus === 'berkahwin') {
-    const spouse = family?.find(f => {
-      const rel = f.relationship?.toLowerCase() || '';
-      return rel === 'spouse' || rel === 'husband' || rel === 'wife' || rel === 'suami' || rel === 'isteri';
+  if (maritalStatus === "married" || maritalStatus === "berkahwin") {
+    const spouse = family?.find((f) => {
+      const rel = f.relationship?.toLowerCase() || "";
+      return (
+        rel === "spouse" ||
+        rel === "husband" ||
+        rel === "wife" ||
+        rel === "suami" ||
+        rel === "isteri"
+      );
     });
 
     if (!spouse) {
       missingFields.push({
-        category: 'Family',
-        field: 'Spouse Record',
-        weight: 15
+        category: "Family",
+        field: "Spouse Record",
+        weight: 15,
       });
       return { score: 0, missingFields };
     }
@@ -257,16 +300,16 @@ export function calculateSpouse(profile, family) {
     // Check if spouse has full_name
     if (!spouse.full_name) {
       missingFields.push({
-        category: 'Family (Spouse)',
-        field: 'Spouse Name',
-        weight: 5
+        category: "Family (Spouse)",
+        field: "Spouse Name",
+        weight: 5,
       });
     } else {
       // Bonus points if spouse is linked to a user account
       if (spouse.linked_user_id) {
         score += 5; // Linked to registered user
       } else {
-        score += 3; // Has name but not linked (manual entry is okay)
+        score += 5; // Has name but not linked (manual entry is okay)
       }
     }
 
@@ -275,9 +318,9 @@ export function calculateSpouse(profile, family) {
 
   // Unknown marital status
   missingFields.push({
-    category: 'Personal',
-    field: 'Marital Status',
-    weight: 15
+    category: "Personal",
+    field: "Marital Status",
+    weight: 15,
   });
 
   return { score: 0, missingFields };
@@ -298,22 +341,22 @@ export function calculateRole(role, profile) {
     score += 5;
   } else {
     missingFields.push({
-      category: 'Role',
-      field: 'User Role Assignment',
-      weight: 5
+      category: "Role",
+      field: "User Role Assignment",
+      weight: 5,
     });
   }
 
   // Check murobbi (5%) - not required for admin
-  const isAdmin = role?.role === 'admin';
+  const isAdmin = role?.role === "admin";
 
   if (isAdmin || profile?.murobbi_id) {
     score += 5;
   } else {
     missingFields.push({
-      category: 'Role',
-      field: 'Murobbi Assignment',
-      weight: 5
+      category: "Role",
+      field: "Murobbi Assignment",
+      weight: 5,
     });
   }
 
@@ -326,14 +369,7 @@ export function calculateRole(role, profile) {
  * @returns {Object} { percentage, score, missingFields, breakdown }
  */
 export function calculateProfileCompletion(data) {
-  const {
-    profile,
-    personalInfo,
-    highSchool,
-    education,
-    family,
-    role
-  } = data;
+  const { profile, personalInfo, highSchool, education, family, role } = data;
 
   // Calculate each category
   const personalResult = calculatePersonalInfo(profile, personalInfo);
@@ -356,7 +392,7 @@ export function calculateProfileCompletion(data) {
     ...educationResult.missingFields,
     ...familyResult.missingFields,
     ...spouseResult.missingFields,
-    ...roleResult.missingFields
+    ...roleResult.missingFields,
   ];
 
   // Calculate percentage
@@ -371,33 +407,33 @@ export function calculateProfileCompletion(data) {
         score: personalResult.score,
         maxScore: 30,
         percentage: Math.round((personalResult.score / 30) * 100),
-        missing: personalResult.missingFields
+        missing: personalResult.missingFields,
       },
       education: {
         score: educationResult.score,
         maxScore: 25,
         percentage: Math.round((educationResult.score / 25) * 100),
-        missing: educationResult.missingFields
+        missing: educationResult.missingFields,
       },
       family: {
         score: familyResult.score,
         maxScore: 20,
         percentage: Math.round((familyResult.score / 20) * 100),
-        missing: familyResult.missingFields
+        missing: familyResult.missingFields,
       },
       spouse: {
         score: spouseResult.score,
         maxScore: 15,
         percentage: Math.round((spouseResult.score / 15) * 100),
-        missing: spouseResult.missingFields
+        missing: spouseResult.missingFields,
       },
       role: {
         score: roleResult.score,
         maxScore: 10,
         percentage: Math.round((roleResult.score / 10) * 100),
-        missing: roleResult.missingFields
-      }
-    }
+        missing: roleResult.missingFields,
+      },
+    },
   };
 }
 
@@ -408,14 +444,14 @@ export function calculateProfileCompletion(data) {
  */
 export function getCompletionStatus(percentage) {
   if (percentage === 100) {
-    return { label: 'Complete', color: 'green', priority: 5 };
+    return { label: "Complete", color: "green", priority: 5 };
   } else if (percentage >= 76) {
-    return { label: 'Almost Complete', color: 'blue', priority: 4 };
+    return { label: "Almost Complete", color: "blue", priority: 4 };
   } else if (percentage >= 51) {
-    return { label: 'Medium', color: 'yellow', priority: 3 };
+    return { label: "Medium", color: "yellow", priority: 3 };
   } else if (percentage >= 26) {
-    return { label: 'Low', color: 'orange', priority: 2 };
+    return { label: "Low", color: "orange", priority: 2 };
   } else {
-    return { label: 'Critical', color: 'red', priority: 1 };
+    return { label: "Critical", color: "red", priority: 1 };
   }
 }
