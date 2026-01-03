@@ -40,7 +40,7 @@ export async function PATCH(request, { params }) {
             )
         }
 
-        const { id } = params
+        const { id } = await params
         const body = await request.json()
         const { name, description, color } = body
 
@@ -90,14 +90,25 @@ export async function DELETE(request, { params }) {
             )
         }
 
-        const { id } = params
+        const { id } = await params
 
-        // Check if any resources are using this category
-        const resourceCount = await db('resources')
-            .where('category_id', id)
-            .where('is_active', 1)
-            .count('id as count')
-            .first()
+        // Check if any resources are using this category (with fallback for missing column)
+        let resourceCount = { count: 0 };
+        try {
+            resourceCount = await db('resources')
+                .where('category_id', id)
+                .where('is_active', 1)
+                .count('id as count')
+                .first()
+        } catch (dbError) {
+            // If category_id column doesn't exist, we can safely delete the category
+            if (dbError.code === 'ER_BAD_FIELD_ERROR') {
+                console.log('[CATEGORIES API] category_id column does not exist yet, skipping usage check')
+                resourceCount = { count: 0 };
+            } else {
+                throw dbError;
+            }
+        }
 
         if (resourceCount.count > 0) {
             return NextResponse.json(

@@ -22,7 +22,7 @@ async function isAdmin(userId) {
 // GET /api/resources/[id] - Get a specific resource
 export async function GET(request, { params }) {
     try {
-        const { id } = params
+        const { id } = await params
 
         const resource = await db('resources')
             .select(
@@ -84,7 +84,7 @@ export async function DELETE(request, { params }) {
             )
         }
 
-        const { id } = params
+        const { id } = await params
 
         // Get resource
         const resource = await db('resources')
@@ -140,7 +140,7 @@ export async function PATCH(request, { params }) {
             )
         }
 
-        const { id } = params
+        const { id } = await params
         const body = await request.json()
         const { title, category_id, tags, description } = body
 

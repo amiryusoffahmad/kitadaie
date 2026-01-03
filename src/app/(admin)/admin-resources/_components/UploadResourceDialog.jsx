@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
     Dialog,
@@ -24,7 +24,7 @@ import {
 import { FileText, Upload, X } from 'lucide-react'
 import { toast } from 'sonner'
 
-export default function UploadResourceDialog({ open, onOpenChange }) {
+export default function UploadResourceDialog({ open, onOpenChange, resourceToEdit = null }) {
     const [file, setFile] = useState(null)
     const [title, setTitle] = useState('')
     const [categoryId, setCategoryId] = useState('')
@@ -32,6 +32,8 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
     const [description, setDescription] = useState('')
     const [uploading, setUploading] = useState(false)
     const queryClient = useQueryClient()
+
+    const isEditMode = !!resourceToEdit
 
     // Fetch categories
     const { data: categoriesData } = useQuery({
@@ -44,6 +46,23 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
     })
 
     const categories = categoriesData?.data || []
+
+    // Populate form when editing
+    useEffect(() => {
+        if (resourceToEdit) {
+            setTitle(resourceToEdit.title || '')
+            setCategoryId(resourceToEdit.category_id?.toString() || '')
+            setTags(Array.isArray(resourceToEdit.tags) ? resourceToEdit.tags.join(', ') : resourceToEdit.tags || '')
+            setDescription(resourceToEdit.description || '')
+        } else {
+            // Reset form when creating new
+            setFile(null)
+            setTitle('')
+            setCategoryId('')
+            setTags('')
+            setDescription('')
+        }
+    }, [resourceToEdit])
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files?.[0]
@@ -63,32 +82,62 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!file || !title) {
-            toast.error('Please provide a file and title')
+        // Validation: file required for create, title always required
+        if (!isEditMode && !file) {
+            toast.error('Please select a file')
+            return
+        }
+        if (!title) {
+            toast.error('Please provide a title')
             return
         }
 
         setUploading(true)
 
         try {
-            const formData = new FormData()
-            formData.append('file', file)
-            formData.append('title', title)
-            if (categoryId) formData.append('category_id', categoryId)
-            if (tags) formData.append('tags', tags)
-            if (description) formData.append('description', description)
+            if (isEditMode) {
+                // Update existing resource (metadata only)
+                const res = await fetch(`/api/resources/${resourceToEdit.id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        category_id: categoryId || null,
+                        tags,
+                        description,
+                    })
+                })
 
-            const res = await fetch('/api/resources', {
-                method: 'POST',
-                body: formData
-            })
+                if (!res.ok) {
+                    const error = await res.json()
+                    throw new Error(error.error || 'Failed to update resource')
+                }
 
-            if (!res.ok) {
-                const error = await res.json()
-                throw new Error(error.error || 'Failed to upload resource')
+                toast.success('Resource updated successfully')
+            } else {
+                // Create new resource with file upload
+                const formData = new FormData()
+                formData.append('file', file)
+                formData.append('title', title)
+                if (categoryId) formData.append('category_id', categoryId)
+                if (tags) formData.append('tags', tags)
+                if (description) formData.append('description', description)
+
+                const res = await fetch('/api/resources', {
+                    method: 'POST',
+                    body: formData
+                })
+
+                if (!res.ok) {
+                    const error = await res.json()
+                    throw new Error(error.error || 'Failed to upload resource')
+                }
+
+                toast.success('Resource uploaded successfully')
             }
 
-            toast.success('Resource uploaded successfully')
             queryClient.invalidateQueries({ queryKey: ['admin-resources'] })
             queryClient.invalidateQueries({ queryKey: ['resources'] })
 
@@ -100,7 +149,7 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
             setDescription('')
             onOpenChange(false)
         } catch (error) {
-            toast.error(error.message || 'Failed to upload resource')
+            toast.error(error.message || 'Failed to save resource')
         } finally {
             setUploading(false)
         }
@@ -121,42 +170,47 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className='sm:max-w-[500px]'>
                 <DialogHeader>
-                    <DialogTitle>Upload Resource</DialogTitle>
+                    <DialogTitle>{isEditMode ? 'Edit Resource' : 'Upload Resource'}</DialogTitle>
                     <DialogDescription>
-                        Upload a PDF file to the resources library
+                        {isEditMode
+                            ? 'Update resource information (file cannot be changed)'
+                            : 'Upload a PDF file to the resources library'
+                        }
                     </DialogDescription>
                 </DialogHeader>
 
                 <form onSubmit={handleSubmit} className='space-y-4'>
-                    {/* File Upload */}
-                    <div className='space-y-2'>
-                        <Label htmlFor='file'>PDF File *</Label>
-                        <div className='relative'>
-                            <Input
-                                id='file'
-                                type='file'
-                                accept='application/pdf'
-                                onChange={handleFileChange}
-                                className='cursor-pointer'
-                                disabled={uploading}
-                            />
-                            {file && (
-                                <div className='mt-2 flex items-center gap-2 text-sm text-muted-foreground'>
-                                    <FileText className='h-4 w-4' />
-                                    <span className='flex-1 truncate'>{file.name}</span>
-                                    <Button
-                                        type='button'
-                                        variant='ghost'
-                                        size='icon'
-                                        onClick={() => setFile(null)}
-                                        disabled={uploading}
-                                    >
-                                        <X className='h-4 w-4' />
-                                    </Button>
-                                </div>
-                            )}
+                    {/* File Upload - only show in create mode */}
+                    {!isEditMode && (
+                        <div className='space-y-2'>
+                            <Label htmlFor='file'>PDF File *</Label>
+                            <div className='relative'>
+                                <Input
+                                    id='file'
+                                    type='file'
+                                    accept='application/pdf'
+                                    onChange={handleFileChange}
+                                    className='cursor-pointer'
+                                    disabled={uploading}
+                                />
+                                {file && (
+                                    <div className='mt-2 flex items-center gap-2 text-sm text-muted-foreground'>
+                                        <FileText className='h-4 w-4' />
+                                        <span className='flex-1 truncate'>{file.name}</span>
+                                        <Button
+                                            type='button'
+                                            variant='ghost'
+                                            size='icon'
+                                            onClick={() => setFile(null)}
+                                            disabled={uploading}
+                                        >
+                                            <X className='h-4 w-4' />
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Title */}
                     <div className='space-y-2'>
@@ -225,13 +279,13 @@ export default function UploadResourceDialog({ open, onOpenChange }) {
                         >
                             Cancel
                         </Button>
-                        <Button type='submit' disabled={uploading || !file || !title}>
+                        <Button type='submit' disabled={uploading || (!isEditMode && !file) || !title}>
                             {uploading ? (
-                                <>Uploading...</>
+                                <>{isEditMode ? 'Updating...' : 'Uploading...'}</>
                             ) : (
                                 <>
                                     <Upload className='h-4 w-4 mr-2' />
-                                    Upload
+                                    {isEditMode ? 'Update' : 'Upload'}
                                 </>
                             )}
                         </Button>

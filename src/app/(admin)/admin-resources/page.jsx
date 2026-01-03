@@ -12,7 +12,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Trash2, Eye, FileText } from 'lucide-react'
+import { Plus, Trash2, Eye, FileText, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import UploadResourceDialog from './_components/UploadResourceDialog'
 import {
@@ -33,6 +33,7 @@ export default function AdminResourcesPage() {
     const [uploadDialogOpen, setUploadDialogOpen] = useState(false)
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
     const [resourceToDelete, setResourceToDelete] = useState(null)
+    const [resourceToEdit, setResourceToEdit] = useState(null)
     const queryClient = useQueryClient()
 
     // Fetch resources
@@ -67,6 +68,11 @@ export default function AdminResourcesPage() {
 
     const resources = resourcesData?.data || []
 
+    const handleEditClick = (resource) => {
+        setResourceToEdit(resource)
+        setUploadDialogOpen(true)
+    }
+
     const handleDeleteClick = (resource) => {
         setResourceToDelete(resource)
         setDeleteDialogOpen(true)
@@ -75,6 +81,13 @@ export default function AdminResourcesPage() {
     const handleDeleteConfirm = () => {
         if (resourceToDelete) {
             deleteMutation.mutate(resourceToDelete.id)
+        }
+    }
+
+    const handleDialogClose = (open) => {
+        setUploadDialogOpen(open)
+        if (!open) {
+            setResourceToEdit(null)
         }
     }
 
@@ -196,6 +209,13 @@ export default function AdminResourcesPage() {
                                             <Button
                                                 variant='ghost'
                                                 size='icon'
+                                                onClick={() => handleEditClick(resource)}
+                                            >
+                                                <Pencil className='h-4 w-4' />
+                                            </Button>
+                                            <Button
+                                                variant='ghost'
+                                                size='icon'
                                                 onClick={() => handleDeleteClick(resource)}
                                             >
                                                 <Trash2 className='h-4 w-4 text-destructive' />
@@ -211,7 +231,8 @@ export default function AdminResourcesPage() {
 
             <UploadResourceDialog
                 open={uploadDialogOpen}
-                onOpenChange={setUploadDialogOpen}
+                onOpenChange={handleDialogClose}
+                resourceToEdit={resourceToEdit}
             />
 
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
