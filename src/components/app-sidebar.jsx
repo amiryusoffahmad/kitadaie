@@ -138,6 +138,21 @@ const data = {
         },
       ],
     },
+    {
+      title: "CCS",
+      url: "/admin-ccs",
+      icon: Network,
+      items: [
+        {
+          title: "Dashboard",
+          url: "/admin-ccs",
+        },
+        {
+          title: "Mufaraqah Records",
+          url: "/admin-ccs/records",
+        },
+      ],
+    },
   ],
 }
 
