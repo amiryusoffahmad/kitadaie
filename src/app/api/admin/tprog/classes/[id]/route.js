@@ -34,7 +34,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const classId = await params.id;
+    const classId = (await params).id;
 
     // Check if class exists
     const classExists = await db("tprog_class").where("id", classId).first();
@@ -94,7 +94,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const classId = params.id;
+    const classId = (await params).id;
 
     // Check if class exists
     const classExists = await db("tprog_class").where("id", classId).first();

@@ -7,7 +7,7 @@ import fs from "fs";
 
 export async function GET(request, { params }) {
   try {
-    const { submissionId } = params;
+    const { submissionId } = await params;
     console.log(
       "[API] Processing file download request for submission:",
       submissionId

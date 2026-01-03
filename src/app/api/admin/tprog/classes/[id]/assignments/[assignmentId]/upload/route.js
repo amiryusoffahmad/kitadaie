@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const { id: classId, assignmentId } = params;
+    const { id: classId, assignmentId } = await params;
 
     // Check if assignment exists
     const assignment = await db("tprog_assignment")

@@ -34,7 +34,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const fileId = params.id;
+    const fileId = (await params).id;
 
     // Get file information from uploads table
     const fileInfo = await db("uploads").where("id", fileId).first();

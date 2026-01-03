@@ -35,7 +35,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const { id: classId, assignmentId } = params;
+    const { id: classId, assignmentId } = await params;
 
     // Check if assignment exists
     const assignment = await db("tprog_assignment")
@@ -77,7 +77,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const { id: classId, assignmentId } = params;
+    const { id: classId, assignmentId } = await params;
 
     // Check if assignment exists
     const assignment = await db("tprog_assignment")
@@ -246,7 +246,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const { id: classId, assignmentId } = params;
+    const { id: classId, assignmentId } = await params;
 
     // Check if assignment exists
     const assignment = await db("tprog_assignment")
@@ -301,7 +301,7 @@ export async function POST(request, { params }) {
       return NextResponse.json({ error: "Permission denied" }, { status: 403 });
     }
 
-    const { id: classId, assignmentId } = params;
+    const { id: classId, assignmentId } = await params;
     const url = new URL(request.url);
 
     // Check if this is a file upload request for an existing assignment
