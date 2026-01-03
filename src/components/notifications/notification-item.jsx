@@ -75,6 +75,22 @@ export function NotificationItem({
         if (notification.type === "organizational_task" && notification.resource_id) {
             // Navigate to task detail page
             router.push(`/tasks/${notification.resource_id}`);
+        } else if (notification.type === "admin_broadcast" && notification.resource_id) {
+            // For admin broadcasts, check if there's a custom action URL
+            try {
+                const response = await fetch(`/api/admin/notifications/${notification.resource_id}/action-url`);
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.actionUrl) {
+                        router.push(data.actionUrl);
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching action URL:", error);
+            }
+            // Fallback to notification detail page
+            router.push(`/user/notifications/${notification.id}`);
         } else {
             // Navigate to notification detail page
             router.push(`/user/notifications/${notification.id}`);

@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { fetchDepartments, fetchRoles } from "@/server/actions/organizational-actions";
+import { UserSelector } from "./UserSelector";
 
 export function TargetSelector({ value, onChange }) {
   const [departments, setDepartments] = useState([]);
@@ -47,6 +48,7 @@ export function TargetSelector({ value, onChange }) {
       targetType,
       targetDepartmentId: null,
       targetRoleId: null,
+      targetUserIds: [],
     });
   };
 
@@ -61,6 +63,13 @@ export function TargetSelector({ value, onChange }) {
     onChange({
       ...value,
       targetRoleId: parseInt(roleId),
+    });
+  };
+
+  const handleUsersChange = (users) => {
+    onChange({
+      ...value,
+      targetUserIds: users,
     });
   };
 
@@ -85,6 +94,12 @@ export function TargetSelector({ value, onChange }) {
             <RadioGroupItem value="role" id="role" />
             <Label htmlFor="role" className="font-normal cursor-pointer">
               Specific Role
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="specific_users" id="specific_users" />
+            <Label htmlFor="specific_users" className="font-normal cursor-pointer">
+              Specific Users
             </Label>
           </div>
         </RadioGroup>
@@ -149,6 +164,15 @@ export function TargetSelector({ value, onChange }) {
               </SelectContent>
             </Select>
           )}
+        </div>
+      )}
+
+      {value.targetType === "specific_users" && (
+        <div className="space-y-2">
+          <UserSelector
+            selectedUsers={value.targetUserIds || []}
+            onChange={handleUsersChange}
+          />
         </div>
       )}
     </div>

@@ -39,6 +39,7 @@ export async function sendAdminNotification(adminNotificationId) {
     targetType: adminNotification.target_type,
     targetDepartmentId: adminNotification.target_department_id,
     targetRoleId: adminNotification.target_role_id,
+    targetUserIds: adminNotification.target_user_ids,
   });
 
   if (recipientIds.length === 0) {
@@ -50,7 +51,8 @@ export async function sendAdminNotification(adminNotificationId) {
     adminNotificationId,
     recipientIds,
     adminNotification.title,
-    adminNotification.message
+    adminNotification.message,
+    adminNotification.action_url
   );
 
   // Update admin notification status
@@ -77,13 +79,15 @@ export async function sendAdminNotification(adminNotificationId) {
  * @param {Array} userIds
  * @param {string} title
  * @param {string} message
+ * @param {string} [actionUrl] - Custom URL to navigate when clicked
  * @returns {Promise<number>} - Number of notifications created
  */
 async function createNotificationsForUsers(
   adminNotificationId,
   userIds,
   title,
-  message
+  message,
+  actionUrl = null
 ) {
   const BATCH_SIZE = 100;
   let totalCreated = 0;
@@ -107,8 +111,9 @@ async function createNotificationsForUsers(
         data: {
           type: "admin_broadcast",
           adminNotificationId: String(adminNotificationId),
+          actionUrl: actionUrl || null,
         },
-        clickAction: "/user/notifications",
+        clickAction: actionUrl || "/user/notifications",
       });
 
       console.log(

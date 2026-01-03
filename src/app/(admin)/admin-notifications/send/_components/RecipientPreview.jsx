@@ -9,17 +9,25 @@ export function RecipientPreview({
   targetType,
   targetDepartmentId,
   targetRoleId,
+  targetUserIds = [],
 }) {
   const [recipientCount, setRecipientCount] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadRecipientCount();
-  }, [targetType, targetDepartmentId, targetRoleId]);
+  }, [targetType, targetDepartmentId, targetRoleId, targetUserIds]);
 
   const loadRecipientCount = async () => {
     setLoading(true);
     try {
+      // For specific users, count is directly from the array
+      if (targetType === "specific_users") {
+        setRecipientCount(targetUserIds.length);
+        setLoading(false);
+        return;
+      }
+
       const result = await getRecipientCountAction({
         targetType,
         targetDepartmentId,
@@ -45,6 +53,9 @@ export function RecipientPreview({
     }
     if (targetType === "role") {
       return "Users with selected role";
+    }
+    if (targetType === "specific_users") {
+      return "Specific selected users";
     }
     return "Unknown";
   };

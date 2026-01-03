@@ -106,9 +106,11 @@ export async function getAdminNotificationById(id) {
  * @param {Object} notificationData
  * @param {string} notificationData.title
  * @param {string} notificationData.message
- * @param {string} notificationData.targetType - 'everyone', 'department', 'role'
+ * @param {string} [notificationData.actionUrl] - Custom URL to navigate when clicked
+ * @param {string} notificationData.targetType - 'everyone', 'department', 'role', 'specific_users'
  * @param {number} [notificationData.targetDepartmentId]
  * @param {number} [notificationData.targetRoleId]
+ * @param {Array} [notificationData.targetUserIds] - Array of user objects {id, name, email}
  * @param {string} notificationData.scheduleType - 'immediate', 'scheduled', 'recurring'
  * @param {Date|string} [notificationData.scheduledAt]
  * @param {string} [notificationData.recurrencePattern] - 'daily', 'weekly', 'monthly'
@@ -121,9 +123,11 @@ export async function createAdminNotification(notificationData) {
   const {
     title,
     message,
+    actionUrl = null,
     targetType,
     targetDepartmentId = null,
     targetRoleId = null,
+    targetUserIds = [],
     scheduleType = "immediate",
     scheduledAt = null,
     recurrencePattern = null,
@@ -137,7 +141,7 @@ export async function createAdminNotification(notificationData) {
     throw new Error("Title, message, target type, and creator are required");
   }
 
-  if (!["everyone", "department", "role"].includes(targetType)) {
+  if (!["everyone", "department", "role", "specific_users"].includes(targetType)) {
     throw new Error("Invalid target type");
   }
 
@@ -147,6 +151,10 @@ export async function createAdminNotification(notificationData) {
 
   if (targetType === "role" && !targetRoleId) {
     throw new Error("Role ID is required for role target");
+  }
+
+  if (targetType === "specific_users" && (!targetUserIds || targetUserIds.length === 0)) {
+    throw new Error("At least one user ID is required for specific users target");
   }
 
   if (!["immediate", "scheduled", "recurring"].includes(scheduleType)) {
@@ -175,9 +183,13 @@ export async function createAdminNotification(notificationData) {
   const insertData = {
     title: title.trim(),
     message: message.trim(),
+    action_url: actionUrl ? actionUrl.trim() : null,
     target_type: targetType,
     target_department_id: targetDepartmentId,
     target_role_id: targetRoleId,
+    target_user_ids: targetType === "specific_users" && targetUserIds.length > 0
+      ? JSON.stringify(targetUserIds.map(u => u.id || u))
+      : null,
     schedule_type: scheduleType,
     scheduled_at: scheduledAt,
     recurrence_pattern: recurrencePattern,
@@ -321,15 +333,17 @@ export async function deleteAdminNotification(id) {
 /**
  * Resolve recipients based on target type
  * @param {Object} params
- * @param {string} params.targetType - 'everyone', 'department', 'role'
+ * @param {string} params.targetType - 'everyone', 'department', 'role', 'specific_users'
  * @param {number} [params.targetDepartmentId]
  * @param {number} [params.targetRoleId]
+ * @param {string} [params.targetUserIds] - JSON string of user IDs
  * @returns {Promise<Array>} - Array of user IDs
  */
 async function resolveRecipients({
   targetType,
   targetDepartmentId,
   targetRoleId,
+  targetUserIds = null,
 }) {
   if (targetType === "everyone") {
     // Get all active users
@@ -355,6 +369,32 @@ async function resolveRecipients({
     return users.map((u) => u.user_id);
   }
 
+  if (targetType === "specific_users") {
+    // Handle specific user IDs
+    if (targetUserIds) {
+      // MySQL returns JSON columns as already parsed objects/arrays
+      // Check if it's already an array (from DB) or needs parsing (from form)
+      if (Array.isArray(targetUserIds)) {
+        return targetUserIds;
+      }
+
+      // If it's a string, try to parse it
+      if (typeof targetUserIds === "string") {
+        try {
+          const userIds = JSON.parse(targetUserIds);
+          return Array.isArray(userIds) ? userIds : [];
+        } catch (error) {
+          console.error("Error parsing target_user_ids:", error);
+          return [];
+        }
+      }
+
+      // If it's an object with IDs, extract them
+      return [];
+    }
+    return [];
+  }
+
   return [];
 }
 
@@ -364,17 +404,20 @@ async function resolveRecipients({
  * @param {string} params.targetType
  * @param {number} [params.targetDepartmentId]
  * @param {number} [params.targetRoleId]
+ * @param {string} [params.targetUserIds] - JSON string of user IDs
  * @returns {Promise<number>} - Estimated recipient count
  */
 export async function getRecipientCount({
   targetType,
   targetDepartmentId,
   targetRoleId,
+  targetUserIds = null,
 }) {
   const recipients = await resolveRecipients({
     targetType,
     targetDepartmentId,
     targetRoleId,
+    targetUserIds,
   });
   return recipients.length;
 }
@@ -388,6 +431,7 @@ export async function getRecipients({
   targetType,
   targetDepartmentId,
   targetRoleId,
+  targetUserIds = null,
 }) {
-  return resolveRecipients({ targetType, targetDepartmentId, targetRoleId });
+  return resolveRecipients({ targetType, targetDepartmentId, targetRoleId, targetUserIds });
 }

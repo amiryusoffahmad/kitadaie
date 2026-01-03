@@ -181,9 +181,10 @@ export function showTaskNotification(task) {
  * @param {string} notification.type - Notification type
  * @param {string} [notification.resource_id] - Resource ID
  * @param {string} [notification.resource_type] - Resource type
+ * @param {string} [notification.action_url] - Custom action URL (for admin broadcasts)
  */
 export function showNotificationFromData(notification) {
-  const onClick = (browserNotif) => {
+  const onClick = async (browserNotif) => {
     if (typeof window === "undefined") return;
 
     window.focus();
@@ -193,6 +194,25 @@ export function showNotificationFromData(notification) {
       window.location.href = `/tasks/${notification.resource_id}`;
     } else if (notification.type === "organizational_task" && notification.resource_id) {
       window.location.href = `/tasks/${notification.resource_id}`;
+    } else if (notification.type === "admin_broadcast" && notification.resource_id) {
+      // For admin broadcasts, check if there's a custom action URL
+      try {
+        const response = await fetch(`/api/admin/notifications/${notification.resource_id}/action-url`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.actionUrl) {
+            window.location.href = data.actionUrl;
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching action URL:", error);
+      }
+      // Fallback to notifications page
+      window.location.href = "/user/notifications";
+    } else if (notification.action_url) {
+      // Direct action URL if provided
+      window.location.href = notification.action_url;
     } else {
       // Default: go to notifications page
       window.location.href = "/user/notifications";

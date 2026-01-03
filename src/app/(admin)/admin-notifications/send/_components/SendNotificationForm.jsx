@@ -20,9 +20,11 @@ export function SendNotificationForm() {
   const [formData, setFormData] = useState({
     title: "",
     message: "",
+    actionUrl: "",
     targetType: "everyone",
     targetDepartmentId: null,
     targetRoleId: null,
+    targetUserIds: [],
     scheduleType: "immediate",
     scheduledAt: null,
     recurrencePattern: null,
@@ -50,6 +52,7 @@ export function SendNotificationForm() {
       targetType: targetData.targetType,
       targetDepartmentId: targetData.targetDepartmentId,
       targetRoleId: targetData.targetRoleId,
+      targetUserIds: targetData.targetUserIds || [],
     });
   };
 
@@ -84,6 +87,12 @@ export function SendNotificationForm() {
 
     if (formData.targetType === "role" && !formData.targetRoleId) {
       toast.error("Please select a role");
+      setActiveTab("target");
+      return false;
+    }
+
+    if (formData.targetType === "specific_users" && formData.targetUserIds.length === 0) {
+      toast.error("Please select at least one user");
       setActiveTab("target");
       return false;
     }
@@ -189,6 +198,23 @@ export function SendNotificationForm() {
                 </p>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="action-url">
+                  Action URL (Optional)
+                </Label>
+                <Input
+                  id="action-url"
+                  placeholder="e.g., /tasks/123 or /home"
+                  value={formData.actionUrl}
+                  onChange={(e) =>
+                    setFormData({ ...formData, actionUrl: e.target.value })
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  When users click the notification, they will be redirected to this URL. Leave empty for default behavior.
+                </p>
+              </div>
+
               <div className="flex justify-end">
                 <Button type="button" onClick={() => setActiveTab("target")}>
                   Next: Target Audience
@@ -202,6 +228,7 @@ export function SendNotificationForm() {
                   targetType: formData.targetType,
                   targetDepartmentId: formData.targetDepartmentId,
                   targetRoleId: formData.targetRoleId,
+                  targetUserIds: formData.targetUserIds,
                 }}
                 onChange={handleTargetChange}
               />
@@ -273,6 +300,7 @@ export function SendNotificationForm() {
                   targetType={formData.targetType}
                   targetDepartmentId={formData.targetDepartmentId}
                   targetRoleId={formData.targetRoleId}
+                  targetUserIds={formData.targetUserIds}
                 />
 
                 <Card>
