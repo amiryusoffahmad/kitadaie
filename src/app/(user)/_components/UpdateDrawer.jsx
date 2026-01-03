@@ -85,7 +85,7 @@ export default function UpdateDrawer() {
                                 </Button>
 
                                 <Button
-                                    onClick={() => handleNavigate()}
+                                    onClick={() => handleNavigate('/ccs-form')}
                                     variant="outline"
                                     className="flex flex-col items-center py-6 h-auto w-24 border-muted-foreground/20"
                                 >
