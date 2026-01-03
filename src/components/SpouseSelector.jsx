@@ -212,7 +212,7 @@ export default function SpouseSelector({ userId, currentSpouseId, maritalStatus,
                   </p>
                   <div className='flex gap-2 mt-2'>
                     <Badge variant='outline'>
-                      {currentSpouse.gender === 'male' ? 'Ikhwah' : 'Akhwat'}
+                      {currentSpouse.gender === 'Male' ? 'Ikhwah' : 'Akhwat'}
                     </Badge>
                     {currentSpouse.branch && (
                       <Badge variant='secondary'>{currentSpouse.branch}</Badge>
@@ -259,7 +259,7 @@ export default function SpouseSelector({ userId, currentSpouseId, maritalStatus,
                           {candidate.spouse_id === userId && ' (Currently linked)'}
                         </span>
                         <span className='text-xs text-muted-foreground ml-4'>
-                          {candidate.gender === 'male' ? 'Ikhwah' : 'Akhwat'}
+                          {candidate.gender === 'Male' ? 'Ikhwah' : 'Akhwat'}
                           {candidate.branch && ` • ${candidate.branch}`}
                         </span>
                       </div>

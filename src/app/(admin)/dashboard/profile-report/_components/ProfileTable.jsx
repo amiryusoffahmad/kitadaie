@@ -120,7 +120,7 @@ export default function ProfileTable({ users, isLoading }) {
                 <TableCell>
                   {user.gender ? (
                     <Badge variant='outline'>
-                      {user.gender === 'male' ? 'Ikhwah' : 'Akhwat'}
+                      {user.gender === 'Male' ? 'Ikhwah' : 'Akhwat'}
                     </Badge>
                   ) : (
                     <span className='text-muted-foreground text-sm'>-</span>
