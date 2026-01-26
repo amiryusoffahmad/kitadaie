@@ -2,10 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -46,6 +45,32 @@ import {
   TAMBAH_KLUSTER_OPTIONS,
   CLUSTER_MAPPINGS,
 } from "@/data/ccs-data";
+
+// Custom zodResolver that handles errors properly
+const safeZodResolver = (schema) => async (data) => {
+  try {
+    const values = await schema.parseAsync(data);
+    return {
+      values,
+      errors: {},
+    };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {
+        values: {},
+        errors: error.issues.reduce((acc, issue) => {
+          const path = issue.path.join(".");
+          acc[issue.path[0]] = {
+            type: issue.code,
+            message: issue.message,
+          };
+          return acc;
+        }, {}),
+      };
+    }
+    throw error;
+  }
+};
 
 // Validation schema
 const formSchema = z.object({
@@ -108,7 +133,9 @@ export function CCSForm() {
   const [subKluster2Options, setSubKluster2Options] = useState([]);
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: safeZodResolver(formSchema),
+    mode: "onSubmit",
+    reValidateMode: "onChange",
     defaultValues: {
       murobbiEmail: "",
       murobbiName: "",
@@ -178,6 +205,36 @@ export function CCSForm() {
     }
   }, [sebabTambahan, form]);
 
+  // Field labels mapping for better error display
+  const fieldLabels = {
+    murobbiEmail: "Email",
+    murobbiName: "Nama Penuh Murobbi",
+    murobbiCawangan: "Murobbi dari Cawangan",
+    tahunDitarbiyah: "Tahun anda mula ditarbiyah",
+    tahunMembina: "Tahun anda mula membina",
+    tempohMembina: "Tempoh pengalaman anda membina",
+    bilanganMutarobbi: "Bilangan mutarobbi yang masih dihalaqohkan",
+    tahapanMurobbi: "Tahapan murobbi",
+    namaMutarobbi: "Nama penuh mutarobbi yang mufaraqah/dibuang",
+    jantinaMutarobbi: "Jantina mutarobbi",
+    kategoriMutarobbi: "Kategori mutarobbi",
+    statusMutarobbi: "Status mutarobbi",
+    kenalTarbiyah: "Mengenal tarbiyah secara",
+    tarikhMufaraqah: "Tarikh Mufaraqah",
+    masaMufaraqah: "Masa Mufaraqah",
+    umurTarbiyah: "Umur tarbiyah sebelum mufaraqoh/dibuang",
+    kampusMutarobbi: "Kampus mutarobbi",
+    tahapPendidikan: "Tahap pendidikan tertinggi",
+    tahunPengajian: "Tahun Pengajian",
+    kursusMutarobbi: "Kursus Mutarobbi",
+    levelMutarobbi: "Tahapan mutarobbi",
+    fahamKluster: "Faham berkenaan kluster-kluster",
+    sebabUtama: "Sebab utama mutarobbi tersebut mufaraqoh/dibuang",
+    subKluster: "Sub-kluster",
+    tambahKluster: "Sebab tambahan",
+    pengesahan: "Pengesahan",
+  };
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
@@ -196,9 +253,14 @@ export function CCSForm() {
     }
   };
 
+  const onError = () => {
+    // Show toast notification
+    toast.error("Sila betulkan maklumat yang tidak lengkap atau tidak sah");
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
         {/* Section 1: Basic Information */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Maklumat Asas Murobbi</h2>
@@ -1169,6 +1231,30 @@ export function CCSForm() {
             )}
           />
         </div>
+
+        {/* Error Summary - Displayed above submit button */}
+        {Object.keys(form.formState.errors).length > 0 && (
+          <div className="p-4 bg-red-50 border border-red-300 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-red-800 font-semibold mb-2">
+                  Sila betulkan ralat berikut sebelum menghantar borang:
+                </h3>
+                <ul className="space-y-1 text-sm text-red-700">
+                  {Object.entries(form.formState.errors).map(([fieldName, error]) => (
+                    <li key={fieldName} className="flex items-start gap-2">
+                      <span className="text-red-500 mt-0.5">•</span>
+                      <span>
+                        <strong>{fieldLabels[fieldName] || fieldName}:</strong> {error.message}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         <Button
           type="submit"
