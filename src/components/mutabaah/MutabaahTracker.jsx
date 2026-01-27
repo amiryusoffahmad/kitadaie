@@ -531,14 +531,14 @@ export default function MutabaahTracker() {
               </div>
               
               <div className="space-y-3">
-                <Button 
+                <Button
                   className="w-full flex items-center gap-2"
                   onClick={() => {
-                    window.open('/Al-Mathurat-1.pdf', '_blank')
+                    window.open('https://www.mathurat.com/', '_blank')
                   }}
                 >
                   <FileText className="h-4 w-4" />
-                  Open Al-Mathurat PDF
+                  Open Al-Ma'thurat (Web)
                 </Button>
 
                 <Button 

@@ -78,7 +78,7 @@ export default function DataList() {
                     {/* Mathurat */}
                     <Card
                         className="cursor-pointer hover:bg-primary/50 transition-colors active:scale-[0.98]"
-                        onClick={() => router.push('/Al-Mathurat-1.pdf')}
+                        onClick={() => window.open('https://www.mathurat.com/', '_blank')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
                             <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
