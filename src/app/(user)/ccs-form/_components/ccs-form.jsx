@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { toast } from "sonner";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +29,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 
 import { submitCCSForm } from "@/server/actions/ccs-actions";
+import { getUserDetails } from "@/server/actions/get-user-details";
 import {
   BRANCH_OPTIONS,
   TAHAPAN_MUROBBI_OPTIONS,
@@ -131,6 +132,8 @@ export function CCSForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [subKlusterOptions, setSubKlusterOptions] = useState([]);
   const [subKluster2Options, setSubKluster2Options] = useState([]);
+  const [userIdLookup, setUserIdLookup] = useState("");
+  const [isLookingUp, setIsLookingUp] = useState(false);
 
   const form = useForm({
     resolver: safeZodResolver(formSchema),
@@ -205,6 +208,34 @@ export function CCSForm() {
     }
   }, [sebabTambahan, form]);
 
+  // Handle user lookup
+  const handleUserLookup = async () => {
+    if (!userIdLookup.trim()) {
+      toast.error("Sila masukkan ID pengguna");
+      return;
+    }
+
+    setIsLookingUp(true);
+    try {
+      const result = await getUserDetails(userIdLookup);
+
+      if (result.success && result.data) {
+        // Auto-fill the form fields
+        form.setValue("murobbiEmail", result.data.email);
+        form.setValue("murobbiName", result.data.name);
+        form.setValue("murobbiCawangan", result.data.branch);
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error) {
+      console.error("Error looking up user:", error);
+      toast.error("Ralat semasa mencari pengguna");
+    } finally {
+      setIsLookingUp(false);
+    }
+  };
+
   // Field labels mapping for better error display
   const fieldLabels = {
     murobbiEmail: "Email",
@@ -264,6 +295,48 @@ export function CCSForm() {
         {/* Section 1: Basic Information */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold">Maklumat Asas Murobbi</h2>
+
+          {/* User ID Lookup */}
+          <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md space-y-3">
+            <Label htmlFor="userIdLookup">
+              ID Pengguna (Username atau Email)
+            </Label>
+            <p className="text-sm text-muted-foreground">
+              Masukkan ID pengguna anda untuk auto-isi maklumat anda
+            </p>
+            <div className="flex gap-2">
+              <Input
+                id="userIdLookup"
+                placeholder="Contoh: 1000 atau email@contoh.com"
+                value={userIdLookup}
+                onChange={(e) => setUserIdLookup(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleUserLookup();
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                onClick={handleUserLookup}
+                disabled={isLookingUp}
+                className="flex-shrink-0"
+              >
+                {isLookingUp ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Mencari...
+                  </>
+                ) : (
+                  <>
+                    <Search className="mr-2 h-4 w-4" />
+                    Cari
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
 
           <FormField
             control={form.control}
@@ -1150,24 +1223,24 @@ export function CCSForm() {
 
               {(sebabTambahan === "14. Negeri" ||
                 subKluster2 === "Lain-lain") && (
-                <FormField
-                  control={form.control}
-                  name="keteranganTambahan"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Keterangan Tambahan</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          rows={3}
-                          placeholder="Berikan keterangan yang jelas berdasarkan kluster yang dipilih"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              )}
+                  <FormField
+                    control={form.control}
+                    name="keteranganTambahan"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Keterangan Tambahan</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            rows={3}
+                            placeholder="Berikan keterangan yang jelas berdasarkan kluster yang dipilih"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
             </>
           )}
         </div>
