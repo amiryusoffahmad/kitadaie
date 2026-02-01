@@ -155,7 +155,7 @@ export function DragDropArea({
                             Drag & drop your PDF here or click to browse
                         </p>
                         <p className="text-xs text-muted-foreground">
-                            Supports PDF files up to 10MB
+                            Supports PDF files
                         </p>
                     </div>
                 </div>

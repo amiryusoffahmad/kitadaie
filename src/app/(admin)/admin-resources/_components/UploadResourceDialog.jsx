@@ -118,21 +118,54 @@ export default function UploadResourceDialog({ open, onOpenChange, resourceToEdi
                 toast.success('Resource updated successfully')
             } else {
                 // Create new resource with file upload
-                const formData = new FormData()
-                formData.append('file', file)
-                formData.append('title', title)
-                if (categoryId) formData.append('category_id', categoryId)
-                if (tags) formData.append('tags', tags)
-                if (description) formData.append('description', description)
+                // Step 1: Upload file directly to upload server to bypass kitadaie.com size limits
+                const uploadApiUrl = process.env.NEXT_PUBLIC_UPLOAD_API_URL || 'http://localhost:4000'
+                const uploadFormData = new FormData()
+                uploadFormData.append('file', file)
+                uploadFormData.append('type', 'resource')
 
+                const uploadRes = await fetch(`${uploadApiUrl}/upload`, {
+                    method: 'POST',
+                    body: uploadFormData
+                })
+
+                if (!uploadRes.ok) {
+                    const errorText = await uploadRes.text()
+                    throw new Error(errorText || 'Failed to upload file')
+                }
+
+                const uploadResult = await uploadRes.json()
+                const filePath = uploadResult.filePath || uploadResult.path || ''
+                const fileId = uploadResult.fileId || uploadResult.filename || filePath.split('/').pop()
+
+                // Normalize path format
+                let normalizedPath = filePath
+                if (!normalizedPath.startsWith('/uploads/') && normalizedPath.includes('/uploads/')) {
+                    const parts = normalizedPath.split('/uploads/')
+                    normalizedPath = '/uploads/' + parts[parts.length - 1]
+                } else if (normalizedPath.startsWith('uploads/')) {
+                    normalizedPath = '/' + normalizedPath
+                }
+
+                // Step 2: Send metadata to our API
                 const res = await fetch('/api/resources', {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        title,
+                        category_id: categoryId || null,
+                        tags,
+                        description,
+                        file_id: fileId,
+                        file_path: normalizedPath,
+                    })
                 })
 
                 if (!res.ok) {
                     const error = await res.json()
-                    throw new Error(error.error || 'Failed to upload resource')
+                    throw new Error(error.error || 'Failed to save resource')
                 }
 
                 toast.success('Resource uploaded successfully')

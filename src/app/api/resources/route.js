@@ -92,89 +92,116 @@ export async function POST(request) {
       );
     }
 
-    const formData = await request.formData();
-    const file = formData.get("file");
-    const title = formData.get("title");
-    const categoryId = formData.get("category_id");
-    const tags = formData.get("tags"); // Comma-separated string
-    const description = formData.get("description");
+    // Check if this is a direct file upload (old FormData method) or metadata (new JSON method)
+    const contentType = request.headers.get("content-type") || "";
 
-    if (!file || !title) {
-      return NextResponse.json(
-        { success: false, error: "File and title are required" },
-        { status: 400 }
-      );
+    let title, categoryId, tags, description, fileId, filePath;
+
+    if (contentType.includes("multipart/form-data")) {
+      // Legacy: FormData upload (file included in request)
+      // This may hit size limits, so we discourage this method
+      const formData = await request.formData();
+      const file = formData.get("file");
+      title = formData.get("title");
+      categoryId = formData.get("category_id");
+      tags = formData.get("tags");
+      description = formData.get("description");
+
+      if (!file || !title) {
+        return NextResponse.json(
+          { success: false, error: "File and title are required" },
+          { status: 400 }
+        );
+      }
+
+      // Validate file type
+      if (file.type !== "application/pdf") {
+        return NextResponse.json(
+          { success: false, error: "Only PDF files are allowed" },
+          { status: 400 }
+        );
+      }
+
+      // Upload file to external upload server
+      const uploadUrl = `${config.uploadApiUrl}/upload`;
+      console.log("[RESOURCES API] Uploading file to:", uploadUrl);
+
+      const uploadFormData = new FormData();
+      uploadFormData.append("file", file);
+      uploadFormData.append("type", "resource");
+
+      let uploadResponse;
+      try {
+        uploadResponse = await fetch(uploadUrl, {
+          method: "POST",
+          body: uploadFormData,
+        });
+      } catch (networkError) {
+        console.error("[RESOURCES API] Network error during file upload:", networkError);
+        return NextResponse.json(
+          { success: false, error: `Upload server not available. Please check that the upload server at ${uploadUrl} is running.` },
+          { status: 503 }
+        );
+      }
+
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error("[RESOURCES API] Upload response error:", errorText);
+        return NextResponse.json(
+          { success: false, error: `Failed to upload file: ${errorText}` },
+          { status: 500 }
+        );
+      }
+
+      let uploadResult;
+      try {
+        uploadResult = await uploadResponse.json();
+      } catch (parseError) {
+        console.error("[RESOURCES API] Error parsing upload response:", parseError);
+        return NextResponse.json(
+          { success: false, error: "Failed to parse upload response. The server may not be configured correctly." },
+          { status: 500 }
+        );
+      }
+
+      console.log("[RESOURCES API] Upload response data:", uploadResult);
+
+      // Get the file path from the response
+      filePath = uploadResult.filePath || uploadResult.path || '';
+
+      // Normalize the path format to ensure consistency (match assignment pattern)
+      if (!filePath.startsWith('/uploads/') && filePath.includes('/uploads/')) {
+        const parts = filePath.split('/uploads/');
+        filePath = '/uploads/' + parts[parts.length - 1];
+      } else if (filePath.startsWith('uploads/')) {
+        filePath = '/' + filePath;
+      }
+
+      console.log("[RESOURCES API] Normalized file path:", filePath);
+
+      // Get fileId from response (used as fallback if file_path column doesn't exist)
+      fileId = uploadResult.fileId || uploadResult.filename || filePath.split('/').pop();
+
+      console.log("[RESOURCES API] File uploaded successfully, path:", filePath, "fileId:", fileId);
+    } else {
+      // New method: JSON metadata only (file already uploaded directly)
+      const body = await request.json();
+      title = body.title;
+      categoryId = body.category_id;
+      tags = body.tags;
+      description = body.description;
+      fileId = body.file_id;
+      filePath = body.file_path;
+
+      if (!title || !fileId || !filePath) {
+        return NextResponse.json(
+          { success: false, error: "Title, file_id, and file_path are required" },
+          { status: 400 }
+        );
+      }
+
+      console.log("[RESOURCES API] Creating resource with pre-uploaded file:", filePath, "fileId:", fileId);
     }
-
-    // Validate file type
-    if (file.type !== "application/pdf") {
-      return NextResponse.json(
-        { success: false, error: "Only PDF files are allowed" },
-        { status: 400 }
-      );
-    }
-
-    // Upload file to external upload server
-    const uploadUrl = `${config.uploadApiUrl}/upload`;
-    console.log("[RESOURCES API] Uploading file to:", uploadUrl);
-
-    const uploadFormData = new FormData();
-    uploadFormData.append("file", file);
-    uploadFormData.append("type", "resource");
-
-    let uploadResponse;
-    try {
-      uploadResponse = await fetch(uploadUrl, {
-        method: "POST",
-        body: uploadFormData,
-      });
-    } catch (networkError) {
-      console.error("[RESOURCES API] Network error during file upload:", networkError);
-      return NextResponse.json(
-        { success: false, error: `Upload server not available. Please check that the upload server at ${uploadUrl} is running.` },
-        { status: 503 }
-      );
-    }
-
-    if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text();
-      console.error("[RESOURCES API] Upload response error:", errorText);
-      return NextResponse.json(
-        { success: false, error: `Failed to upload file: ${errorText}` },
-        { status: 500 }
-      );
-    }
-
-    let uploadResult;
-    try {
-      uploadResult = await uploadResponse.json();
-    } catch (parseError) {
-      console.error("[RESOURCES API] Error parsing upload response:", parseError);
-      return NextResponse.json(
-        { success: false, error: "Failed to parse upload response. The server may not be configured correctly." },
-        { status: 500 }
-      );
-    }
-
-    console.log("[RESOURCES API] Upload response data:", uploadResult);
-
-    // Get the file path from the response
-    let filePath = uploadResult.filePath || uploadResult.path || '';
-
-    // Normalize the path format to ensure consistency (match assignment pattern)
-    if (!filePath.startsWith('/uploads/') && filePath.includes('/uploads/')) {
-      const parts = filePath.split('/uploads/');
-      filePath = '/uploads/' + parts[parts.length - 1];
-    } else if (filePath.startsWith('uploads/')) {
-      filePath = '/' + filePath;
-    }
-
-    console.log("[RESOURCES API] Normalized file path:", filePath);
-
-    // Get fileId from response (used as fallback if file_path column doesn't exist)
-    const fileId = uploadResult.fileId || uploadResult.filename || filePath.split('/').pop();
-
-    console.log("[RESOURCES API] File uploaded successfully, path:", filePath, "fileId:", fileId);
 
     // Create resource record with file_id and file_path
     let resourceId;
