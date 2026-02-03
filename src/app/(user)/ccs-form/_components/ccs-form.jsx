@@ -238,31 +238,31 @@ export function CCSForm() {
 
   // Field labels mapping for better error display
   const fieldLabels = {
-    murobbiEmail: "Email",
-    murobbiName: "Nama Penuh Murobbi",
-    murobbiCawangan: "Murobbi dari Cawangan",
-    tahunDitarbiyah: "Tahun anda mula ditarbiyah",
-    tahunMembina: "Tahun anda mula membina",
-    tempohMembina: "Tempoh pengalaman anda membina",
-    bilanganMutarobbi: "Bilangan mutarobbi yang masih dihalaqohkan",
-    tahapanMurobbi: "Tahapan murobbi",
-    namaMutarobbi: "Nama penuh mutarobbi yang mufaraqah/dibuang",
-    jantinaMutarobbi: "Jantina mutarobbi",
-    kategoriMutarobbi: "Kategori mutarobbi",
-    statusMutarobbi: "Status mutarobbi",
-    kenalTarbiyah: "Mengenal tarbiyah secara",
-    tarikhMufaraqah: "Tarikh Mufaraqah",
-    masaMufaraqah: "Masa Mufaraqah",
-    umurTarbiyah: "Umur tarbiyah sebelum mufaraqoh/dibuang",
-    kampusMutarobbi: "Kampus mutarobbi",
-    tahapPendidikan: "Tahap pendidikan tertinggi",
-    tahunPengajian: "Tahun Pengajian",
-    kursusMutarobbi: "Kursus Mutarobbi",
-    levelMutarobbi: "Tahapan mutarobbi",
+    murobbiEmail: "1. Email",
+    murobbiName: "2. Nama Penuh Murobbi",
+    murobbiCawangan: "3. Murobbi dari Cawangan",
+    tahunDitarbiyah: "4. Tahun anda mula ditarbiyah",
+    tahunMembina: "5. Tahun anda mula membina",
+    tempohMembina: "6. Tempoh pengalaman anda membina",
+    bilanganMutarobbi: "7. Bilangan mutarobbi yang masih dihalaqohkan",
+    tahapanMurobbi: "8. Tahapan murobbi",
+    namaMutarobbi: "1. Nama penuh mutarobbi yang mufaraqah/dibuang",
+    jantinaMutarobbi: "2. Jantina mutarobbi",
+    kategoriMutarobbi: "3. Kategori mutarobbi",
+    statusMutarobbi: "4. Status mutarobbi",
+    kenalTarbiyah: "5. Mengenal tarbiyah secara",
+    tarikhMufaraqah: "6. Tarikh Mufaraqah",
+    masaMufaraqah: "7. Masa Mufaraqah",
+    umurTarbiyah: "8. Umur tarbiyah sebelum mufaraqoh/dibuang",
+    kampusMutarobbi: "9. Kampus mutarobbi",
+    tahapPendidikan: "10. Tahap pendidikan tertinggi",
+    tahunPengajian: "11. Tahun Pengajian",
+    kursusMutarobbi: "12. Kursus Mutarobbi",
+    levelMutarobbi: "13. Tahapan mutarobbi",
     fahamKluster: "Faham berkenaan kluster-kluster",
-    sebabUtama: "Sebab utama mutarobbi tersebut mufaraqoh/dibuang",
-    subKluster: "Sub-kluster",
-    tambahKluster: "Sebab tambahan",
+    sebabUtama: "14. Sebab utama mutarobbi tersebut mufaraqoh/dibuang",
+    subKluster: "15. Sub-kluster",
+    tambahKluster: "17. Sebab tambahan",
     pengesahan: "Pengesahan",
   };
 
@@ -294,7 +294,7 @@ export function CCSForm() {
       <form onSubmit={form.handleSubmit(onSubmit, onError)} className="space-y-8">
         {/* Section 1: Basic Information */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Maklumat Asas Murobbi</h2>
+          <h2 className="text-lg font-semibold">a. Maklumat Asas Murobbi</h2>
 
           {/* User ID Lookup */}
           <div className="p-4 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md space-y-3">
@@ -343,7 +343,7 @@ export function CCSForm() {
             name="murobbiEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>1. Email</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="email@contoh.com" {...field} />
                 </FormControl>
@@ -357,7 +357,7 @@ export function CCSForm() {
             name="murobbiName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama Penuh Murobbi</FormLabel>
+                <FormLabel>2. Nama Penuh Murobbi</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -371,7 +371,7 @@ export function CCSForm() {
             name="murobbiCawangan"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Murobbi dari Cawangan</FormLabel>
+                <FormLabel>3. Murobbi dari Cawangan</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -396,7 +396,7 @@ export function CCSForm() {
             name="tahunDitarbiyah"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tahun anda mula ditarbiyah</FormLabel>
+                <FormLabel>4. Tahun anda mula ditarbiyah</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Contoh: 2012" {...field} />
                 </FormControl>
@@ -410,7 +410,7 @@ export function CCSForm() {
             name="tahunMembina"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tahun anda mula membina</FormLabel>
+                <FormLabel>5. Tahun anda mula membina</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Contoh: 2013" {...field} />
                 </FormControl>
@@ -424,7 +424,7 @@ export function CCSForm() {
             name="tempohMembina"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tempoh pengalaman anda membina (bulan)</FormLabel>
+                <FormLabel>6. Tempoh pengalaman anda membina (bulan)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Contoh: 20" {...field} />
                 </FormControl>
@@ -439,7 +439,7 @@ export function CCSForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>
-                  Berapakah bilangan mutarobbi yang masih dihalaqohkan?
+                  7. Berapakah bilangan mutarobbi yang masih dihalaqohkan?
                 </FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="Contoh: 3" {...field} />
@@ -454,7 +454,7 @@ export function CCSForm() {
             name="tahapanMurobbi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Anda adalah murobbi pada tahapan:</FormLabel>
+                <FormLabel>8. Anda adalah murobbi pada tahapan:</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -477,14 +477,14 @@ export function CCSForm() {
 
         {/* Section 2: Mutarobbi Information */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold">Maklumat Mutarobbi</h2>
+          <h2 className="text-lg font-semibold">b. Maklumat Mutarobbi</h2>
 
           <FormField
             control={form.control}
             name="namaMutarobbi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nama penuh mutarobbi yang mufaraqah/dibuang</FormLabel>
+                <FormLabel>1. Nama penuh mutarobbi yang mufaraqah/dibuang</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -498,7 +498,7 @@ export function CCSForm() {
             name="jantinaMutarobbi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Mutarobbi anda seorang</FormLabel>
+                <FormLabel>2. Mutarobbi anda seorang</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -523,7 +523,7 @@ export function CCSForm() {
             name="kategoriMutarobbi"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Mutarobbi yang mufaraqah adalah:</FormLabel>
+                <FormLabel>3. Mutarobbi yang mufaraqah adalah:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -553,7 +553,7 @@ export function CCSForm() {
             name="statusMutarobbi"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Mutarobbi tersebut:</FormLabel>
+                <FormLabel>4. Mutarobbi tersebut:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -583,7 +583,7 @@ export function CCSForm() {
             name="kenalTarbiyah"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Mutarobbi tersebut mengenal tarbiyah secara:</FormLabel>
+                <FormLabel>5. Mutarobbi tersebut mengenal tarbiyah secara:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -635,7 +635,7 @@ export function CCSForm() {
             name="tarikhMufaraqah"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Tarikh Mufaraqah</FormLabel>
+                <FormLabel>6. Tarikh Mufaraqah</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -649,7 +649,7 @@ export function CCSForm() {
             name="masaMufaraqah"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Masa Mufaraqah</FormLabel>
+                <FormLabel>7. Masa Mufaraqah</FormLabel>
                 <FormControl>
                   <Input type="time" {...field} />
                 </FormControl>
@@ -673,7 +673,7 @@ export function CCSForm() {
             name="umurTarbiyah"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Umur tarbiyah sebelum mufaraqoh/dibuang:</FormLabel>
+                <FormLabel>8. Umur tarbiyah sebelum mufaraqoh/dibuang:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -703,7 +703,7 @@ export function CCSForm() {
             name="kampusMutarobbi"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Mutarobbi tersebut merupakan kader kampus:</FormLabel>
+                <FormLabel>9. Mutarobbi tersebut merupakan kader kampus:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -748,7 +748,7 @@ export function CCSForm() {
             name="tahapPendidikan"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Tahap pendidikan tertinggi:</FormLabel>
+                <FormLabel>10. Tahap pendidikan tertinggi:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -793,7 +793,7 @@ export function CCSForm() {
             name="tahunPengajian"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Tahun Pengajian:</FormLabel>
+                <FormLabel>11. Tahun Pengajian:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -838,7 +838,7 @@ export function CCSForm() {
             name="kursusMutarobbi"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Kursus Mutarobbi:</FormLabel>
+                <FormLabel>12. Kursus Mutarobbi:</FormLabel>
                 <FormControl>
                   <Input placeholder="Contoh: Kejuruteraan Elektrik" {...field} />
                 </FormControl>
@@ -852,7 +852,7 @@ export function CCSForm() {
             name="levelMutarobbi"
             render={({ field }) => (
               <FormItem className="space-y-3">
-                <FormLabel>Mutarobbi tersebut berada dalam tahapan:</FormLabel>
+                <FormLabel>13. Mutarobbi tersebut berada dalam tahapan:</FormLabel>
                 <FormControl>
                   <RadioGroup
                     onValueChange={field.onChange}
@@ -1059,7 +1059,7 @@ export function CCSForm() {
             name="sebabUtama"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sebab utama mutarobbi tersebut mufaraqoh/dibuang</FormLabel>
+                <FormLabel>14. Sebab utama mutarobbi tersebut mufaraqoh/dibuang</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
@@ -1086,7 +1086,7 @@ export function CCSForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Sila tandakan sub-kluster yang sesuai untuk mutarobbi tersebut
+                    15. Sila tandakan sub-kluster yang sesuai untuk mutarobbi tersebut
                   </FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
@@ -1114,7 +1114,7 @@ export function CCSForm() {
               name="keteranganKluster"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Keterangan</FormLabel>
+                  <FormLabel>16. Keterangan</FormLabel>
                   <FormControl>
                     <Textarea
                       rows={3}
@@ -1134,7 +1134,7 @@ export function CCSForm() {
             render={({ field }) => (
               <FormItem className="space-y-3">
                 <FormLabel>
-                  Adakah mutarobbi tersebut mempunyai sebab tambahan yang
+                  17. Adakah mutarobbi tersebut mempunyai sebab tambahan yang
                   menyebabkannya mufaraqoh/dibuang? (selain sebab utama yang telah
                   dinyatakan)
                 </FormLabel>
@@ -1170,7 +1170,7 @@ export function CCSForm() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Sebab tambahan mutarobbi tersebut mufaraqoh/dibuang
+                      18. Sebab tambahan mutarobbi tersebut mufaraqoh/dibuang
                     </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -1198,7 +1198,7 @@ export function CCSForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Sila tandakan sub-kluster tambahan yang sesuai untuk
+                        19. Sila tandakan sub-kluster tambahan yang sesuai untuk
                         mutarobbi tersebut
                       </FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
@@ -1228,7 +1228,7 @@ export function CCSForm() {
                     name="keteranganTambahan"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Keterangan Tambahan</FormLabel>
+                        <FormLabel>20. Keterangan Tambahan</FormLabel>
                         <FormControl>
                           <Textarea
                             rows={3}
@@ -1259,7 +1259,7 @@ export function CCSForm() {
             name="kitadaieId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>ID KitaDaie Mutarobbi (jika ada)</FormLabel>
+                <FormLabel>21. ID KitaDaie Mutarobbi (jika ada)</FormLabel>
                 <FormControl>
                   <Input {...field} />
                 </FormControl>
@@ -1273,7 +1273,7 @@ export function CCSForm() {
             name="mfaEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email MyFundAction Mutarobbi (jika ada)</FormLabel>
+                <FormLabel>22. Email MyFundAction Mutarobbi (jika ada)</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
