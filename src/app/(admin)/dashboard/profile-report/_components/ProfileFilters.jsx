@@ -89,11 +89,14 @@ export default function ProfileFilters({ filters, setFilters, onReset }) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value='all'>All Branches</SelectItem>
-              <SelectItem value='Kuala Lumpur'>Kuala Lumpur</SelectItem>
-              <SelectItem value='Selangor'>Selangor</SelectItem>
-              <SelectItem value='Penang'>Penang</SelectItem>
-              <SelectItem value='Johor'>Johor</SelectItem>
-              {/* Add more branches as needed */}
+              <SelectItem value='Malaysia - Central'>Malaysia - Central</SelectItem>
+              <SelectItem value='Malaysia - Northern'>Malaysia - Northern</SelectItem>
+              <SelectItem value='Malaysia - Eastern'>Malaysia - Eastern</SelectItem>
+              <SelectItem value='Malaysia - Borneo'>Malaysia - Borneo</SelectItem>
+              <SelectItem value='Europe'>Europe</SelectItem>
+              <SelectItem value='ANZ'>ANZ</SelectItem>
+              <SelectItem value='MEA'>MEA</SelectItem>
+              <SelectItem value='IDN'>IDN</SelectItem>
             </SelectContent>
           </Select>
         </div>
