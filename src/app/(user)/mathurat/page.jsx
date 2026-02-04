@@ -31,7 +31,7 @@ export default function MathurathPage() {
       </div>
 
       {/* Web-based Content Card */}
-      <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+      <Card className="border-2 border-blue-200 bg-linear-to-br from-blue-50 to-indigo-50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-blue-900">
             <BookOpen className="h-6 w-6" />

@@ -54,10 +54,10 @@ export default function DataList() {
             >
                 <div className="relative overflow-hidden rounded-lg">
                     {/* Gradient background overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 opacity-50 group-hover:opacity-70 transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-linear-to-br from-blue-50 via-purple-50 to-pink-50 opacity-50 group-hover:opacity-70 transition-opacity duration-300" />
 
                     {/* Animated gradient border */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
+                    <div className="absolute inset-0 bg-linear-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-20 blur-xl transition-opacity duration-300" />
 
                     {/* Card content */}
                     <div className="relative shadow-md group-hover:shadow-xl transition-shadow duration-300">
@@ -68,7 +68,7 @@ export default function DataList() {
                     </div>
 
                     {/* Subtle shine effect on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 translate-x-[-100%] group-hover:translate-x-[100%] transition-all duration-1000" />
+                    <div className="absolute inset-0 bg-linear-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-10 -translate-x-full group-hover:translate-x-full transition-all duration-1000" />
                 </div>
             </div>
 
@@ -81,7 +81,7 @@ export default function DataList() {
                         onClick={() => window.open('https://www.mathurat.com/', '_blank')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-linear-to-br from-green-100 to-emerald-100 flex items-center justify-center">
                                 <BookOpen className="h-6 w-6 text-green-600" />
                             </div>
                             <p className="text-sm font-medium">Mathurat</p>
@@ -94,7 +94,7 @@ export default function DataList() {
                         onClick={() => router.push('/mutabaah')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-linear-to-br from-blue-100 to-cyan-100 flex items-center justify-center">
                                 <CheckSquare className="h-6 w-6 text-blue-600" />
                             </div>
                             <p className="text-sm font-medium">Mutabaah</p>
@@ -107,7 +107,7 @@ export default function DataList() {
                         onClick={() => router.push('/resources')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-linear-to-br from-orange-100 to-amber-100 flex items-center justify-center">
                                 <FolderOpen className="h-6 w-6 text-orange-600" />
                             </div>
                             <p className="text-sm font-medium">Resources</p>
@@ -120,7 +120,7 @@ export default function DataList() {
                         onClick={() => router.push('/hq-tree')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-linear-to-br from-purple-100 to-pink-100 flex items-center justify-center">
                                 <Network className="h-6 w-6 text-purple-600" />
                             </div>
                             <p className="text-sm font-medium">HQ Tree</p>
@@ -133,7 +133,7 @@ export default function DataList() {
                         onClick={() => router.push('/ccs-form')}
                     >
                         <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-full bg-linear-to-br from-purple-100 to-pink-100 flex items-center justify-center">
                                 <ScrollText className="h-6 w-6 text-red-600" />
                             </div>
                             <p className="text-sm font-medium">CCS Form</p>

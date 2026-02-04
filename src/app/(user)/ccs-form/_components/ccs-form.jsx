@@ -321,7 +321,7 @@ export function CCSForm() {
                 type="button"
                 onClick={handleUserLookup}
                 disabled={isLookingUp}
-                className="flex-shrink-0"
+                className="shrink-0"
               >
                 {isLookingUp ? (
                   <>
