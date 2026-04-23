@@ -8,7 +8,10 @@
     "build": "next build --webpack",
     "start": "next start -p 3001",
     "lint": "next lint",
-    "generate-vapid-keys": "node scripts/generate-vapid-keys.js"
+    "generate-vapid-keys": "node scripts/generate-vapid-keys.js",
+    "db:migrate": "knex migrate:latest",
+    "db:rollback": "knex migrate:rollback",
+    "db:make": "knex migrate:make"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

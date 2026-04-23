@@ -51,10 +51,13 @@ export async function createPentajmikan(data) {
     const programId = await PentajmikanModel.create(pentajmikanData);
 
     // Add participants if provided
-    if (data.participants && Array.isArray(data.participants)) {
-      for (const participantId of data.participants) {
-        await PentajmikanModel.addParticipant(programId, participantId);
-      }
+    if (data.participants?.length) {
+      const rows = data.participants.map((uid) => ({
+        pentajmikan_id: programId,
+        user_id: uid,
+      }));
+      await db.batchInsert("pentajmikan_participants", rows);
+      await PentajmikanModel.updateParticipantCount(programId);
     }
 
     revalidatePath("/user/pentajmikan");
@@ -221,11 +224,17 @@ export async function updatePentajmikan(id, data) {
       const currentParticipants = await PentajmikanModel.getParticipants(id);
       const currentParticipantIds = currentParticipants.map((p) => p.id);
 
-      // Add new participants
-      for (const participantId of data.participants) {
-        if (!currentParticipantIds.includes(participantId)) {
-          await PentajmikanModel.addParticipant(id, participantId);
-        }
+      // Add new participants in one batch
+      const newParticipants = data.participants.filter(
+        (uid) => !currentParticipantIds.includes(uid)
+      );
+      if (newParticipants.length) {
+        const rows = newParticipants.map((uid) => ({
+          pentajmikan_id: id,
+          user_id: uid,
+        }));
+        await db.batchInsert("pentajmikan_participants", rows);
+        await PentajmikanModel.updateParticipantCount(id);
       }
 
       // Remove participants not in the new list

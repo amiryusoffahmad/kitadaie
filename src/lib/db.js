@@ -1,14 +1,13 @@
 import "server-only";
 import knex from "knex";
 
-// Knex configuration
 const config = {
   client: "mysql2",
   connection: {
-    host: process.env.DB_HOST || "localhost",
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
-    database: process.env.DB_NAME || "kitadaie",
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
   },
   pool: {
     min: 2,
@@ -16,8 +15,10 @@ const config = {
   },
 };
 
-// Export db instance
-export const db = knex(config);
+// Global cache prevents connection pool leaks on Next.js hot-reload
+const g = global;
+export const db = g._knex ?? knex(config);
+if (process.env.NODE_ENV !== "production") g._knex = db;
 
 /**
  * Execute a query with parameters

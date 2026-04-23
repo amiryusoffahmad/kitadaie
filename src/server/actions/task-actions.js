@@ -142,12 +142,11 @@ export async function assignTask(data) {
       throw new Error("Task ID and at least one assignment are required");
     }
 
-    const createdAssignments = [];
-
-    for (const assignment of assignments) {
-      const result = await taskService.assignTaskToRoleDepartment(taskId, assignment);
-      createdAssignments.push(result);
-    }
+    const createdAssignments = await Promise.all(
+      assignments.map((assignment) =>
+        taskService.assignTaskToRoleDepartment(taskId, assignment)
+      )
+    );
 
     revalidatePath("/admin-organizational/tasks");
     revalidatePath(`/admin-organizational/tasks/${taskId}`);
@@ -204,15 +203,11 @@ export async function createTaskReminders(data) {
       throw new Error("Task ID and at least one reminder are required");
     }
 
-    const createdReminders = [];
-
-    for (const reminder of reminders) {
-      const result = await reminderService.createReminder({
-        taskId,
-        daysBefore: reminder.daysBefore,
-      });
-      createdReminders.push(result);
-    }
+    const createdReminders = await Promise.all(
+      reminders.map((reminder) =>
+        reminderService.createReminder({ taskId, daysBefore: reminder.daysBefore })
+      )
+    );
 
     revalidatePath("/admin-organizational/tasks");
     revalidatePath(`/admin-organizational/tasks/${taskId}`);
