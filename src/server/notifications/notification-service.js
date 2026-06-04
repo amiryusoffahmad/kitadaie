@@ -83,10 +83,8 @@ export async function getUserNotifications({
       query = query.where({ type });
     }
 
-    // Get total count for pagination
-    const [{ count }] = await db("notifications")
-      .where({ user_id: userId })
-      .count("id as count");
+    // Count using the same filters applied to the main query
+    const [{ count }] = await query.clone().clearSelect().clearOrder().count("id as count");
 
     // Apply pagination and order by most recent first
     const notifications = await query

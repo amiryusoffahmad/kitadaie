@@ -52,13 +52,6 @@ export async function toggleMutabaahEntry(activityId, date, completed) {
       return { success: false, error: "Not authenticated" }
     }
 
-    console.log('Toggle mutabaah entry:', {
-      userId: session.user.id,
-      activityId,
-      date,
-      completed
-    })
-
     const existingEntry = await db("mutabaah_entries")
       .select()
       .where("user_id", session.user.id)
@@ -66,25 +59,18 @@ export async function toggleMutabaahEntry(activityId, date, completed) {
       .where("date", date)
       .first()
 
-    console.log('Existing entry found:', existingEntry)
-
     if (existingEntry) {
-      const updateResult = await db("mutabaah_entries")
+      await db("mutabaah_entries")
         .update({ completed: completed ? 1 : 0 })
         .where("id", existingEntry.id)
-      console.log('Update result:', updateResult)
     } else {
-      const insertData = {
-        user_id: session.user.id,
-        activity_id: activityId,
-        date: date,
-        completed: completed ? 1 : 0
-      }
-      console.log('Inserting new entry:', insertData)
-      
-      const insertResult = await db("mutabaah_entries")
-        .insert(insertData)
-      console.log('Insert result:', insertResult)
+      await db("mutabaah_entries")
+        .insert({
+          user_id: session.user.id,
+          activity_id: activityId,
+          date: date,
+          completed: completed ? 1 : 0
+        })
     }
 
     return { success: true }
@@ -154,28 +140,21 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       return { success: false, error: "Not authenticated" }
     }
 
-    console.log('Fetching weekly results for user:', session.user.id, 'from', startDate, 'to', endDate)
-
-    const entries = await db("mutabaah_entries")
-      .select({
-        date: "date",
-        activity_id: "activity_id",
-        completed: "completed",
-        activity_name: "mutabaah_activities.name"
-      })
-      .leftJoin("mutabaah_activities", "mutabaah_entries.activity_id", "mutabaah_activities.id")
-      .where("mutabaah_entries.user_id", session.user.id)
-      .where("mutabaah_entries.date", ">=", startDate)
-      .where("mutabaah_entries.date", "<=", endDate)
-      .orderBy("date")
-
-    console.log('Found entries:', entries)
-
-    const activities = await db("mutabaah_activities")
-      .select()
-      .orderBy("id")
-
-    console.log('Activities:', activities)
+    const [entries, activities] = await Promise.all([
+      db("mutabaah_entries")
+        .select({
+          date: "date",
+          activity_id: "activity_id",
+          completed: "completed",
+          activity_name: "mutabaah_activities.name"
+        })
+        .leftJoin("mutabaah_activities", "mutabaah_entries.activity_id", "mutabaah_activities.id")
+        .where("mutabaah_entries.user_id", session.user.id)
+        .where("mutabaah_entries.date", ">=", startDate)
+        .where("mutabaah_entries.date", "<=", endDate)
+        .orderBy("date"),
+      db("mutabaah_activities").select().orderBy("id"),
+    ])
 
     const weekData = {}
     const currentDate = new Date(startDate)
@@ -184,28 +163,19 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
     while (currentDate <= endDateObj) {
       const dateStr = currentDate.toISOString().split('T')[0]
       weekData[dateStr] = {}
-      
       activities.forEach(activity => {
         weekData[dateStr][activity.id] = false
       })
-
       currentDate.setDate(currentDate.getDate() + 1)
     }
 
     entries.forEach(entry => {
-      // Convert the database date to YYYY-MM-DD format for comparison
       const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
-      console.log('Processing entry date:', entry.date, 'converted to:', entryDateStr)
-      
       if (weekData[entryDateStr]) {
         weekData[entryDateStr][entry.activity_id] = entry.completed === 1
-        console.log(`Set activity ${entry.activity_id} for date ${entryDateStr} to ${entry.completed === 1}`)
-      } else {
-        console.log(`Date ${entryDateStr} not found in weekData keys:`, Object.keys(weekData))
       }
     })
 
-    // Calculate per-activity completion counts
     const activityResults = {}
     activities.forEach(activity => {
       activityResults[activity.id] = {
@@ -216,7 +186,6 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       }
     })
 
-    // Count completions per activity across all days
     Object.keys(weekData).forEach(date => {
       activities.forEach(activity => {
         if (weekData[date][activity.id]) {
@@ -225,7 +194,6 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       })
     })
 
-    // Check if each activity passes (≥5 out of 7 days)
     let allActivitiesPassed = true
     activities.forEach(activity => {
       activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
@@ -234,21 +202,15 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       }
     })
 
-    const isPassed = allActivitiesPassed
-    
-    const finalResult = { 
-      success: true, 
-      weekData, 
+    return {
+      success: true,
+      weekData,
       activities,
       activityResults,
-      isPassed,
-      result: isPassed ? "PASS" : "FAIL",
+      isPassed: allActivitiesPassed,
+      result: allActivitiesPassed ? "PASS" : "FAIL",
       totalDays: 7
     }
-    
-    console.log('Final weekly result:', finalResult)
-    
-    return finalResult
   } catch (error) {
     console.error("Failed to get weekly mutabaah results:", error)
     return { success: false, error: "Failed to get weekly results" }
@@ -276,29 +238,23 @@ export async function getBiweeklyMutabaahSummary() {
       return { success: false, error: "Not authenticated" }
     }
 
-    // Get the last 2 weeks of data
     const endDate = new Date()
     const startDate = new Date(endDate)
-    startDate.setDate(endDate.getDate() - 13) // 2 weeks = 14 days, so go back 13 days
+    startDate.setDate(endDate.getDate() - 13)
 
-    console.log('Fetching biweekly summary for user:', session.user.id, 'from', startDate.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0])
+    const startStr = startDate.toISOString().split('T')[0]
+    const endStr = endDate.toISOString().split('T')[0]
 
-    const entries = await db("mutabaah_entries")
-      .select({
-        date: "date",
-        activity_id: "activity_id", 
-        completed: "completed",
-      })
-      .where("mutabaah_entries.user_id", session.user.id)
-      .where("mutabaah_entries.date", ">=", startDate.toISOString().split('T')[0])
-      .where("mutabaah_entries.date", "<=", endDate.toISOString().split('T')[0])
-      .orderBy("date")
+    const [entries, activities] = await Promise.all([
+      db("mutabaah_entries")
+        .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+        .where("mutabaah_entries.user_id", session.user.id)
+        .where("mutabaah_entries.date", ">=", startStr)
+        .where("mutabaah_entries.date", "<=", endStr)
+        .orderBy("date"),
+      db("mutabaah_activities").select().orderBy("id"),
+    ])
 
-    const activities = await db("mutabaah_activities")
-      .select()
-      .orderBy("id")
-
-    // Create biweekly data structure
     const biweeklyData = {}
     let currentDate = new Date(startDate)
     while (currentDate <= endDate) {
@@ -310,7 +266,6 @@ export async function getBiweeklyMutabaahSummary() {
       currentDate.setDate(currentDate.getDate() + 1)
     }
 
-    // Fill in the actual data
     entries.forEach(entry => {
       const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
       if (biweeklyData[entryDateStr]) {
@@ -318,7 +273,6 @@ export async function getBiweeklyMutabaahSummary() {
       }
     })
 
-    // Calculate per-activity results (need ≥10 out of 14 days to pass)
     const activityResults = {}
     activities.forEach(activity => {
       activityResults[activity.id] = {
@@ -329,7 +283,6 @@ export async function getBiweeklyMutabaahSummary() {
       }
     })
 
-    // Count completions per activity
     Object.keys(biweeklyData).forEach(date => {
       activities.forEach(activity => {
         if (biweeklyData[date][activity.id]) {
@@ -338,7 +291,6 @@ export async function getBiweeklyMutabaahSummary() {
       })
     })
 
-    // Check if each activity passes (≥10 out of 14 days = ~71%)
     let allActivitiesPassed = true
     activities.forEach(activity => {
       activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 10
@@ -355,8 +307,8 @@ export async function getBiweeklyMutabaahSummary() {
       isPassed: allActivitiesPassed,
       result: allActivitiesPassed ? "PASS" : "FAIL",
       totalDays: 14,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
+      startDate: startStr,
+      endDate: endStr
     }
   } catch (error) {
     console.error("Failed to get biweekly mutabaah summary:", error)
@@ -372,56 +324,40 @@ export async function getWeeklySummaries() {
       return { success: false, error: "Not authenticated" }
     }
 
-    // Get user settings to know when week ends
     const settings = await db("mutabaah_settings")
       .where("user_id", session.user.id)
       .first()
-    
-    const endOfWeekDay = settings?.end_of_week || 0 // Default to Sunday
 
-    // Calculate two-week period that resets every 2 weeks
+    const endOfWeekDay = settings?.end_of_week || 0
+
     const today = new Date()
     const currentDay = today.getDay()
-    
-    // Find the most recent end-of-week day
+
     let lastEndOfWeek = new Date(today)
     if (currentDay <= endOfWeekDay) {
-      // This week's end of week hasn't passed yet, so use last week's
       lastEndOfWeek.setDate(today.getDate() - (7 - endOfWeekDay + currentDay))
     } else {
-      // This week's end of week has passed
       lastEndOfWeek.setDate(today.getDate() - (currentDay - endOfWeekDay))
     }
 
-    // Calculate which 2-week cycle we're in
-    const epochStart = new Date('2024-01-01') // Reference date (Monday)
+    const epochStart = new Date('2024-01-01')
     const daysSinceEpoch = Math.floor((lastEndOfWeek - epochStart) / (1000 * 60 * 60 * 24))
     const weeksSinceEpoch = Math.floor(daysSinceEpoch / 7)
     const twoWeekCycle = Math.floor(weeksSinceEpoch / 2)
-    
-    // Calculate the start of current 2-week cycle
+
     const cycleStartWeek = twoWeekCycle * 2
     const cycleStart = new Date(epochStart)
     cycleStart.setDate(epochStart.getDate() + (cycleStartWeek * 7))
-    
-    // Calculate week 1 and week 2 ranges
+
     const week1Start = new Date(cycleStart)
     const week1End = new Date(cycleStart)
     week1End.setDate(week1Start.getDate() + 6)
-    
+
     const week2Start = new Date(week1End)
     week2Start.setDate(week1End.getDate() + 1)
     const week2End = new Date(week2Start)
     week2End.setDate(week2Start.getDate() + 6)
 
-    console.log('Weekly summaries calculation:', {
-      today: today.toISOString().split('T')[0],
-      endOfWeekDay,
-      week1: `${week1Start.toISOString().split('T')[0]} to ${week1End.toISOString().split('T')[0]}`,
-      week2: `${week2Start.toISOString().split('T')[0]} to ${week2End.toISOString().split('T')[0]}`
-    })
-
-    // Get data for both weeks
     const [week1Data, week2Data] = await Promise.all([
       getWeekData(session.user.id, week1Start, week1End),
       getWeekData(session.user.id, week2Start, week2End)
@@ -451,23 +387,16 @@ export async function getWeeklySummaries() {
 }
 
 async function getWeekData(userId, startDate, endDate) {
-  // Get entries for this week
-  const entries = await db("mutabaah_entries")
-    .select({
-      date: "date",
-      activity_id: "activity_id", 
-      completed: "completed",
-    })
-    .where("mutabaah_entries.user_id", userId)
-    .where("mutabaah_entries.date", ">=", startDate.toISOString().split('T')[0])
-    .where("mutabaah_entries.date", "<=", endDate.toISOString().split('T')[0])
-    .orderBy("date")
+  const [entries, activities] = await Promise.all([
+    db("mutabaah_entries")
+      .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+      .where("mutabaah_entries.user_id", userId)
+      .where("mutabaah_entries.date", ">=", startDate.toISOString().split('T')[0])
+      .where("mutabaah_entries.date", "<=", endDate.toISOString().split('T')[0])
+      .orderBy("date"),
+    db("mutabaah_activities").select().orderBy("id"),
+  ])
 
-  const activities = await db("mutabaah_activities")
-    .select()
-    .orderBy("id")
-
-  // Create week data structure
   const weekData = {}
   let currentDate = new Date(startDate)
   while (currentDate <= endDate) {
@@ -479,7 +408,6 @@ async function getWeekData(userId, startDate, endDate) {
     currentDate.setDate(currentDate.getDate() + 1)
   }
 
-  // Fill in actual data
   entries.forEach(entry => {
     const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
     if (weekData[entryDateStr]) {
@@ -487,7 +415,6 @@ async function getWeekData(userId, startDate, endDate) {
     }
   })
 
-  // Calculate per-activity results (need ≥5 out of 7 days to pass)
   const activityResults = {}
   activities.forEach(activity => {
     activityResults[activity.id] = {
@@ -498,7 +425,6 @@ async function getWeekData(userId, startDate, endDate) {
     }
   })
 
-  // Count completions per activity
   Object.keys(weekData).forEach(date => {
     activities.forEach(activity => {
       if (weekData[date][activity.id]) {
@@ -507,7 +433,6 @@ async function getWeekData(userId, startDate, endDate) {
     })
   })
 
-  // Check if each activity passes (≥5 out of 7 days = ~71%)
   let allActivitiesPassed = true
   activities.forEach(activity => {
     activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
@@ -516,10 +441,9 @@ async function getWeekData(userId, startDate, endDate) {
     }
   })
 
-  // Generate summary text
   const passedActivities = activities.filter(a => activityResults[a.id].isPassed)
   const failedActivities = activities.filter(a => !activityResults[a.id].isPassed)
-  
+
   let summaryText = ""
   if (allActivitiesPassed) {
     summaryText = `🎉 Excellent week! All ${activities.length} activities passed. `
@@ -555,28 +479,20 @@ export async function getMonthlyMutabaahResults(year, month) {
     }
 
     const startDate = new Date(year, month - 1, 1)
-    const endDate = new Date(year, month, 0) // Last day of the month
+    const endDate = new Date(year, month, 0)
 
-    console.log('Fetching monthly results for user:', session.user.id, 'for month:', month, 'year:', year)
-    console.log('Date range:', startDate.toISOString().split('T')[0], 'to', endDate.toISOString().split('T')[0])
+    const startStr = startDate.toISOString().split('T')[0]
+    const endStr = endDate.toISOString().split('T')[0]
 
-    const entries = await db("mutabaah_entries")
-      .select({
-        date: "date",
-        activity_id: "activity_id",
-        completed: "completed",
-      })
-      .where("mutabaah_entries.user_id", session.user.id)
-      .where("mutabaah_entries.date", ">=", startDate.toISOString().split('T')[0])
-      .where("mutabaah_entries.date", "<=", endDate.toISOString().split('T')[0])
-      .orderBy("date")
-
-    const activities = await db("mutabaah_activities")
-      .select()
-      .orderBy("id")
-
-    console.log('Found entries for month:', entries.length)
-    console.log('Activities found:', activities.length)
+    const [entries, activities] = await Promise.all([
+      db("mutabaah_entries")
+        .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+        .where("mutabaah_entries.user_id", session.user.id)
+        .where("mutabaah_entries.date", ">=", startStr)
+        .where("mutabaah_entries.date", "<=", endStr)
+        .orderBy("date"),
+      db("mutabaah_activities").select().orderBy("id"),
+    ])
 
     const monthlyData = {}
     let currentDate = new Date(startDate)
@@ -589,10 +505,6 @@ export async function getMonthlyMutabaahResults(year, month) {
       currentDate.setDate(currentDate.getDate() + 1)
     }
 
-    console.log('Total days in monthlyData:', Object.keys(monthlyData).length)
-    console.log('Month data keys (first 5):', Object.keys(monthlyData).slice(0, 5))
-    console.log('Month data keys (last 5):', Object.keys(monthlyData).slice(-5))
-
     entries.forEach(entry => {
       const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
       if (monthlyData[entryDateStr]) {
@@ -600,7 +512,6 @@ export async function getMonthlyMutabaahResults(year, month) {
       }
     })
 
-    // Calculate per-activity completion counts for the month
     const activityResults = {}
     activities.forEach(activity => {
       activityResults[activity.id] = {
@@ -611,7 +522,6 @@ export async function getMonthlyMutabaahResults(year, month) {
       }
     })
 
-    // Count completions per activity across all days in month
     Object.keys(monthlyData).forEach(date => {
       activities.forEach(activity => {
         if (monthlyData[date][activity.id]) {
@@ -620,11 +530,10 @@ export async function getMonthlyMutabaahResults(year, month) {
       })
     })
 
-    // Check if each activity passes (≥70% of days in month)
     let allActivitiesPassed = true
-    let totalDaysInMonth = Object.keys(monthlyData).length
+    const totalDaysInMonth = Object.keys(monthlyData).length
     const passThreshold = Math.ceil(totalDaysInMonth * 0.7)
-    
+
     activities.forEach(activity => {
       activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= passThreshold
       if (!activityResults[activity.id].isPassed) {
@@ -632,9 +541,6 @@ export async function getMonthlyMutabaahResults(year, month) {
       }
     })
 
-    const isMonthPassed = allActivitiesPassed
-
-    // Calculate overall completion for display purposes
     let overallCompletedDays = 0
     Object.keys(monthlyData).forEach(date => {
       let dayFullyCompleted = true
@@ -648,21 +554,17 @@ export async function getMonthlyMutabaahResults(year, month) {
       }
     })
 
-    const result = {
+    return {
       success: true,
-      month: month,
-      year: year,
-      passedDays: overallCompletedDays, // For display in graph
+      month,
+      year,
+      passedDays: overallCompletedDays,
       totalDays: totalDaysInMonth,
-      passThreshold: passThreshold,
-      isPassed: isMonthPassed,
-      status: isMonthPassed ? "PASS" : "FAIL",
-      activityResults: activityResults
+      passThreshold,
+      isPassed: allActivitiesPassed,
+      status: allActivitiesPassed ? "PASS" : "FAIL",
+      activityResults
     }
-    
-    console.log('Final monthly result:', result)
-    
-    return result
   } catch (error) {
     console.error("Failed to get monthly mutabaah results:", error)
     return { success: false, error: "Failed to get monthly results" }

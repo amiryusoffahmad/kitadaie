@@ -24,7 +24,7 @@ async function checkAdminPermission() {
   }
 
   const roleData = await getRole(session.user.id);
-  if (roleData.role !== "admin") {
+  if (!roleData || roleData.role !== "admin") {
     throw new Error("Admin permission required");
   }
 
