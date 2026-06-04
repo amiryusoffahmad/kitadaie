@@ -109,7 +109,7 @@ export default function EventCarousel() {
                                     </div>
 
                                     <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
-                                        <MapPin className="h-3 w-3 flex-shrink-0" />
+                                        <MapPin className="h-3 w-3 shrink-0" />
                                         <span className="truncate">{event.venue}</span>
                                     </div>
 

@@ -1270,10 +1270,10 @@ export function CCSForm() {
 
           <FormField
             control={form.control}
-            name="mfaEmail"
+            name="ylEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>22. Email MyFundAction Mutarobbi (jika ada)</FormLabel>
+                <FormLabel>22. Email Yoshleader Mutarobbi (jika ada)</FormLabel>
                 <FormControl>
                   <Input type="email" {...field} />
                 </FormControl>
