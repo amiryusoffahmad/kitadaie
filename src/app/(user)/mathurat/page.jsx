@@ -101,7 +101,7 @@ export default function MathuratPage() {
           <Sparkles className="h-4 w-4 text-emerald-600" />
           <AlertTitle className="text-emerald-800 font-bold">Kelebihan Berzikir</AlertTitle>
           <AlertDescription className="text-emerald-700 text-xs leading-relaxed">
-            Allah akan mencukupkan baginya apa yang mendukacitakannya daripada urusan dunia dan akhirat. (HR Abu Daud)
+            Hadis "...."
           </AlertDescription>
         </Alert>
 
