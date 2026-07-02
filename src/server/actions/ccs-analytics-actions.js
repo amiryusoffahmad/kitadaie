@@ -424,7 +424,7 @@ export async function exportCCSToCSV(filters = {}) {
     const submissions = await query.orderBy("created_at", "desc");
 
     // Build CSV string
-    const headers = [
+    const csvHeaders = [
       "ID",
       "Murobbi Name",
       "Murobbi Email",
@@ -468,7 +468,7 @@ export async function exportCCSToCSV(filters = {}) {
       return stringValue;
     };
 
-    const csvRows = [headers.join(",")];
+    const csvRows = [csvHeaders.join(",")];
 
     submissions.forEach((submission) => {
       const row = [

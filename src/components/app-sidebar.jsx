@@ -51,7 +51,7 @@ const data = {
   ],
   teams: [
     {
-      name: "LKD SLT",
+      name: "LKD SYSTEM",
       logo: GalleryVerticalEnd,
     },
   ],
