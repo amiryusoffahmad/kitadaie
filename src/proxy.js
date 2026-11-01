@@ -26,9 +26,7 @@ export async function proxy(request) {
     return redirectResponse;
   }
 
-  if (sessionCookie && signInPath) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
+  // The sign-in page validates the session. Cookie presence alone can be stale.
   return NextResponse.next();
 }
 

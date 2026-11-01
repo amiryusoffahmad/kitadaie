@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/card'
 import { signIn } from '@/lib/auth-client'
 
-export function FormSignIn({ callbackUrl }) {
+export function FormSignIn({ callbackUrl, error }) {
     const [isLoading, setIsLoading] = useState(false)
 
     const signInGoogle = async () => {
@@ -23,13 +23,14 @@ export function FormSignIn({ callbackUrl }) {
             const result = await signIn.social({
                 provider: 'google',
                 callbackURL: callbackUrl || '/dashboard',
+                errorCallbackURL: '/sign-in',
             })
             if (result.error) {
                 toast.error(result.error.message || 'Sign-in failed. Please try again.')
+                setIsLoading(false)
             }
         } catch (error) {
             toast.error('Sign-in failed. Please try again.')
-        } finally {
             setIsLoading(false)
         }
     }
@@ -42,6 +43,9 @@ export function FormSignIn({ callbackUrl }) {
                     <CardDescription>Sign in with your Yosh Leader Google account</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {error && <p role='alert' className='mb-4 text-sm text-destructive'>
+                        Your sign-in attempt expired or could not be verified. Please sign in again.
+                    </p>}
                     <Button
                         className='w-full'
                         onClick={signInGoogle}

@@ -52,7 +52,7 @@ const pwaConfig = withPWA({
   runtimeCaching: [
     {
       // Do not persist personalized content or admin drafts in the service worker.
-      urlPattern: ({ url }) => /^\/(?:api\/(?:content|admin\/content)|articles|bulletin|admin-content)(?:\/|$)/.test(url.pathname),
+      urlPattern: ({ url }) => /^\/(?:api\/(?:auth|content|admin\/content)|sign-in|articles|bulletin|admin-content)(?:\/|$)/.test(url.pathname),
       handler: 'NetworkOnly',
     },
     ...defaultRuntimeCaching,

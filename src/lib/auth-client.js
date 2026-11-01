@@ -1,7 +1,6 @@
 import { createAuthClient } from "better-auth/react";
 
-export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-});
+// The sign-in page redirects to the configured auth origin before OAuth starts.
+export const authClient = createAuthClient();
 
 export const { signIn, signOut, signUp, useSession, getSession } = authClient;

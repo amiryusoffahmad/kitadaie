@@ -1,13 +1,13 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Newspaper, GraduationCap, Bell, Grid2X2 } from 'lucide-react';
+import { SquareCheckBig, Newspaper, GraduationCap, Bell, Grid2X2 } from 'lucide-react';
 import { useNotifications } from '@/providers/notification-provider';
 import { BulletinBadge } from '@/features/content/content-client';
 import { Badge } from '@/components/ui/badge';
 
 const tabs = [
-  { href: '/home', label: 'Home', icon: Home },
+  { href: '/mutabaah', label: 'Mutabaah', icon: SquareCheckBig },
   { href: '/bulletin', label: 'Bulletin', icon: Newspaper },
   { href: '/tprog', label: 'TProg', icon: GraduationCap },
   { href: '/user/notifications', label: 'Notification', icon: Bell },
