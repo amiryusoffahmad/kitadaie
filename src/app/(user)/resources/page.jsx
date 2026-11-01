@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Download, ExternalLink, FileText, Tag } from 'lucide-react'
+import { FileText, Tag } from 'lucide-react'
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 const uriUpload = process.env.NEXT_PUBLIC_UPLOAD_API_URL || "http://localhost:4000"
@@ -51,36 +51,6 @@ export default function ResourcesPage() {
         <div className='space-y-4'>
             {/* Header */}
             <h1 className='text-2xl font-bold mb-4'>Resources</h1>
-
-            <section aria-labelledby='bulletin-heading' className='space-y-3'>
-                <h2 id='bulletin-heading' className='text-lg font-semibold'>Bahan Buletin</h2>
-                <Card>
-                    <CardHeader className='p-4 pb-2'>
-                        <div className='flex items-center gap-2'>
-                            <FileText className='h-5 w-5 text-muted-foreground' aria-hidden='true' />
-                            <CardTitle className='text-base'>Hadis 40</CardTitle>
-                            <Badge variant='secondary'>PDF</Badge>
-                        </div>
-                    </CardHeader>
-                    <CardContent className='p-4 pt-0 space-y-3'>
-                        <p className='text-sm text-muted-foreground'>Bahan rujukan buletin dalam format PDF.</p>
-                        <div className='flex flex-wrap gap-2'>
-                            <Button asChild size='sm'>
-                                <a href='/resources/hadis-40.pdf' target='_blank' rel='noopener noreferrer'>
-                                    <ExternalLink aria-hidden='true' />
-                                    Buka PDF
-                                </a>
-                            </Button>
-                            <Button asChild size='sm' variant='outline'>
-                                <a href='/resources/hadis-40.pdf' download='hadis-40.pdf'>
-                                    <Download aria-hidden='true' />
-                                    Muat Turun
-                                </a>
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </section>
 
             {/* Category Filter */}
             <ScrollArea className='w-full whitespace-nowrap'>

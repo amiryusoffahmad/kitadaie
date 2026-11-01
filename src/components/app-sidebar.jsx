@@ -57,6 +57,12 @@ const data = {
   ],
   navMain: [
     {
+      title: "Articles & Bulletin",
+      url: "/admin-content",
+      icon: FileText,
+      items: [{ title: "Content Manager", url: "/admin-content" }],
+    },
+    {
       title: "Resources",
       url: "/admin-resources",
       icon: FileText,

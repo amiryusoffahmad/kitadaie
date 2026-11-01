@@ -18,23 +18,15 @@ export function FormSignIn({ callbackUrl }) {
     const signInGoogle = async () => {
         setIsLoading(true)
         try {
-            await signIn.social(
-                {
-                    provider: 'google',
-                    callbackURL: callbackUrl || '/dashboard',
-                },
-                {
-                    onSuccess: () => {
-                        toast.success('Successful sign-in. Ahlan to Kita Daie')
-                        // Redirect after successful sign-in
-                        if (callbackUrl) {
-                            window.location.href = callbackUrl
-                        } else {
-                            window.location.href = '/dashboard'
-                        }
-                    },
-                }
-            )
+            // Better Auth redirects to Google first and applies callbackURL only
+            // after OAuth completes. A successful initiation is not a login yet.
+            const result = await signIn.social({
+                provider: 'google',
+                callbackURL: callbackUrl || '/dashboard',
+            })
+            if (result.error) {
+                toast.error(result.error.message || 'Sign-in failed. Please try again.')
+            }
         } catch (error) {
             toast.error('Sign-in failed. Please try again.')
         } finally {

@@ -1,0 +1,46 @@
+/* Map supplied semantic tokens to the existing Shadcn/Tailwind components. */
+:root, :root.dark {
+  --background: var(--bg-app-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface-card);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface-card);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--color-interactive);
+  --primary-foreground: var(--text-on-action);
+  --secondary: var(--bg-blue-subtle);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-blue-subtle);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--bg-blue-subtle);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--text-error);
+  --destructive-foreground: var(--bg-surface-card);
+  --border: var(--border-subtle);
+  --input: var(--border-control);
+  --ring: var(--color-focus);
+  --radius: 1rem;
+}
+
+html, body { min-block-size: 100%; }
+body { font-family: var(--font-ui); }
+[data-slot="card"] { background: var(--bg-surface-card); }
+[data-slot="button"] { min-block-size: 2.75rem; min-inline-size: 2.75rem; font: var(--type-button); white-space: normal; }
+a[data-slot="button"] { color: inherit; }
+[data-slot="button"][class~="bg-primary"] { color: var(--text-on-action); }
+.app-main { overscroll-behavior-y: contain; }
+.bottom-nav__item { color: var(--text-secondary); }
+.bottom-nav__item:hover { background: var(--bg-blue-subtle); }
+.bottom-nav__label { overflow-wrap: anywhere; }
+.article-body { overflow-wrap: anywhere; }
+.article-body h2 { line-height: 1.5; }
+.brand-header-logo { max-inline-size: 10rem; }
+.dark .brand-header-logo { background: #fff; border-radius: .5rem; padding: .375rem; }
+.field { inline-size: 100%; min-inline-size: 0; }
+.field:disabled { opacity: .65; }
+.text-success { color: var(--text-success); }
+.app-shell a:focus-visible { outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *, .app-shell *::before, .app-shell *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
