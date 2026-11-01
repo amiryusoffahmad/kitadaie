@@ -20,7 +20,7 @@ check('a stale session cookie can reach sign-in without a redirect loop', () => 
 const start = await fetch(`${origin}/api/auth/sign-in/social`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json', origin },
-  body: JSON.stringify({ provider: 'google', callbackURL: '/dashboard', errorCallbackURL: '/sign-in', disableRedirect: true }),
+  body: JSON.stringify({ provider: 'google', callbackURL: '/mutabaah', errorCallbackURL: '/sign-in', disableRedirect: true }),
 });
 assert.equal(start.status, 200);
 const authorization = new URL((await start.json()).url);

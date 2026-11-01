@@ -18,7 +18,7 @@ export default async function Page({ searchParams }) {
         redirect(signInURL.toString())
     }
     const session = await auth.api.getSession({ headers: requestHeaders })
-    if (session?.user) redirect('/dashboard')
+    if (session?.user) redirect('/mutabaah')
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className='flex w-full max-w-sm flex-col gap-6 p-6 rounded-lg shadow-md bg-card'>
@@ -33,7 +33,7 @@ export default async function Page({ searchParams }) {
                     />
                     Kita Daie
                 </div>
-                <FormSignIn callbackUrl={currSearchParams.callbackUrl} error={currSearchParams.error} />
+                <FormSignIn error={currSearchParams.error} />
             </div>
 
         </div>

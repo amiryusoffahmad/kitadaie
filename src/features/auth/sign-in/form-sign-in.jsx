@@ -18,7 +18,7 @@ const signInErrorMessages = {
     invalid_code: 'Google could not complete sign-in. Please start again. If this keeps happening, contact your administrator.',
 }
 
-export function FormSignIn({ callbackUrl, error }) {
+export function FormSignIn({ error }) {
     const [isLoading, setIsLoading] = useState(false)
     const errorMessage = signInErrorMessages[error] || (error ? 'Google sign-in could not be completed. Please try again.' : null)
 
@@ -29,7 +29,7 @@ export function FormSignIn({ callbackUrl, error }) {
             // after OAuth completes. A successful initiation is not a login yet.
             const result = await signIn.social({
                 provider: 'google',
-                callbackURL: callbackUrl || '/dashboard',
+                callbackURL: '/mutabaah',
                 errorCallbackURL: '/sign-in',
             })
             if (result.error) {
