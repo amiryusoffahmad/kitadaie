@@ -12,8 +12,19 @@ import {
 } from '@/components/ui/card'
 import { signIn } from '@/lib/auth-client'
 
-export function FormSignIn({ callbackUrl }) {
+const signInErrorMessages = {
+    state_mismatch: 'Your sign-in link expired or could not be verified. Start a new sign-in attempt.',
+    access_denied: 'Google sign-in was cancelled. Select Sign In to try again.',
+    invalid_code: 'Google could not complete sign-in. Please start again. If this keeps happening, contact your administrator.',
+}
+
+export function FormSignIn({ callbackUrl, error }) {
     const [isLoading, setIsLoading] = useState(false)
+    const errorMessage = error
+        ? Object.hasOwn(signInErrorMessages, error)
+            ? signInErrorMessages[error]
+            : 'Google sign-in could not be completed. Please try again.'
+        : null
 
     const signInGoogle = async () => {
         setIsLoading(true)
@@ -50,6 +61,11 @@ export function FormSignIn({ callbackUrl }) {
                     <CardDescription>Sign in with your Yosh Leader Google account</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {errorMessage && (
+                        <p role='alert' className='mb-4 text-sm text-destructive'>
+                            {errorMessage}
+                        </p>
+                    )}
                     <Button
                         className='w-full'
                         onClick={signInGoogle}

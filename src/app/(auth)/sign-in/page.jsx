@@ -13,7 +13,10 @@ export default async function Page({ searchParams }) {
                     </div>
                     Kita Daie
                 </a>
-                <FormSignIn callbackUrl={currSearchParams.callbackUrl} />
+                <FormSignIn
+                    callbackUrl={currSearchParams.callbackUrl}
+                    error={currSearchParams.error}
+                />
             </div>
 
         </div>
