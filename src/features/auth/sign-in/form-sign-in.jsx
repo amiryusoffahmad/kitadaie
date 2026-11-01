@@ -18,7 +18,7 @@ const signInErrorMessages = {
     invalid_code: 'Google could not complete sign-in. Please start again. If this keeps happening, contact your administrator.',
 }
 
-export function FormSignIn({ callbackUrl, error }) {
+export function FormSignIn({ error }) {
     const [isLoading, setIsLoading] = useState(false)
     const errorMessage = error
         ? Object.hasOwn(signInErrorMessages, error)
@@ -29,23 +29,16 @@ export function FormSignIn({ callbackUrl, error }) {
     const signInGoogle = async () => {
         setIsLoading(true)
         try {
-            await signIn.social(
-                {
-                    provider: 'google',
-                    callbackURL: callbackUrl || '/dashboard',
-                },
-                {
-                    onSuccess: () => {
-                        toast.success('Successful sign-in. Ahlan to Kita Daie')
-                        // Redirect after successful sign-in
-                        if (callbackUrl) {
-                            window.location.href = callbackUrl
-                        } else {
-                            window.location.href = '/dashboard'
-                        }
-                    },
-                }
-            )
+            // Better Auth redirects to Google first and applies callbackURL only
+            // after OAuth completes. A successful initiation is not a login yet.
+            const result = await signIn.social({
+                provider: 'google',
+                callbackURL: '/mutabaah',
+                errorCallbackURL: '/sign-in',
+            })
+            if (result.error) {
+                toast.error(result.error.message || 'Sign-in failed. Please try again.')
+            }
         } catch (error) {
             toast.error('Sign-in failed. Please try again.')
         } finally {
