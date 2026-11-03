@@ -12,32 +12,32 @@ import {
 } from '@/components/ui/card'
 import { signIn } from '@/lib/auth-client'
 
-export function FormSignIn({ callbackUrl }) {
+const signInErrorMessages = {
+    state_mismatch: 'Your sign-in link expired or could not be verified. Start a new sign-in attempt.',
+    access_denied: 'Google sign-in was cancelled. Select Sign In to try again.',
+    invalid_code: 'Google could not complete sign-in. Please start again. If this keeps happening, contact your administrator.',
+}
+
+export function FormSignIn({ error }) {
     const [isLoading, setIsLoading] = useState(false)
+    const errorMessage = signInErrorMessages[error] || (error ? 'Google sign-in could not be completed. Please try again.' : null)
 
     const signInGoogle = async () => {
         setIsLoading(true)
         try {
-            await signIn.social(
-                {
-                    provider: 'google',
-                    callbackURL: callbackUrl || '/dashboard',
-                },
-                {
-                    onSuccess: () => {
-                        toast.success('Successful sign-in. Ahlan to Kita Daie')
-                        // Redirect after successful sign-in
-                        if (callbackUrl) {
-                            window.location.href = callbackUrl
-                        } else {
-                            window.location.href = '/dashboard'
-                        }
-                    },
-                }
-            )
+            // Better Auth redirects to Google first and applies callbackURL only
+            // after OAuth completes. A successful initiation is not a login yet.
+            const result = await signIn.social({
+                provider: 'google',
+                callbackURL: '/mutabaah',
+                errorCallbackURL: '/sign-in',
+            })
+            if (result.error) {
+                toast.error(result.error.message || 'Sign-in failed. Please try again.')
+                setIsLoading(false)
+            }
         } catch (error) {
             toast.error('Sign-in failed. Please try again.')
-        } finally {
             setIsLoading(false)
         }
     }
@@ -50,6 +50,9 @@ export function FormSignIn({ callbackUrl }) {
                     <CardDescription>Sign in with your Yosh Leader Google account</CardDescription>
                 </CardHeader>
                 <CardContent>
+                    {errorMessage && <p role='alert' className='mb-4 text-sm text-destructive'>
+                        {errorMessage}
+                    </p>}
                     <Button
                         className='w-full'
                         onClick={signInGoogle}

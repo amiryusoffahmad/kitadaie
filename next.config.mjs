@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 import withPWA from "next-pwa";
+import defaultRuntimeCaching from "next-pwa/cache.js";
 
 const nextConfig = {
   serverExternalPackages: ["knex"],
@@ -48,6 +49,14 @@ const pwaConfig = withPWA({
   disable: process.env.NODE_ENV === "development", // Disable in development
   register: true,
   skipWaiting: true,
+  runtimeCaching: [
+    {
+      // Do not persist personalized content or admin drafts in the service worker.
+      urlPattern: ({ url }) => /^\/(?:api\/(?:auth|content|admin\/content)|sign-in|articles|bulletin|admin-content)(?:\/|$)/.test(url.pathname),
+      handler: 'NetworkOnly',
+    },
+    ...defaultRuntimeCaching,
+  ],
 });
 
 export default pwaConfig(nextConfig);

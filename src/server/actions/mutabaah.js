@@ -3,9 +3,12 @@
 import { db } from "@/lib/db"
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
+import { validDate, todayDate, addDays, monthRange, summaryCycle } from "@/features/mutabaah/dates.mjs"
 
 export async function getMutabaahActivities() {
   try {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session?.user) return { success: false, error: "Not authenticated" }
     const activities = await db("mutabaah_activities")
       .select()
       .orderBy("id")
@@ -19,6 +22,7 @@ export async function getMutabaahActivities() {
 
 export async function getMutabaahEntries(date) {
   try {
+    if (!validDate(date)) return { success: false, error: "Please select a valid date." }
     const headersList = await headers()
     const session = await auth.api.getSession({ headers: headersList })
     if (!session?.user) {
@@ -46,32 +50,18 @@ export async function getMutabaahEntries(date) {
 
 export async function toggleMutabaahEntry(activityId, date, completed) {
   try {
+    if (!Number.isInteger(activityId) || activityId < 1 || !validDate(date) || typeof completed !== "boolean") return { success: false, error: "Invalid activity or date." }
     const headersList = await headers()
     const session = await auth.api.getSession({ headers: headersList })
     if (!session?.user) {
       return { success: false, error: "Not authenticated" }
     }
 
-    const existingEntry = await db("mutabaah_entries")
-      .select()
-      .where("user_id", session.user.id)
-      .where("activity_id", activityId)
-      .where("date", date)
-      .first()
-
-    if (existingEntry) {
-      await db("mutabaah_entries")
-        .update({ completed: completed ? 1 : 0 })
-        .where("id", existingEntry.id)
-    } else {
-      await db("mutabaah_entries")
-        .insert({
-          user_id: session.user.id,
-          activity_id: activityId,
-          date: date,
-          completed: completed ? 1 : 0
-        })
-    }
+    if (!await db("mutabaah_activities").where("id", activityId).first()) return { success: false, error: "Activity not found." }
+    await db("mutabaah_entries")
+      .insert({ user_id: session.user.id, activity_id: activityId, date, completed: completed ? 1 : 0 })
+      .onConflict(["user_id", "activity_id", "date"])
+      .merge({ completed: completed ? 1 : 0 })
 
     return { success: true }
   } catch (error) {
@@ -102,28 +92,16 @@ export async function getMutabaahSettings() {
 
 export async function updateMutabaahSettings(endOfWeek) {
   try {
+    if (!Number.isInteger(endOfWeek) || endOfWeek < 0 || endOfWeek > 6) return { success: false, error: "Invalid halaqah day." }
     const headersList = await headers()
     const session = await auth.api.getSession({ headers: headersList })
     if (!session?.user) {
       return { success: false, error: "Not authenticated" }
     }
 
-    const existingSettings = await db("mutabaah_settings")
-      .select()
-      .where("user_id", session.user.id)
-      .first()
-
-    if (existingSettings) {
-      await db("mutabaah_settings")
-        .update({ end_of_week: endOfWeek })
-        .where("user_id", session.user.id)
-    } else {
-      await db("mutabaah_settings")
-        .insert({
-          user_id: session.user.id,
-          end_of_week: endOfWeek
-        })
-    }
+    await db("mutabaah_settings")
+      .insert({ user_id: session.user.id, end_of_week: endOfWeek })
+      .onConflict("user_id").merge({ end_of_week: endOfWeek })
 
     return { success: true }
   } catch (error) {
@@ -134,6 +112,7 @@ export async function updateMutabaahSettings(endOfWeek) {
 
 export async function getWeeklyMutabaahResults(startDate, endDate) {
   try {
+    if (!validDate(startDate) || !validDate(endDate) || addDays(startDate, 6) !== endDate) return { success: false, error: "Invalid week range." }
     const headersList = await headers()
     const session = await auth.api.getSession({ headers: headersList })
     if (!session?.user) {
@@ -143,7 +122,7 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
     const [entries, activities] = await Promise.all([
       db("mutabaah_entries")
         .select({
-          date: "date",
+          date: db.raw("DATE_FORMAT(mutabaah_entries.date, '%Y-%m-%d')"),
           activity_id: "activity_id",
           completed: "completed",
           activity_name: "mutabaah_activities.name"
@@ -166,11 +145,11 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       activities.forEach(activity => {
         weekData[dateStr][activity.id] = false
       })
-      currentDate.setDate(currentDate.getDate() + 1)
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1)
     }
 
     entries.forEach(entry => {
-      const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
+      const entryDateStr = entry.date
       if (weekData[entryDateStr]) {
         weekData[entryDateStr][entry.activity_id] = entry.completed === 1
       }
@@ -194,7 +173,7 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       })
     })
 
-    let allActivitiesPassed = true
+    let allActivitiesPassed = activities.length > 0
     activities.forEach(activity => {
       activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
       if (!activityResults[activity.id].isPassed) {
@@ -217,19 +196,6 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
   }
 }
 
-export async function updateMutabaahActivityDescriptions() {
-  try {
-    await db("mutabaah_activities")
-      .update({ description: "" })
-      .whereIn("id", [1, 2, 3, 4, 5])
-
-    return { success: true, message: "Activity descriptions cleared successfully" }
-  } catch (error) {
-    console.error("Failed to update activity descriptions:", error)
-    return { success: false, error: "Failed to update activity descriptions" }
-  }
-}
-
 export async function getBiweeklyMutabaahSummary() {
   try {
     const headersList = await headers()
@@ -238,16 +204,15 @@ export async function getBiweeklyMutabaahSummary() {
       return { success: false, error: "Not authenticated" }
     }
 
-    const endDate = new Date()
-    const startDate = new Date(endDate)
-    startDate.setDate(endDate.getDate() - 13)
+    const endDate = new Date(`${todayDate()}T00:00:00Z`)
+    const startDate = new Date(`${addDays(todayDate(), -13)}T00:00:00Z`)
 
     const startStr = startDate.toISOString().split('T')[0]
     const endStr = endDate.toISOString().split('T')[0]
 
     const [entries, activities] = await Promise.all([
       db("mutabaah_entries")
-        .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+        .select({ date: db.raw("DATE_FORMAT(mutabaah_entries.date, '%Y-%m-%d')"), activity_id: "activity_id", completed: "completed" })
         .where("mutabaah_entries.user_id", session.user.id)
         .where("mutabaah_entries.date", ">=", startStr)
         .where("mutabaah_entries.date", "<=", endStr)
@@ -263,11 +228,11 @@ export async function getBiweeklyMutabaahSummary() {
       activities.forEach(activity => {
         biweeklyData[dateStr][activity.id] = false
       })
-      currentDate.setDate(currentDate.getDate() + 1)
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1)
     }
 
     entries.forEach(entry => {
-      const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
+      const entryDateStr = entry.date
       if (biweeklyData[entryDateStr]) {
         biweeklyData[entryDateStr][entry.activity_id] = entry.completed === 1
       }
@@ -291,7 +256,7 @@ export async function getBiweeklyMutabaahSummary() {
       })
     })
 
-    let allActivitiesPassed = true
+    let allActivitiesPassed = activities.length > 0
     activities.forEach(activity => {
       activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 10
       if (!activityResults[activity.id].isPassed) {
@@ -328,35 +293,13 @@ export async function getWeeklySummaries() {
       .where("user_id", session.user.id)
       .first()
 
-    const endOfWeekDay = settings?.end_of_week || 0
-
-    const today = new Date()
-    const currentDay = today.getDay()
-
-    let lastEndOfWeek = new Date(today)
-    if (currentDay <= endOfWeekDay) {
-      lastEndOfWeek.setDate(today.getDate() - (7 - endOfWeekDay + currentDay))
-    } else {
-      lastEndOfWeek.setDate(today.getDate() - (currentDay - endOfWeekDay))
-    }
-
-    const epochStart = new Date('2024-01-01')
-    const daysSinceEpoch = Math.floor((lastEndOfWeek - epochStart) / (1000 * 60 * 60 * 24))
-    const weeksSinceEpoch = Math.floor(daysSinceEpoch / 7)
-    const twoWeekCycle = Math.floor(weeksSinceEpoch / 2)
-
-    const cycleStartWeek = twoWeekCycle * 2
-    const cycleStart = new Date(epochStart)
-    cycleStart.setDate(epochStart.getDate() + (cycleStartWeek * 7))
-
-    const week1Start = new Date(cycleStart)
-    const week1End = new Date(cycleStart)
-    week1End.setDate(week1Start.getDate() + 6)
-
-    const week2Start = new Date(week1End)
-    week2Start.setDate(week1End.getDate() + 1)
-    const week2End = new Date(week2Start)
-    week2End.setDate(week2Start.getDate() + 6)
+    const endOfWeekDay = settings?.end_of_week ?? 0
+    const cycle = summaryCycle(todayDate(), endOfWeekDay)
+    const cycleStart = new Date(`${cycle.start}T00:00:00Z`)
+    const week1Start = cycleStart
+    const week1End = new Date(`${cycle.week1End}T00:00:00Z`)
+    const week2Start = new Date(`${cycle.week2Start}T00:00:00Z`)
+    const week2End = new Date(`${cycle.end}T00:00:00Z`)
 
     const [week1Data, week2Data] = await Promise.all([
       getWeekData(session.user.id, week1Start, week1End),
@@ -389,7 +332,7 @@ export async function getWeeklySummaries() {
 async function getWeekData(userId, startDate, endDate) {
   const [entries, activities] = await Promise.all([
     db("mutabaah_entries")
-      .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+      .select({ date: db.raw("DATE_FORMAT(mutabaah_entries.date, '%Y-%m-%d')"), activity_id: "activity_id", completed: "completed" })
       .where("mutabaah_entries.user_id", userId)
       .where("mutabaah_entries.date", ">=", startDate.toISOString().split('T')[0])
       .where("mutabaah_entries.date", "<=", endDate.toISOString().split('T')[0])
@@ -405,11 +348,11 @@ async function getWeekData(userId, startDate, endDate) {
     activities.forEach(activity => {
       weekData[dateStr][activity.id] = false
     })
-    currentDate.setDate(currentDate.getDate() + 1)
+    currentDate.setUTCDate(currentDate.getUTCDate() + 1)
   }
 
   entries.forEach(entry => {
-    const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
+    const entryDateStr = entry.date
     if (weekData[entryDateStr]) {
       weekData[entryDateStr][entry.activity_id] = entry.completed === 1
     }
@@ -433,7 +376,7 @@ async function getWeekData(userId, startDate, endDate) {
     })
   })
 
-  let allActivitiesPassed = true
+  let allActivitiesPassed = activities.length > 0
   activities.forEach(activity => {
     activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
     if (!activityResults[activity.id].isPassed) {
@@ -478,15 +421,16 @@ export async function getMonthlyMutabaahResults(year, month) {
       return { success: false, error: "Not authenticated" }
     }
 
-    const startDate = new Date(year, month - 1, 1)
-    const endDate = new Date(year, month, 0)
+    const range = monthRange(year, month)
+    const startDate = new Date(`${range.start}T00:00:00Z`)
+    const endDate = new Date(`${range.end}T00:00:00Z`)
 
     const startStr = startDate.toISOString().split('T')[0]
     const endStr = endDate.toISOString().split('T')[0]
 
     const [entries, activities] = await Promise.all([
       db("mutabaah_entries")
-        .select({ date: "date", activity_id: "activity_id", completed: "completed" })
+        .select({ date: db.raw("DATE_FORMAT(mutabaah_entries.date, '%Y-%m-%d')"), activity_id: "activity_id", completed: "completed" })
         .where("mutabaah_entries.user_id", session.user.id)
         .where("mutabaah_entries.date", ">=", startStr)
         .where("mutabaah_entries.date", "<=", endStr)
@@ -502,11 +446,11 @@ export async function getMonthlyMutabaahResults(year, month) {
       activities.forEach(activity => {
         monthlyData[dateStr][activity.id] = false
       })
-      currentDate.setDate(currentDate.getDate() + 1)
+      currentDate.setUTCDate(currentDate.getUTCDate() + 1)
     }
 
     entries.forEach(entry => {
-      const entryDateStr = new Date(entry.date).toISOString().split('T')[0]
+      const entryDateStr = entry.date
       if (monthlyData[entryDateStr]) {
         monthlyData[entryDateStr][entry.activity_id] = entry.completed === 1
       }
@@ -530,7 +474,7 @@ export async function getMonthlyMutabaahResults(year, month) {
       })
     })
 
-    let allActivitiesPassed = true
+    let allActivitiesPassed = activities.length > 0
     const totalDaysInMonth = Object.keys(monthlyData).length
     const passThreshold = Math.ceil(totalDaysInMonth * 0.7)
 

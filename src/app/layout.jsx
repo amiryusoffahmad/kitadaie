@@ -1,19 +1,21 @@
-import { Manrope } from "next/font/google";
+import { Noto_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { OfflineIndicator } from "@/components/offline-indicator";
 // import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
+const arabic = Noto_Sans_Arabic({
+  variable: "--font-arabic-loaded",
+  subsets: ["arabic"],
+  weight: ["400", "600"],
+  display: "swap",
 });
 
 export const metadata = {
   title: "Kita Daie",
   description: "Kita Daie Application",
   manifest: "/manifest.json",
-  themeColor: "#000000",
+  icons: { icon: "/brand/app-icon-192.png", apple: "/brand/app-icon-192.png" },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -24,20 +26,21 @@ export const metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
   userScalable: true,
+  viewportFit: "cover",
+  themeColor: "#1e40af",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="ms" className={arabic.variable} suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/brand/app-icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body
-        className={`${manrope.variable} antialiased`}
+        className='antialiased'
       >
         <Providers>
           {children}

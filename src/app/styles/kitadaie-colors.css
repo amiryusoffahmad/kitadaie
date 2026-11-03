@@ -1,0 +1,121 @@
+/* Kitadaie: mobile-style web app / v2. */
+:root {
+  color-scheme: light;
+  --bg-app-canvas: #f8fafc;
+  --bg-surface-card: #ffffff;
+  --border-subtle: #e2e8f0;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --color-primary-brand: #1e40af;
+  --color-interactive: #2563eb;
+  --color-interactive-hover: #1d4ed8;
+  --bg-blue-subtle: #eff6ff;
+  --color-accent-amber: #f59e0b;
+  --color-accent-success: #10b981;
+  --color-accent-error: #ef4444;
+  --text-on-action: #ffffff;
+  --text-on-accent: #0f172a;
+  --text-link: #1d4ed8;
+  --text-success: #047857;
+  --text-warning: #b45309;
+  --text-error: #b91c1c;
+  --border-control: #64748b;
+  --color-focus: #2563eb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not(.dark) {
+    color-scheme: dark;
+    --bg-app-canvas: #0f172a;
+    --bg-surface-card: #1e293b;
+    --border-subtle: #334155;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --color-primary-brand: #1e3a8a;
+    --color-interactive: #3b82f6;
+    --color-interactive-hover: #60a5fa;
+    --bg-blue-subtle: #172554;
+    --color-accent-amber: #fbbf24;
+    --color-accent-success: #34d399;
+    --color-accent-error: #f87171;
+    --text-on-action: #0f172a;
+    --text-on-accent: #0f172a;
+    --text-link: #60a5fa;
+    --text-success: #34d399;
+    --text-warning: #fbbf24;
+    --text-error: #f87171;
+    --border-control: #64748b;
+    --color-focus: #93c5fd;
+  }
+}
+
+:root.dark {
+  color-scheme: dark;
+  --bg-app-canvas: #0f172a;
+  --bg-surface-card: #1e293b;
+  --border-subtle: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --color-primary-brand: #1e3a8a;
+  --color-interactive: #3b82f6;
+  --color-interactive-hover: #60a5fa;
+  --bg-blue-subtle: #172554;
+  --color-accent-amber: #fbbf24;
+  --color-accent-success: #34d399;
+  --color-accent-error: #f87171;
+  --text-on-action: #0f172a;
+  --text-on-accent: #0f172a;
+  --text-link: #60a5fa;
+  --text-success: #34d399;
+  --text-warning: #fbbf24;
+  --text-error: #f87171;
+  --border-control: #64748b;
+  --color-focus: #93c5fd;
+}
+
+body { background: var(--bg-app-canvas); color: var(--text-primary); }
+.card {
+  background: var(--bg-surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+.button {
+  background: var(--color-interactive);
+  color: var(--text-on-action);
+  border: 0;
+  border-radius: .75rem;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .button:hover { background: var(--color-interactive-hover); }
+}
+.button:active { box-shadow: inset 0 0 0 2px currentColor; }
+.button:disabled { opacity: .5; cursor: not-allowed; }
+a { color: var(--text-link); text-underline-offset: .15em; }
+.field {
+  background: var(--bg-surface-card);
+  color: var(--text-primary);
+  border: 1px solid var(--border-control);
+  border-radius: .75rem;
+}
+.field::placeholder { color: var(--text-secondary); opacity: 1; }
+.field[aria-invalid="true"] { border-color: var(--text-error); }
+.message-error { color: var(--text-error); }
+.message-success { color: var(--text-success); }
+.message-warning { color: var(--text-warning); }
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--bg-surface-card);
+}
+.bottom-nav__item { color: var(--text-secondary); }
+.bottom-nav__item[aria-current="page"] {
+  color: var(--text-link);
+  background: var(--bg-blue-subtle);
+  font-weight: 600;
+  box-shadow: inset 0 3px 0 currentColor;
+}
+/* Include text/icon status cues; do not communicate meaning by colour alone.
+   Do not apply opacity to enabled text. System theme is the default;
+   set data-theme="light" or "dark" on <html> for an explicit preference. */

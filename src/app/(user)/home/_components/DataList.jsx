@@ -13,6 +13,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Progress } from '@/components/ui/progress'
 import { useQuery } from '@tanstack/react-query'
 import { CompletionWidget } from '@/app/(user)/profile/_components/CompletionWidget'
+import Link from 'next/link'
+import { BulletinBadge } from '@/features/content/content-client'
 import { getProfileCompletion } from '@/server/actions/profile-completion'
 
 export default function DataList() {
@@ -75,6 +77,14 @@ export default function DataList() {
             {/* Quick Navigation */}
             <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-3">
+                    <Link href='/articles' className='rounded-2xl border bg-card p-4 flex flex-col items-center justify-center gap-2 text-center hover:border-primary'>
+                        <span className='h-12 w-12 rounded-full bg-secondary flex items-center justify-center'><BookOpen className='h-6 w-6 text-primary' aria-hidden='true' /></span>
+                        <span className='font-semibold'>Articles</span>
+                    </Link>
+                    <Link href='/bulletin' className='rounded-2xl border bg-card p-4 flex flex-col items-center justify-center gap-2 text-center hover:border-primary'>
+                        <span className='h-12 w-12 rounded-full bg-secondary flex items-center justify-center'><ScrollText className='h-6 w-6 text-primary' aria-hidden='true' /></span>
+                        <span className='flex flex-wrap gap-2 items-center font-semibold'>Bulletin <BulletinBadge /></span>
+                    </Link>
                     {/* Mathurat */}
                     <Card
                         className="cursor-pointer hover:bg-primary/50 transition-colors active:scale-[0.98]"

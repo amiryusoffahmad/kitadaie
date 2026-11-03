@@ -3,9 +3,11 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { createPool } from "mysql2/promise";
 
+const baseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL;
+
 export const auth = betterAuth({
   appName: "Kita Daie",
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  baseURL,
   database: createPool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -19,10 +21,8 @@ export const auth = betterAuth({
     },
   },
   plugins: [nextCookies()],
-  trustedOrigins:
-    process.env.NODE_ENV === "production"
-      ? [process.env.NEXT_PUBLIC_APP_URL]
-      : undefined,
+  trustedOrigins: baseURL ? [new URL(baseURL).origin] : undefined,
+  onAPIError: { errorURL: "/sign-in" },
   databaseHooks: {
     user: {
       create: {
@@ -35,6 +35,5 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: "kitadaie",
-    useSecureCookies: process.env.NODE_ENV === "production",
   },
 });

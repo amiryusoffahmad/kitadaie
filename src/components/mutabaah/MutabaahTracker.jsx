@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -17,9 +17,10 @@ import {
   updateMutabaahSettings,
   getWeeklyMutabaahResults,
   getMonthlyMutabaahResults,
-  updateMutabaahActivityDescriptions,
   getWeeklySummaries
 } from "@/server/actions/mutabaah"
+import { toast } from "sonner"
+import { todayDate, addDays, weekRange } from "@/features/mutabaah/dates.mjs"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts'
 
 const DAYS_OF_WEEK = [
@@ -36,7 +37,7 @@ export default function MutabaahTracker() {
   const [activities, setActivities] = useState([])
   const [entries, setEntries] = useState([])
   const [settings, setSettings] = useState({ end_of_week: 0 })
-  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0])
+  const [currentDate, setCurrentDate] = useState(() => todayDate())
   const [loading, setLoading] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
   const [showWeeklyResults, setShowWeeklyResults] = useState(false)
@@ -46,7 +47,11 @@ export default function MutabaahTracker() {
   const [showWeeklySummaries, setShowWeeklySummaries] = useState(false)
   const [weeklySummaries, setWeeklySummaries] = useState(null)
   const [showMathurat, setShowMathurat] = useState(false)
-  const [audioPermission, setAudioPermission] = useState(null)
+  const [error, setError] = useState("")
+  const [entriesLoading, setEntriesLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const entryRequest = useRef(0)
+  const audioRef = useRef(null)
   const [isPlaying, setIsPlaying] = useState(null)
   const [currentAudio, setCurrentAudio] = useState(null)
   const [audioProgress, setAudioProgress] = useState(0)
@@ -55,35 +60,14 @@ export default function MutabaahTracker() {
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [currentAudioType, setCurrentAudioType] = useState(null)
 
-  useEffect(() => {
-    loadInitialData()
-  }, [])
-
-  useEffect(() => {
-    loadEntriesForDate(currentDate)
-  }, [currentDate])
-
-  useEffect(() => {
-    checkAudioPermission()
-  }, [])
-
-  const checkAudioPermission = async () => {
-    try {
-      if (typeof window !== 'undefined' && navigator.mediaDevices) {
-        const permission = await navigator.permissions.query({ name: 'microphone' })
-        setAudioPermission(permission.state)
-      }
-    } catch (error) {
-      console.log('Audio permission check not supported or failed:', error)
-      setAudioPermission('granted')
-    }
-  }
+  useEffect(() => () => { audioRef.current?.pause() }, [])
 
   const stopCurrentAudio = () => {
     if (currentAudio) {
       currentAudio.pause()
-      currentAudio.currentTime = 0
+      if (audioRef.current) audioRef.current.currentTime = 0
       setCurrentAudio(null)
+      audioRef.current = null
       setCurrentAudioType(null)
       setIsPlaying(null)
       setIsPaused(false)
@@ -147,13 +131,8 @@ export default function MutabaahTracker() {
         stopCurrentAudio()
       }
 
-      if (audioPermission === 'denied') {
-        alert('Audio permission is required. Please enable it in your browser settings.')
-        return
-      }
-
-      console.log('Creating new audio for:', audioFile)
       const audio = new Audio(audioFile)
+      audioRef.current = audio
       setCurrentAudio(audio)
       setCurrentAudioType(audioType)
       setIsPlaying(audioType)
@@ -197,6 +176,7 @@ export default function MutabaahTracker() {
     } catch (error) {
       setIsPlaying(null)
       setCurrentAudio(null)
+      audioRef.current = null
       setCurrentAudioType(null)
       setIsPaused(false)
       setAudioProgress(0)
@@ -211,7 +191,7 @@ export default function MutabaahTracker() {
 
   const seekAudio = (newTime) => {
     if (currentAudio && !isNaN(newTime)) {
-      currentAudio.currentTime = newTime
+      if (audioRef.current) audioRef.current.currentTime = newTime
       setAudioProgress(newTime)
       
       // Force immediate update of progress display
@@ -226,7 +206,7 @@ export default function MutabaahTracker() {
   const changePlaybackSpeed = (speed) => {
     setPlaybackSpeed(speed)
     if (currentAudio) {
-      currentAudio.playbackRate = speed
+      if (audioRef.current) audioRef.current.playbackRate = speed
     }
   }
 
@@ -237,130 +217,90 @@ export default function MutabaahTracker() {
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
-  const loadInitialData = async () => {
-    try {
-      // Clear activity descriptions first
-      await updateMutabaahActivityDescriptions()
-      
-      const [activitiesRes, settingsRes] = await Promise.all([
-        getMutabaahActivities(),
-        getMutabaahSettings()
-      ])
-
-      if (activitiesRes.success) {
+  const loadInitialData = useCallback(() =>
+    Promise.all([getMutabaahActivities(), getMutabaahSettings()])
+      .then(([activitiesRes, settingsRes]) => {
+        if (!activitiesRes.success) throw new Error(activitiesRes.error)
+        if (!settingsRes.success) throw new Error(settingsRes.error)
         setActivities(activitiesRes.activities)
-      }
-
-      if (settingsRes.success) {
         setSettings(settingsRes.settings)
-      }
+      })
+      .catch((cause) => setError(cause.message || "Failed to load Mutabaah."))
+      .finally(() => setLoading(false)), [])
 
-      await loadEntriesForDate(currentDate)
-    } catch (error) {
-      console.error("Failed to load initial data:", error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadEntriesForDate = async (date) => {
-    try {
-      const result = await getMutabaahEntries(date)
-      if (result.success) {
+  const loadEntriesForDate = useCallback((date) => {
+    const request = ++entryRequest.current
+    return getMutabaahEntries(date)
+      .then((result) => {
+        if (request !== entryRequest.current) return
+        if (!result.success) throw new Error(result.error)
         setEntries(result.entries)
-      }
-    } catch (error) {
-      console.error("Failed to load entries:", error)
-    }
-  }
+      })
+      .catch((cause) => {
+        if (request === entryRequest.current) setError(cause.message || "Failed to load entries.")
+      })
+      .finally(() => {
+        if (request === entryRequest.current) setEntriesLoading(false)
+      })
+  }, [])
+
+  useEffect(() => { void loadInitialData() }, [loadInitialData])
+  useEffect(() => { void loadEntriesForDate(currentDate) }, [currentDate, loadEntriesForDate])
 
   const handleToggleActivity = async (activityId, completed) => {
+    setSaving(true)
+    setEntriesLoading(true)
+    setError("")
     try {
       const result = await toggleMutabaahEntry(activityId, currentDate, completed)
-      if (result.success) {
-        await loadEntriesForDate(currentDate)
-      } else {
-        console.error("Failed to toggle activity:", result.error)
-      }
-    } catch (error) {
-      console.error("Failed to toggle activity:", error)
-    }
+      if (!result.success) throw new Error(result.error)
+      await loadEntriesForDate(currentDate)
+    } catch (cause) {
+      setError(cause.message || "Failed to update activity.")
+      toast.error(cause.message || "Failed to update activity.")
+    } finally { setSaving(false); setEntriesLoading(false) }
   }
 
   const handleUpdateSettings = async (endOfWeek) => {
+    setSaving(true)
+    setError("")
     try {
       const result = await updateMutabaahSettings(endOfWeek)
-      if (result.success) {
-        setSettings({ ...settings, end_of_week: endOfWeek })
-        setShowSettings(false)
-      }
-    } catch (error) {
-      console.error("Failed to update settings:", error)
-    }
+      if (!result.success) throw new Error(result.error)
+      setSettings({ ...settings, end_of_week: endOfWeek })
+      setShowSettings(false)
+      toast.success("Halaqah day saved.")
+    } catch (cause) {
+      setError(cause.message || "Failed to save settings.")
+      toast.error(cause.message || "Failed to save settings.")
+    } finally { setSaving(false) }
   }
 
-  const getWeekRange = (date, endOfWeekDay) => {
-    const currentDate = new Date(date)
-    const currentDay = currentDate.getDay()
-    
-    // Calculate the current week that includes the selected date
-    let endOfWeek = new Date(currentDate)
-    
-    if (currentDay <= endOfWeekDay) {
-      // End of week is this week or today
-      endOfWeek.setDate(currentDate.getDate() + (endOfWeekDay - currentDay))
-    } else {
-      // End of week is next week
-      endOfWeek.setDate(currentDate.getDate() + (7 - currentDay + endOfWeekDay))
-    }
-    
-    const startOfWeek = new Date(endOfWeek)
-    startOfWeek.setDate(endOfWeek.getDate() - 6)
-    
-    console.log('Week range calculation:', {
-      currentDate: date,
-      currentDay,
-      endOfWeekDay,
-      startOfWeek: startOfWeek.toISOString().split('T')[0],
-      endOfWeek: endOfWeek.toISOString().split('T')[0]
-    })
-    
-    return {
-      start: startOfWeek.toISOString().split('T')[0],
-      end: endOfWeek.toISOString().split('T')[0]
-    }
-  }
+  const getWeekRange = (date, endOfWeekDay) => weekRange(date, Number(endOfWeekDay))
 
   const handleShowWeeklyResults = async () => {
+    setLoading(true)
+    setError("")
     try {
-      const weekRange = getWeekRange(currentDate, settings.end_of_week)
-      console.log('Fetching weekly results for range:', weekRange)
-      
-      const result = await getWeeklyMutabaahResults(weekRange.start, weekRange.end)
-      console.log('Weekly results response:', result)
-      
-      if (result.success) {
-        // Add week range to results
-        result.weekRange = weekRange
-        setWeeklyResults(result)
-        setShowWeeklyResults(true)
-      } else {
-        console.error("Failed to get weekly results:", result.error)
-      }
-    } catch (error) {
-      console.error("Failed to get weekly results:", error)
-    }
+      const range = getWeekRange(currentDate, settings.end_of_week)
+      const result = await getWeeklyMutabaahResults(range.start, range.end)
+      if (!result.success) throw new Error(result.error)
+      setWeeklyResults({ ...result, weekRange: range })
+      setShowWeeklyResults(true)
+    } catch (cause) { setError(cause.message || "Failed to load weekly results.") }
+    finally { setLoading(false) }
   }
 
   const handleShowMonthlyResults = async () => {
     setLoading(true)
-    setShowMonthlyResults(true)
+    setShowMonthlyResults(false)
+    setError("")
     setShowWeeklyResults(false) // Hide weekly results if showing monthly
     setShowWeeklySummaries(false) // Hide weekly summaries
 
     try {
       const monthlyData = []
-      const today = new Date()
+      const today = new Date(`${todayDate()}T12:00:00Z`)
       
       for (let i = 0; i < 12; i++) { // Get data for the last 12 months
         const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
@@ -381,24 +321,12 @@ export default function MutabaahTracker() {
             completionPercentage: completionPercentage,
             passThreshold: result.passThreshold || Math.ceil(result.totalDays * 0.7)
           })
-        } else {
-          console.error(`Failed to get monthly results for ${month}/${year}:`, result.error)
-          monthlyData.unshift({
-            name: date.toLocaleString('default', { month: 'short' }),
-            fullName: date.toLocaleString('default', { month: 'short', year: 'numeric' }),
-            year: date.getFullYear(),
-            status: 0, // Assume fail if data fetch fails
-            passedDays: 0,
-            totalDays: 0,
-            statusText: "ERROR",
-            completionPercentage: 0,
-            passThreshold: 0
-          })
-        }
+        } else { throw new Error(result.error || "Failed to load monthly results.") }
       }
       setMonthlyResults(monthlyData)
+      setShowMonthlyResults(true)
     } catch (error) {
-      console.error("Failed to get monthly results:", error)
+      setError(error.message || "Failed to load monthly results.")
     } finally {
       setLoading(false)
     }
@@ -406,7 +334,8 @@ export default function MutabaahTracker() {
 
   const handleShowWeeklySummaries = async () => {
     setLoading(true)
-    setShowWeeklySummaries(true)
+    setShowWeeklySummaries(false)
+    setError("")
     setShowWeeklyResults(false) // Hide other views
     setShowMonthlyResults(false)
 
@@ -414,11 +343,12 @@ export default function MutabaahTracker() {
       const result = await getWeeklySummaries()
       if (result.success) {
         setWeeklySummaries(result)
+        setShowWeeklySummaries(true)
       } else {
-        console.error("Failed to get weekly summaries:", result.error)
+        throw new Error(result.error)
       }
     } catch (error) {
-      console.error("Failed to get weekly summaries:", error)
+      setError(error.message || "Failed to load weekly summary.")
     } finally {
       setLoading(false)
     }
@@ -433,17 +363,14 @@ export default function MutabaahTracker() {
     return entries.filter(e => e.completed === 1).length
   }
 
-  const goToPreviousDay = () => {
-    const previousDay = new Date(currentDate)
-    previousDay.setDate(previousDay.getDate() - 1)
-    setCurrentDate(previousDay.toISOString().split('T')[0])
+  const changeDate = (date) => {
+    setEntriesLoading(true)
+    setEntries([])
+    setError("")
+    setCurrentDate(date)
   }
-
-  const goToNextDay = () => {
-    const nextDay = new Date(currentDate)
-    nextDay.setDate(nextDay.getDate() + 1)
-    setCurrentDate(nextDay.toISOString().split('T')[0])
-  }
+  const goToPreviousDay = () => changeDate(addDays(currentDate, -1))
+  const goToNextDay = () => changeDate(addDays(currentDate, 1))
 
   const getActivitySuggestion = (activityName, completedDays, totalDays) => {
     const percentage = (completedDays / totalDays) * 100
@@ -493,7 +420,7 @@ export default function MutabaahTracker() {
       <div className="flex items-center justify-center p-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Mutabaah...</p>
+          <p className="text-muted-foreground">Loading Mutabaah...</p>
         </div>
       </div>
     )
@@ -526,7 +453,7 @@ export default function MutabaahTracker() {
                   <h3 className="font-medium text-green-800">📚 Daily Mathurat</h3>
                 </div>
                 <p className="text-sm text-green-700">
-                  Read your daily du'a and dhikr from the Mathurat collection. Best recited after Fajr and Maghrib prayers.
+                  Read your daily du&apos;a and dhikr from the Mathurat collection. Best recited after Fajr and Maghrib prayers.
                 </p>
               </div>
               
@@ -538,7 +465,7 @@ export default function MutabaahTracker() {
                   }}
                 >
                   <FileText className="h-4 w-4" />
-                  Open Al-Ma'thurat (Web)
+                  Open Al-Ma&apos;thurat (Web)
                 </Button>
 
                 <Button 
@@ -571,11 +498,11 @@ export default function MutabaahTracker() {
 
                 {/* Audio Progress Controls */}
                 {(isPlaying || isPaused) && currentAudio && (
-                  <div className="p-4 bg-gray-50 rounded-lg border space-y-3">
+                  <div className="p-4 bg-muted rounded-lg border space-y-3">
                     <div className="text-center">
-                      <p className="text-sm font-medium text-gray-700">
+                      <p className="text-sm font-medium text-foreground">
                         {(isPlaying === 'pagi' || (isPaused && currentAudio?.src.includes('Pagi'))) ? '🌅 Mathurat Pagi' : '🌆 Mathurat Petang'}
-                        {isPaused && <span className="ml-2 text-xs text-gray-500">(Paused)</span>}
+                        {isPaused && <span className="ml-2 text-xs text-muted-foreground">(Paused)</span>}
                       </p>
                     </div>
                     
@@ -603,7 +530,7 @@ export default function MutabaahTracker() {
                       </div>
                       
                       {/* Time Display */}
-                      <div className="flex justify-between text-xs text-gray-600">
+                      <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{formatTime(audioProgress)}</span>
                         <span>{formatTime(audioDuration)}</span>
                       </div>
@@ -611,7 +538,7 @@ export default function MutabaahTracker() {
 
                     {/* Speed Control */}
                     <div className="flex items-center justify-between pt-2 border-t border-gray-200">
-                      <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
                         <Zap className="h-4 w-4" />
                         Speed:
                       </span>
@@ -638,7 +565,7 @@ export default function MutabaahTracker() {
                   </div>
                 )}
                 
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-muted-foreground">
                   💡 Tip: Save this to your device for offline reading
                 </p>
               </div>
@@ -685,7 +612,7 @@ export default function MutabaahTracker() {
               }`}>
                 {weeklyResults.result}
               </div>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Weekly evaluation based on individual activities
               </p>
               {weeklyResults.weekRange && (
@@ -693,7 +620,7 @@ export default function MutabaahTracker() {
                   📅 {new Date(weeklyResults.weekRange.start).toLocaleDateString('en-GB')} - {new Date(weeklyResults.weekRange.end).toLocaleDateString('en-GB')}
                 </p>
               )}
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground mt-1">
                 (Each activity needs ≥5 days out of 7 to pass)
               </p>
             </div>
@@ -725,8 +652,8 @@ export default function MutabaahTracker() {
             {/* Weekly Summary */}
             <div className="space-y-3 mt-4 pt-4 border-t">
               <h4 className="font-medium">📝 Week Summary:</h4>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm text-gray-700">
+              <div className="bg-muted p-3 rounded-lg">
+                <p className="text-sm text-foreground">
                   {(() => {
                     const passedActivities = Object.values(weeklyResults.activityResults).filter(a => a.isPassed)
                     const failedActivities = Object.values(weeklyResults.activityResults).filter(a => !a.isPassed)
@@ -802,7 +729,7 @@ export default function MutabaahTracker() {
               <p className="text-sm text-blue-600 font-medium">
                 📅 {new Date(weeklySummaries.cycleStart).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.cycleEnd).toLocaleDateString('en-GB')}
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground mt-1">
                 2-week cycle • Resets automatically every 2 weeks
               </p>
             </div>
@@ -810,7 +737,7 @@ export default function MutabaahTracker() {
             {/* Week 1 Summary */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-800 flex items-center gap-2">
+                <h4 className="font-medium text-foreground flex items-center gap-2">
                   📊 Week 1 Summary
                   <Badge 
                     variant={weeklySummaries.week1.isPassed ? "default" : "destructive"}
@@ -825,7 +752,7 @@ export default function MutabaahTracker() {
                 📅 {new Date(weeklySummaries.week1.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week1.endDate).toLocaleDateString('en-GB')}
               </p>
               
-              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-foreground bg-muted p-3 rounded-lg">
                 {weeklySummaries.week1.summaryText}
               </p>
               
@@ -854,7 +781,7 @@ export default function MutabaahTracker() {
             {/* Week 2 Summary */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium text-gray-800 flex items-center gap-2">
+                <h4 className="font-medium text-foreground flex items-center gap-2">
                   📊 Week 2 Summary
                   <Badge 
                     variant={weeklySummaries.week2.isPassed ? "default" : "destructive"}
@@ -869,7 +796,7 @@ export default function MutabaahTracker() {
                 📅 {new Date(weeklySummaries.week2.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week2.endDate).toLocaleDateString('en-GB')}
               </p>
               
-              <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
+              <p className="text-sm text-foreground bg-muted p-3 rounded-lg">
                 {weeklySummaries.week2.summaryText}
               </p>
               
@@ -933,8 +860,8 @@ export default function MutabaahTracker() {
             {/* Year display */}
             {monthlyResults.length > 0 && (
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  📅 {monthlyResults[monthlyResults.length - 1]?.year} - {monthlyResults[0]?.year}
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  📅 {monthlyResults[0]?.fullName} - {monthlyResults[monthlyResults.length - 1]?.fullName}
                 </h3>
               </div>
             )}
@@ -1001,7 +928,7 @@ export default function MutabaahTracker() {
               {/* Monthly breakdown */}
               <div className="max-h-32 overflow-y-auto space-y-1">
                 {monthlyResults.slice().reverse().map((month, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs">
+                  <div key={index} className="flex items-center justify-between p-2 bg-muted rounded text-xs">
                     <span className="font-medium">{month.name}</span>
                     <div className="flex items-center gap-2">
                       <span>{month.passedDays}/{month.totalDays} days</span>
@@ -1041,6 +968,7 @@ export default function MutabaahTracker() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && <p role="alert" className="text-destructive">{error}</p>}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -1058,8 +986,9 @@ export default function MutabaahTracker() {
               </label>
               <Select 
                 value={settings.end_of_week.toString()} 
+                disabled={saving}
                 onValueChange={(value) => {
-                  console.log('Day selection changed:', value)
+
                   handleUpdateSettings(parseInt(value))
                 }}
               >
@@ -1076,7 +1005,7 @@ export default function MutabaahTracker() {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
+              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
                 <span>💡</span>
                 <span>This sets when your weekly tracking cycle resets for pass/fail calculation.</span>
               </p>
@@ -1089,6 +1018,9 @@ export default function MutabaahTracker() {
 
   return (
     <div className="max-w-md mx-auto space-y-4">
+      {error && <div role="alert" className="rounded-xl border border-destructive p-4 space-y-2"><p>{error}</p><Button variant="outline" onClick={() => { setLoading(true); setEntriesLoading(true); setError(""); loadInitialData(); loadEntriesForDate(currentDate) }}>Retry</Button></div>}
+      {!error && activities.length === 0 && <p role="status" className="rounded-xl border bg-card p-4 text-muted-foreground">No Mutabaah activities have been configured yet.</p>}
+      {entriesLoading && <p role="status" className="text-muted-foreground">Loading entries...</p>}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -1099,7 +1031,7 @@ export default function MutabaahTracker() {
             <div className="flex gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" title="More options">
+                  <Button variant="outline" size="sm" title="More options" aria-label="Mutabaah options">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -1108,15 +1040,15 @@ export default function MutabaahTracker() {
                     <Settings className="h-4 w-4 mr-2" />
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowWeeklyResults}>
+                  <DropdownMenuItem onClick={handleShowWeeklyResults} disabled={!activities.length || entriesLoading}>
                     <TrendingUp className="h-4 w-4 mr-2" />
                     Weekly Results
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowWeeklySummaries}>
+                  <DropdownMenuItem onClick={handleShowWeeklySummaries} disabled={!activities.length || entriesLoading}>
                     <BarChart3 className="h-4 w-4 mr-2" />
                     Weekly Summary
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowMonthlyResults}>
+                  <DropdownMenuItem onClick={handleShowMonthlyResults} disabled={!activities.length || entriesLoading}>
                     <CalendarDays className="h-4 w-4 mr-2" />
                     Monthly Results
                   </DropdownMenuItem>
@@ -1133,6 +1065,8 @@ export default function MutabaahTracker() {
                 variant="outline"
                 size="sm"
                 onClick={goToPreviousDay}
+                disabled={saving}
+                aria-label="Previous day"
                 className="px-2"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -1141,27 +1075,31 @@ export default function MutabaahTracker() {
               <input
                 type="date"
                 value={currentDate}
-                onChange={(e) => setCurrentDate(e.target.value)}
-                className="flex-1 p-2 border rounded-md"
+                onChange={(e) => { if (e.target.value) changeDate(e.target.value) }}
+                aria-label="Mutabaah date"
+                disabled={saving}
+                className="min-w-0 flex-1 p-2 border rounded-md bg-card text-foreground"
               />
               
               <Button
                 variant="outline"
                 size="sm"
                 onClick={goToNextDay}
+                disabled={saving}
+                aria-label="Next day"
                 className="px-2"
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-muted-foreground mt-1">
               💡 Use arrow buttons to navigate days quickly
             </p>
           </div>
 
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Today's Progress</h3>
-            <Badge variant={getTodayCompletionCount() === activities.length ? "default" : "secondary"}>
+            <h3 className="font-medium">Today&apos;s Progress</h3>
+            <Badge variant={activities.length > 0 && getTodayCompletionCount() === activities.length ? "default" : "secondary"}>
               {getTodayCompletionCount()}/{activities.length}
             </Badge>
           </div>
@@ -1173,18 +1111,20 @@ export default function MutabaahTracker() {
               return (
                 <div 
                   key={activity.id}
-                  className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-gray-50"
+                  className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-muted"
                 >
                   <Checkbox
                     checked={isCompleted}
+                    disabled={entriesLoading || saving}
+                    aria-label={activity.name}
                     onCheckedChange={(checked) => {
-                      console.log('Checkbox changed:', activity.id, checked)
-                      handleToggleActivity(activity.id, checked)
+
+                      handleToggleActivity(activity.id, checked === true)
                     }}
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <h4 className={`font-medium ${isCompleted ? 'line-through text-gray-500' : ''}`}>
+                    <h4 className={`font-medium ${isCompleted ? 'line-through text-muted-foreground' : ''}`}>
                       {activity.name}
                     </h4>
                   </div>
@@ -1193,7 +1133,7 @@ export default function MutabaahTracker() {
             })}
           </div>
 
-          {getTodayCompletionCount() === activities.length && (
+          {activities.length > 0 && getTodayCompletionCount() === activities.length && (
             <div className="text-center p-4 bg-green-50 rounded-lg">
               <p className="text-green-800 font-medium">🎉 All activities completed!</p>
               <p className="text-green-600 text-sm">May Allah accept your efforts</p>
