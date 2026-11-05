@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { fetchAllAssignments, fetchRoles, fetchDepartments, assignUserAction, removeUserAssignmentAction } from "@/server/actions/organizational-actions";
 import { Button } from "@/components/ui/button";
@@ -115,7 +116,7 @@ export function AssignmentsList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading assignments...</div>;
+    return <AppLoadingSkeleton />;
   }
 
   return (

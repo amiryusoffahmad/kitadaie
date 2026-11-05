@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -48,16 +49,7 @@ export function RecurrenceLog({ notificationId }) {
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Recurrence History</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Loading history...</p>
-        </CardContent>
-      </Card>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (log.length === 0) {

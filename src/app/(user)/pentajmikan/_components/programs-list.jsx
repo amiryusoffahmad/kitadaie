@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState } from 'react'
 import { useGetAllPentajmikan, useDeletePentajmikan } from '@/app/api/pentajmikan-api'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -34,12 +35,7 @@ export default function ProgramsList() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="ml-2">Loading programs...</span>
-            </div>
-        );
+        return <AppLoadingSkeleton />;
     }
 
     if (error) {

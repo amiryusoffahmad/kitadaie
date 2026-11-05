@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,16 +55,7 @@ export function RecentNotifications() {
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </CardContent>
-      </Card>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (notifications.length === 0) {

@@ -10,9 +10,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Eye, Loader2 } from "lucide-react";
+import { Eye } from "lucide-react";
 import { getCCSSubmissionsPaginated } from "@/server/actions/ccs-analytics-actions";
 import { TableFilters } from "./TableFilters";
 import { PaginationControls } from "./PaginationControls";
@@ -145,8 +146,18 @@ export function MufaraqahTable() {
         <CardContent className="p-0">
           <div className="relative w-full">
             {loading && (
-              <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <div
+                role="status"
+                aria-label="Loading records"
+                className="absolute inset-0 z-10 grid content-start gap-4 bg-background/80 p-6 backdrop-blur-sm"
+              >
+                {[1, 2, 3, 4].map((row) => (
+                  <div key={row} className="flex items-center gap-4">
+                    <Skeleton className="h-5 w-12" />
+                    <Skeleton className="h-5 flex-1" />
+                    <Skeleton className="h-5 w-28" />
+                  </div>
+                ))}
               </div>
             )}
 
@@ -175,9 +186,11 @@ export function MufaraqahTable() {
                         colSpan={9}
                         className="h-64 text-center text-muted-foreground"
                       >
-                        {loading
-                          ? "Loading records..."
-                          : "No records found matching your criteria"}
+                        {loading ? (
+                          <Skeleton className="mx-auto h-5 w-40" />
+                        ) : (
+                          "No records found matching your criteria"
+                        )}
                       </TableCell>
                     </TableRow>
                   ) : (

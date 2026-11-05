@@ -9,6 +9,7 @@ import { showBrowserNotification } from "@/lib/browser-notifications";
 import { Bell, TestTube, Info, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import PageBackButton from "@/components/page-back-button";
 
 export default function NotificationSettingsPage() {
     const { notificationsEnabled, unreadCount } = useNotifications();
@@ -43,6 +44,7 @@ export default function NotificationSettingsPage() {
     return (
         <div className="space-y-6 p-4">
             <div>
+                <PageBackButton />
                 <h1 className="text-2xl font-bold">Notification Settings</h1>
                 <p className="text-sm text-muted-foreground">
                     Manage your browser notification preferences

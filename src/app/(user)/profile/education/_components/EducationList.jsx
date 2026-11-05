@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChevronLeft, Plus, Pencil, Trash2 } from 'lucide-react'
@@ -142,29 +143,7 @@ export default function EducationList() {
     const error = userIdError || educationError || highSchoolError;
 
     if (isLoading) {
-        return (
-            <div className="flex flex-col max-w-md mx-auto">
-                <div className="flex flex-col items-center w-full">
-                    <header className="bg-background w-full flex justify-center">
-                        <div className="container flex flex-col max-w-md items-start gap-3 ">
-                            <Button
-                                variant="ghost"
-                                className="p-0"
-                                onClick={() => router.back()}
-                            >
-                                <ChevronLeft
-                                    style={{ width: "25px", height: "25px", padding: "0" }}
-                                />
-                            </Button>
-                            <h1 className="text-2xl font-bold">Education</h1>
-                        </div>
-                    </header>
-                    <main className="container max-w-md w-full  py-4">
-                        <div>Loading...</div>
-                    </main>
-                </div>
-            </div>
-        );
+        return <AppLoadingSkeleton />;
     }
 
     if (error || !userId) {

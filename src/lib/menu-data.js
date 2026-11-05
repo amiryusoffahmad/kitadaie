@@ -7,6 +7,9 @@ import {
   Award,
   ShieldCheck,
   Bell,
+  BookOpen,
+  GitBranch,
+  ClipboardList,
 } from "lucide-react";
 
 const Icons = {
@@ -18,6 +21,9 @@ const Icons = {
   Award,
   ShieldCheck,
   Bell,
+  BookOpen,
+  GitBranch,
+  ClipboardList,
 };
 
 // MenuItem now uses Lucide icon component
@@ -48,6 +54,29 @@ export const menuData = [
         title: "Certification",
         href: "/profile/certification",
         icon: Icons.Award,
+      },
+    ],
+  },
+  {
+    title: "Widgets",
+    items: [
+      {
+        title: "Mathurat",
+        description: "Daily supplications",
+        href: "/mathurat",
+        icon: Icons.BookOpen,
+      },
+      {
+        title: "HQ Tree",
+        description: "View your HQ tree",
+        href: "/hq-tree",
+        icon: Icons.GitBranch,
+      },
+      {
+        title: "CCS Form",
+        description: "Submit a CCS form",
+        href: "/ccs-form",
+        icon: Icons.ClipboardList,
       },
     ],
   },

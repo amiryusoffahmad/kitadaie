@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -178,8 +179,7 @@ export default function DataList() {
                 <TabsContent value="enrolled">
                     {isLoading ? (
                         <div className="text-center py-10">
-                            <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                            <p className="mt-2">Loading classes...</p>
+                            <AppLoadingSkeleton />
                         </div>
                     ) : (
                         <div className="flex flex-col gap-4 py-4">
@@ -250,8 +250,7 @@ export default function DataList() {
                     <TabsContent value="students">
                         {isAdvisorStudentsLoading || isMurobbiStudentsLoading ? (
                             <div className="text-center py-10">
-                                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                                <p className="mt-2">Loading students...</p>
+                                <AppLoadingSkeleton />
                             </div>
                         ) : advisorStudentsError && murobbiStudentsError ? (
                             <div className="text-center py-10 text-red-500">
@@ -269,8 +268,7 @@ export default function DataList() {
                             </div>
                         ) : isStudentClassesLoading ? (
                             <div className="text-center py-10">
-                                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                                <p className="mt-2">Loading student classes...</p>
+                                <AppLoadingSkeleton />
                             </div>
                         ) : (
                             <div className="flex flex-col gap-4">

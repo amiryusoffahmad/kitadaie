@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { fetchUserNotifications, markAsRead } from "@/server/actions/notification-actions";
 import { NotificationItem } from "@/components/notifications/notification-item";
@@ -199,12 +200,7 @@ export default function NotificationsPage() {
 // Helper component for notifications list
 function NotificationsList({ notifications, isLoading, onActionComplete, emptyMessage }) {
     if (isLoading) {
-        return (
-            <div className="flex flex-col items-center justify-center p-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">Loading messages...</p>
-            </div>
-        );
+        return <AppLoadingSkeleton />;
     }
 
     if (notifications.length === 0) {

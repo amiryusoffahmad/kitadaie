@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -163,7 +164,16 @@ export function CombinedDistributionChart() {
         </CardHeader>
         <CardContent>
           <div className="h-125 flex items-center justify-center">
-            <div className="animate-pulse text-muted-foreground">Loading charts...</div>
+            <div className="grid w-full grid-cols-2 gap-4">
+              <div className="space-y-3 rounded-lg border p-4">
+                <Skeleton className="h-5 w-1/2" />
+                <Skeleton className="h-40 w-full" />
+              </div>
+              <div className="space-y-3 rounded-lg border p-4">
+                <Skeleton className="h-5 w-1/2" />
+                <Skeleton className="mx-auto size-32 rounded-full" />
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

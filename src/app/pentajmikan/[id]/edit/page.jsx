@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import ProgramForm from '../../_components/program-form'
@@ -14,12 +15,7 @@ export default function EditProgramPage() {
     const { data: program, isLoading, error } = useGetPentajmikanById(params.id)
 
     if (isLoading) {
-        return (
-            <div className="container mx-auto py-12 flex justify-center items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="ml-2">Loading program...</span>
-            </div>
-        )
+        return <AppLoadingSkeleton />;
     }
 
     if (error || !program) {

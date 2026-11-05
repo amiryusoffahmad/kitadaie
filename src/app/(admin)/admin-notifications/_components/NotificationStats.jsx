@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Users, Calendar, Repeat } from "lucide-react";
@@ -27,20 +28,7 @@ export function NotificationStats() {
   };
 
   if (loading) {
-    return (
-      <div className="grid gap-4 md:grid-cols-4 mb-6">
-        {[1, 2, 3, 4].map((i) => (
-          <Card key={i}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Loading...</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">--</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (!stats) {

@@ -1,86 +1,61 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import { Home, BookOpen, CirclePlus, Mail, MailOpen, User } from "lucide-react";
-import UpdateDrawer from "./UpdateDrawer";
-import { useSession } from "@/lib/auth-client";
-import { useState, useEffect } from "react";
-import { usePersonalData } from "@/app/api/profile/user-api";
-import { useNotifications } from "@/providers/notification-provider";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { BookOpen, Grid3X3, ListChecks, Mail, MailOpen } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { useNotifications } from "@/providers/notification-provider"
 
-export default function MobileNav() {
-    const { data: session } = useSession();
-    const [userInfo, setUserInfo] = useState({ username: "", email: "" });
-    const { unreadCount } = useNotifications();
+const navigationItems = [
+    { href: "/mutabaah", label: "Mutabaah", icon: ListChecks },
+    { href: "/resources", label: "Library", icon: BookOpen },
+    { href: "/user/notifications", label: "Inbox", icon: MailOpen },
+    { href: "/profile", label: "Apps", icon: Grid3X3 },
+]
 
-    // Fetch user data from API using the user ID from session
-    const { data: personalData, isLoading } = usePersonalData(session?.user?.id);
-
-    useEffect(() => {
-        // When personal data is loaded, update user info
-        if (personalData) {
-            setUserInfo({
-                username: personalData.username || "",
-                email: personalData.email || ""
-            });
-            console.log("User data loaded:", personalData.username);
-        }
-    }, [personalData]);
+export default function BottomNavigation() {
+    const pathname = usePathname()
+    const { unreadCount } = useNotifications()
 
     return (
-        <>
-            <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center">
-                {!isLoading && userInfo.username && (
-                    <div className="absolute -top-6 left-0 right-0 bg-background border-t py-1 px-3 text-xs w-full max-w-md mx-auto">
-                        <div className="flex justify-between items-center">
-                            <span className="font-medium truncate">ID: {userInfo.username}</span>
-                            {userInfo.email && (
-                                <span className="text-muted-foreground truncate">{userInfo.email}</span>
+        <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex justify-center px-4">
+            <nav
+                aria-label="Main navigation"
+                className="flex items-center gap-1 rounded-full bg-foreground p-2 text-background shadow-lg"
+            >
+                {navigationItems.map(({ href, label, icon: Icon }) => {
+                    const isActive = href === "/profile"
+                        ? pathname.startsWith("/profile")
+                        : pathname === href || pathname.startsWith(`${href}/`)
+                    const NotificationIcon = unreadCount > 0 && label === "Inbox" ? Mail : Icon
+
+                    return (
+                        <Link
+                            key={href}
+                            href={href}
+                            aria-label={label}
+                            aria-current={isActive ? "page" : undefined}
+                            title={label}
+                            className="relative flex size-14 items-center justify-center rounded-full transition-colors hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                            <span
+                                className={`absolute inset-1 rounded-full transition-colors ${
+                                    isActive ? "bg-primary" : ""
+                                }`}
+                            />
+                            <NotificationIcon className="relative z-10 size-6" />
+                            {label === "Inbox" && unreadCount > 0 && (
+                                <Badge
+                                    variant="destructive"
+                                    className="absolute right-1 top-1 z-20 flex h-4 min-w-4 items-center justify-center px-1 text-[10px]"
+                                >
+                                    {unreadCount > 99 ? "99+" : unreadCount}
+                                </Badge>
                             )}
-                        </div>
-                    </div>
-                )}
-                <nav className="border-t bg-background w-full max-w-md pb-safe">
-                    <div className="flex items-center justify-around pt-2 pb-3">
-                        <Link href="/home" className="flex flex-col items-center gap-1">
-                            <Home size={23} />
-                            <span className="text-xs">Home</span>
                         </Link>
-
-                        <Link href="/resources" className="flex flex-col items-center gap-1">
-                            <BookOpen size={23} />
-                            <span className="text-xs">Resources</span>
-                        </Link>
-
-                        <UpdateDrawer />
-
-                        <Link href="/user/notifications" className="flex flex-col items-center gap-1 relative">
-                            <div className="relative">
-                                {unreadCount > 0 ? (
-                                    <Mail size={23} />
-                                ) : (
-                                    <MailOpen size={23} />
-                                )}
-                                {unreadCount > 0 && (
-                                    <Badge
-                                        variant="destructive"
-                                        className="absolute -top-2 -right-2 px-1 min-w-4 h-4 text-[10px] flex items-center justify-center"
-                                    >
-                                        {unreadCount > 99 ? "99+" : unreadCount}
-                                    </Badge>
-                                )}
-                            </div>
-                            <span className="text-xs">Inbox</span>
-                        </Link>
-
-                        <Link href="/profile" className="flex flex-col items-center gap-1">
-                            <User size={23} />
-                            <span className="text-xs">Profile</span>
-                        </Link>
-                    </div>
-                </nav>
-            </div>
-        </>
-    );
+                    )
+                })}
+            </nav>
+        </div>
+    )
 }

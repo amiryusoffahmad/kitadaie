@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { CCSForm } from "./_components/ccs-form";
+import PageBackButton from "@/components/page-back-button";
 
 export const metadata = {
   title: "CCS Form - Centralized Cluster System",
@@ -18,6 +19,7 @@ export default async function CCSFormPage() {
 
   return (
     <div className="flex flex-col">
+      <PageBackButton />
       <h1 className="text-2xl font-bold mb-2">
         Centralized Cluster System (CCS)
       </h1>
