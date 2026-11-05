@@ -125,19 +125,19 @@ export function ProfileModal({ userId, isOpen, onClose, userName }) {
                 )}
                 {profileData.profile?.phone && (
                   <div className="flex items-center gap-2">
-                    <Phone className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="text-sm">{profileData.profile.phone}</span>
                   </div>
                 )}
                 {profileData.user?.email && (
                   <div className="flex items-center gap-2">
-                    <Mail className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span className="text-sm truncate">{profileData.user.email}</span>
                   </div>
                 )}
                 {profileData.profile?.address && (
                   <div className="flex items-start gap-2">
-                    <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0 mt-0.5" />
                     <span className="text-sm flex-1 leading-relaxed">{profileData.profile.address}</span>
                   </div>
                 )}
@@ -223,9 +223,9 @@ export function ProfileModal({ userId, isOpen, onClose, userName }) {
                         </p>
                       </div>
                       {(member.occupation || member.OCCUPATION) && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0 ml-2">
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0 ml-2">
                           <Building2 className="h-3 w-3" />
-                          <span className="truncate max-w-[100px]">{member.occupation || member.OCCUPATION}</span>
+                          <span className="truncate max-w-25">{member.occupation || member.OCCUPATION}</span>
                         </div>
                       )}
                     </div>

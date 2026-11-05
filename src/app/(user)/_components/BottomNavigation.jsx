@@ -18,10 +18,10 @@ export default function BottomNavigation() {
     const { unreadCount } = useNotifications()
 
     return (
-        <div className="fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex justify-center px-4">
+        <div className="fixed inset-x-0 bottom-0 z-50 flex justify-center">
             <nav
                 aria-label="Main navigation"
-                className="flex items-center gap-1 rounded-full bg-foreground p-2 text-background shadow-lg"
+                className="flex w-full max-w-md items-center justify-around border-t border-slate-200 bg-white px-2 pt-1.5 pb-[calc(env(safe-area-inset-bottom)+0.375rem)] text-brand shadow-[0_-2px_8px_rgba(15,23,42,0.06)]"
             >
                 {navigationItems.map(({ href, label, icon: Icon }) => {
                     const isActive = href === "/profile"
@@ -36,14 +36,15 @@ export default function BottomNavigation() {
                             aria-label={label}
                             aria-current={isActive ? "page" : undefined}
                             title={label}
-                            className="relative flex size-14 items-center justify-center rounded-full transition-colors hover:bg-background/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            className="relative flex h-12 min-w-0 flex-1 items-center justify-center rounded-xl text-brand transition-colors hover:bg-selected focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
-                            <span
-                                className={`absolute inset-1 rounded-full transition-colors ${
-                                    isActive ? "bg-primary" : ""
-                                }`}
-                            />
-                            <NotificationIcon className="relative z-10 size-6" />
+                            <NotificationIcon className="size-6" />
+                            {isActive && (
+                                <span
+                                    aria-hidden="true"
+                                    className="absolute bottom-1 h-0.5 w-5 rounded-full bg-brand"
+                                />
+                            )}
                             {label === "Inbox" && unreadCount > 0 && (
                                 <Badge
                                     variant="destructive"

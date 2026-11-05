@@ -963,7 +963,7 @@ export default function DataList() {
                                         <TableHead>Name</TableHead>
                                         <TableHead>Code</TableHead>
                                         <TableHead>Description</TableHead>
-                                        <TableHead className="w-[150px]">Actions</TableHead>
+                                        <TableHead className="w-37.5">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -1114,7 +1114,7 @@ export default function DataList() {
                                             <TableHead>Title</TableHead>
                                             <TableHead>Instructions</TableHead>
                                             <TableHead>Due Date</TableHead>
-                                            <TableHead className="w-[150px]">Actions</TableHead>
+                                            <TableHead className="w-37.5">Actions</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>

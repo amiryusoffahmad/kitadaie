@@ -93,11 +93,11 @@ export function CompletionWidget({ completion, isLoading = false }) {
       <Card className="border-0 bg-white/80 backdrop-blur-sm">
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-2">
-            <div className="h-4 w-28 bg-gradient-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
-            <div className="h-5 w-12 bg-gradient-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
+            <div className="h-4 w-28 bg-linear-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
+            <div className="h-5 w-12 bg-linear-to-r from-muted/50 to-muted/30 rounded animate-pulse"></div>
           </div>
-          <div className="h-2 w-full bg-gradient-to-r from-muted/50 via-muted/30 to-muted/50 rounded-full animate-pulse"></div>
-          <div className="h-2.5 w-24 bg-gradient-to-r from-muted/50 to-muted/30 rounded mt-2 animate-pulse"></div>
+          <div className="h-2 w-full bg-linear-to-r from-muted/50 via-muted/30 to-muted/50 rounded-full animate-pulse"></div>
+          <div className="h-2.5 w-24 bg-linear-to-r from-muted/50 to-muted/30 rounded mt-2 animate-pulse"></div>
         </CardContent>
       </Card>
     )
@@ -124,7 +124,7 @@ export function CompletionWidget({ completion, isLoading = false }) {
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
-            <p className="text-sm font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+            <p className="text-sm font-bold bg-linear-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
               Profile Completion
             </p>
             {isComplete && (
@@ -140,21 +140,21 @@ export function CompletionWidget({ completion, isLoading = false }) {
         </div>
 
         {/* Progress Bar with Gradient */}
-        <div className="relative w-full bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full h-2 overflow-hidden shadow-inner">
+        <div className="relative w-full bg-linear-to-r from-gray-200 via-gray-100 to-gray-200 rounded-full h-2 overflow-hidden shadow-inner">
           <div
             className={cn(
               "h-full rounded-full transition-all duration-700 ease-out relative",
-              "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/0 before:via-white/30 before:to-white/0",
-              isComplete ? "bg-gradient-to-r from-green-500 to-green-600" :
-                percentage >= 76 ? "bg-gradient-to-r from-blue-500 to-blue-600" :
-                  percentage >= 51 ? "bg-gradient-to-r from-purple-500 to-purple-600" :
-                    percentage >= 26 ? "bg-gradient-to-r from-orange-500 to-orange-600" :
-                      "bg-gradient-to-r from-red-500 to-red-600"
+              "before:absolute before:inset-0 before:bg-linear-to-r before:from-white/0 before:via-white/30 before:to-white/0",
+              isComplete ? "bg-linear-to-r from-green-500 to-green-600" :
+                percentage >= 76 ? "bg-linear-to-r from-blue-500 to-blue-600" :
+                  percentage >= 51 ? "bg-linear-to-r from-purple-500 to-purple-600" :
+                    percentage >= 26 ? "bg-linear-to-rrom-orange-500 to-orange-600" :
+                      "bg-linear-to-r from-red-500 to-red-600"
             )}
             style={{ width: `${percentage}%` }}
           >
             {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent animate-pulse" />
           </div>
         </div>
 
@@ -223,7 +223,7 @@ function getSectionGradient(name) {
 export function SectionBreakdownWidget({ breakdown, isLoading = false }) {
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-br from-slate-50 to-gray-50 rounded-xl p-5 shadow-lg">
+      <div className="bg-linear-to-br from-slate-50 to-gray-50 rounded-xl p-5 shadow-lg">
         <div className="grid grid-cols-3 gap-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex flex-col items-center space-y-2">
@@ -252,9 +252,9 @@ export function SectionBreakdownWidget({ breakdown, isLoading = false }) {
   const completedCount = sections.filter(s => s.percentage === 100).length
 
   return (
-    <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 rounded-xl p-5 space-y-3 shadow-lg border-2 border-blue-100 transition-all duration-300 hover:shadow-xl">
+    <div className="bg-linear-to-br from-slate-50 via-blue-50 to-purple-50 rounded-xl p-5 space-y-3 shadow-lg border-2 border-blue-100 transition-all duration-300 hover:shadow-xl">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h3 className="text-sm font-bold bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           Sections
         </h3>
         <span className="text-xs font-semibold text-muted-foreground">

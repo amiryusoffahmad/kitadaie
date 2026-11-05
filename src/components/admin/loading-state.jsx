@@ -8,7 +8,7 @@ export function LoadingState({ className }) {
   return (
     <div className={cn("space-y-4", className)}>
       <Skeleton className="h-10 w-full" />
-      <Skeleton className="h-[400px] w-full" />
+      <Skeleton className="h-100 w-full" />
     </div>
   );
 }

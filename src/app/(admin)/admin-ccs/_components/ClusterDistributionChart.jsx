@@ -122,7 +122,7 @@ export function ClusterDistributionChart() {
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
-          <div className="flex h-[350px] items-center justify-center">
+          <div className="flex h-87.5 items-center justify-center">
             <Skeleton className="size-56 rounded-full" />
           </div>
         </CardContent>
@@ -152,7 +152,7 @@ export function ClusterDistributionChart() {
         </div>
       </CardHeader>
       <CardContent className="relative z-10">
-        <div className="h-[350px]">
+        <div className="h-87.5">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

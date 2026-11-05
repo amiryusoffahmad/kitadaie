@@ -39,25 +39,25 @@ export default function DataList() {
         : null
 
     return (
-        <main className="flex flex-col gap-4 pb-4">
-            <section className="rounded-2xl bg-primary p-5 text-primary-foreground shadow-sm">
-                <p className="text-sm text-primary-foreground/75">Your profile</p>
-                <h1 className="mt-1 text-2xl font-bold">{displayName}</h1>
+        <main className="flex flex-col gap-5 pb-4">
+            <section className="rounded-2xl border border-slate-200/80 bg-white p-5">
+                <p className="text-sm text-slate-500">Your profile</p>
+                <h1 className="mt-1 text-page-title tracking-tight text-slate-900">{displayName}</h1>
                 {session?.user?.email && (
-                    <p className="mt-1 break-all text-sm text-primary-foreground/75">
+                    <p className="mt-1 break-all text-sm text-slate-500">
                         {session.user.email}
                     </p>
                 )}
                 <div className="mt-4 flex flex-wrap gap-2">
                     <Button
-                        variant="secondary"
+                        variant="outline"
                         onClick={() => router.push("/profile/personal")}
                     >
-                        <Pencil />
+                        <Pencil className="text-slate-500" />
                         Edit profile
                     </Button>
                     <Button
-                        variant="secondary"
+                        variant="ghost"
                         onClick={async () => {
                             await signOut({
                                 fetchOptions: {
@@ -66,11 +66,11 @@ export default function DataList() {
                             })
                         }}
                     >
-                        <LogOut />
+                        <LogOut className="text-slate-500" />
                         Sign out
                     </Button>
                 </div>
-                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-primary-foreground/75">
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
                     {memberId && <span>Member ID: {memberId}</span>}
                     {memberSince && <span>Member since {memberSince}</span>}
                 </div>

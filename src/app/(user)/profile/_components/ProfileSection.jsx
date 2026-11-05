@@ -11,11 +11,11 @@ export function ProfileSection({ section, completion }) {
     }
 
     return (
-        <Card className="gap-0 overflow-hidden py-0">
+        <Card className="gap-0 overflow-hidden rounded-2xl border-slate-100 py-0 shadow-none">
             <CardHeader className="px-4 py-4">
-                <CardTitle className="text-base">{section.title}</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-500">{section.title}</CardTitle>
             </CardHeader>
-            <Separator />
+            <Separator className="bg-slate-100" />
             <CardContent className="px-4 py-1">
                 {section.items.map((item) => (
                     <MenuItem
