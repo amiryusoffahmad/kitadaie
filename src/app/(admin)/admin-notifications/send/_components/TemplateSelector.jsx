@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { fetchTemplates } from "@/server/actions/admin-notification-actions";
 
 export function TemplateSelector({ onSelect }) {
@@ -48,11 +49,7 @@ export function TemplateSelector({ onSelect }) {
     return (
       <div className="space-y-2">
         <Label>Use Template (Optional)</Label>
-        <Select disabled>
-          <SelectTrigger>
-            <SelectValue placeholder="Loading templates..." />
-          </SelectTrigger>
-        </Select>
+        <Skeleton className="h-10 w-full" />
       </div>
     );
   }

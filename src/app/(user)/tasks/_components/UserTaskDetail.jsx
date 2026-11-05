@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getTaskDetails, markMyTaskComplete, unmarkMyTaskComplete } from "@/server/actions/task-actions";
@@ -117,7 +118,7 @@ export function UserTaskDetail({ taskId }) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-12">Loading task...</div>;
+    return <AppLoadingSkeleton />;
   }
 
   if (!task) {

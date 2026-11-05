@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { fetchDepartments, deleteDepartmentAction } from "@/server/actions/organizational-actions";
 import { Button } from "@/components/ui/button";
@@ -100,7 +101,7 @@ export function DepartmentsList() {
   };
 
   if (isLoading) {
-    return <LoadingText />;
+    return <AppLoadingSkeleton />;
   }
 
   return (

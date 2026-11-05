@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -301,14 +302,7 @@ export default function AssignmentDetails({ params }) {
     };
 
     if (isLoading) {
-        return (
-            <Card className="min-h-[300px] flex items-center justify-center">
-                <CardContent>
-                    <Loader2 className="h-12 w-12 animate-spin mx-auto text-muted-foreground" />
-                    <p className="text-center mt-4 text-muted-foreground">Loading assignment details...</p>
-                </CardContent>
-            </Card>
-        )
+        return <AppLoadingSkeleton />;
     }
 
     if (!assignment) {

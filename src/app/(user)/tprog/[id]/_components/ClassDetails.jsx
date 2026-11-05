@@ -1,11 +1,12 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { AlertTriangle, Loader2 } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 import Link from 'next/link'
 import { useSession } from '@/lib/auth-client'
 import { useQuery } from '@tanstack/react-query'
@@ -101,12 +102,7 @@ export default function ClassDetails({ params }) {
     }
 
     if (classLoading || assignmentsLoading) {
-        return (
-            <div className="container mx-auto py-6 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                <p className="mt-2">Loading class details...</p>
-            </div>
-        )
+        return <AppLoadingSkeleton />
     }
 
     return (

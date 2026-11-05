@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -969,7 +970,11 @@ export default function DataList() {
                                     {classes.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={4} className="text-center h-32">
-                                                {isLoading ? 'Loading classes...' : 'No classes found. Create your first class!'}
+                                                {isLoading ? (
+                                                    <Skeleton className="mx-auto h-5 w-40" />
+                                                ) : (
+                                                    'No classes found. Create your first class!'
+                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ) : (
@@ -1116,7 +1121,11 @@ export default function DataList() {
                                         {assignments.length === 0 ? (
                                             <TableRow>
                                                 <TableCell colSpan={4} className="text-center h-32">
-                                                    {isLoading ? 'Loading assignments...' : 'No assignments found. Create your first assignment!'}
+                                                    {isLoading ? (
+                                                        <Skeleton className="mx-auto h-5 w-40" />
+                                                    ) : (
+                                                        'No assignments found. Create your first assignment!'
+                                                    )}
                                                 </TableCell>
                                             </TableRow>
                                         ) : (

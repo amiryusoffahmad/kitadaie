@@ -21,7 +21,7 @@ export function FormSignIn({ callbackUrl }) {
             await signIn.social(
                 {
                     provider: 'google',
-                    callbackURL: callbackUrl || '/dashboard',
+                    callbackURL: callbackUrl || '/mutabaah',
                 },
                 {
                     onSuccess: () => {
@@ -30,7 +30,7 @@ export function FormSignIn({ callbackUrl }) {
                         if (callbackUrl) {
                             window.location.href = callbackUrl
                         } else {
-                            window.location.href = '/dashboard'
+                            window.location.href = '/mutabaah'
                         }
                     },
                 }

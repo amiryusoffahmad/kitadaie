@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -111,11 +112,7 @@ export function TargetSelector({ value, onChange }) {
             Select Department <span className="text-destructive">*</span>
           </Label>
           {loading ? (
-            <Select disabled>
-              <SelectTrigger>
-                <SelectValue placeholder="Loading departments..." />
-              </SelectTrigger>
-            </Select>
+            <Skeleton className="h-10 w-full" />
           ) : (
             <Select
               value={value.targetDepartmentId?.toString()}
@@ -142,11 +139,7 @@ export function TargetSelector({ value, onChange }) {
             Select Role <span className="text-destructive">*</span>
           </Label>
           {loading ? (
-            <Select disabled>
-              <SelectTrigger>
-                <SelectValue placeholder="Loading roles..." />
-              </SelectTrigger>
-            </Select>
+            <Skeleton className="h-10 w-full" />
           ) : (
             <Select
               value={value.targetRoleId?.toString()}
