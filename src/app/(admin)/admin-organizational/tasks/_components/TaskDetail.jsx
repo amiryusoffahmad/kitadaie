@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -368,7 +369,7 @@ export function TaskDetail({ taskId }) {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center p-8">Loading...</div>;
+    return <AppLoadingSkeleton />;
   }
 
   return (

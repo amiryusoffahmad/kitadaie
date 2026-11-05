@@ -1,14 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { CalendarDays, Settings, TrendingUp, ChevronLeft, ChevronRight, BarChart3, MoreVertical, BookOpen, FileText, Volume2, PlayCircle, PauseCircle, Zap } from "lucide-react"
+import { CalendarDays, Settings, TrendingUp, ChevronLeft, ChevronRight, BarChart3, BookOpen, FileText, Volume2, PlayCircle, PauseCircle, Zap } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { 
   getMutabaahActivities, 
   getMutabaahEntries, 
@@ -32,11 +33,18 @@ const DAYS_OF_WEEK = [
   { value: 6, label: "Saturday" }
 ]
 
+const toDateInputValue = (date) => {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const day = String(date.getDate()).padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
 export default function MutabaahTracker() {
   const [activities, setActivities] = useState([])
   const [entries, setEntries] = useState([])
   const [settings, setSettings] = useState({ end_of_week: 0 })
-  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0])
+  const [currentDate, setCurrentDate] = useState(() => toDateInputValue(new Date()))
   const [loading, setLoading] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
   const [showWeeklyResults, setShowWeeklyResults] = useState(false)
@@ -54,6 +62,7 @@ export default function MutabaahTracker() {
   const [isPaused, setIsPaused] = useState(false)
   const [playbackSpeed, setPlaybackSpeed] = useState(1)
   const [currentAudioType, setCurrentAudioType] = useState(null)
+  const datePickerRef = useRef(null)
 
   useEffect(() => {
     loadInitialData()
@@ -239,8 +248,10 @@ export default function MutabaahTracker() {
 
   const loadInitialData = async () => {
     try {
-      // Clear activity descriptions first
-      await updateMutabaahActivityDescriptions()
+      const activitiesSetup = await updateMutabaahActivityDescriptions()
+      if (!activitiesSetup.success) {
+        throw new Error(activitiesSetup.error)
+      }
       
       const [activitiesRes, settingsRes] = await Promise.all([
         getMutabaahActivities(),
@@ -300,7 +311,7 @@ export default function MutabaahTracker() {
   }
 
   const getWeekRange = (date, endOfWeekDay) => {
-    const currentDate = new Date(date)
+    const currentDate = new Date(`${date}T00:00:00`)
     const currentDay = currentDate.getDay()
     
     // Calculate the current week that includes the selected date
@@ -321,13 +332,13 @@ export default function MutabaahTracker() {
       currentDate: date,
       currentDay,
       endOfWeekDay,
-      startOfWeek: startOfWeek.toISOString().split('T')[0],
-      endOfWeek: endOfWeek.toISOString().split('T')[0]
+      startOfWeek: toDateInputValue(startOfWeek),
+      endOfWeek: toDateInputValue(endOfWeek)
     })
     
     return {
-      start: startOfWeek.toISOString().split('T')[0],
-      end: endOfWeek.toISOString().split('T')[0]
+      start: toDateInputValue(startOfWeek),
+      end: toDateInputValue(endOfWeek)
     }
   }
 
@@ -433,16 +444,16 @@ export default function MutabaahTracker() {
     return entries.filter(e => e.completed === 1).length
   }
 
-  const goToPreviousDay = () => {
-    const previousDay = new Date(currentDate)
-    previousDay.setDate(previousDay.getDate() - 1)
-    setCurrentDate(previousDay.toISOString().split('T')[0])
+  const goToPreviousWeek = () => {
+    const previousDay = new Date(`${currentDate}T00:00:00`)
+    previousDay.setDate(previousDay.getDate() - 7)
+    setCurrentDate(toDateInputValue(previousDay))
   }
 
-  const goToNextDay = () => {
-    const nextDay = new Date(currentDate)
-    nextDay.setDate(nextDay.getDate() + 1)
-    setCurrentDate(nextDay.toISOString().split('T')[0])
+  const goToNextWeek = () => {
+    const nextDay = new Date(`${currentDate}T00:00:00`)
+    nextDay.setDate(nextDay.getDate() + 7)
+    setCurrentDate(toDateInputValue(nextDay))
   }
 
   const getActivitySuggestion = (activityName, completedDays, totalDays) => {
@@ -489,14 +500,7 @@ export default function MutabaahTracker() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Mutabaah...</p>
-        </div>
-      </div>
-    )
+    return <AppLoadingSkeleton />
   }
 
   if (showMathurat) {
@@ -1087,116 +1091,203 @@ export default function MutabaahTracker() {
     )
   }
 
+  const selectedDate = new Date(`${currentDate}T00:00:00`)
+  const weekRange = getWeekRange(currentDate, settings.end_of_week)
+  const weekDays = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(`${weekRange.start}T00:00:00`)
+    date.setDate(date.getDate() + index)
+    return date
+  })
+  const completionCount = getTodayCompletionCount()
+  const completionPercentage = activities.length
+    ? Math.round((completionCount / activities.length) * 100)
+    : 0
+  const dateLabel = new Intl.DateTimeFormat("en-MY", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(selectedDate)
+  const hijriDateLabel = new Intl.DateTimeFormat("en-MY-u-ca-islamic", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(selectedDate)
+  const weekdayLabel = new Intl.DateTimeFormat("en-MY", {
+    weekday: "short",
+  }).format(selectedDate)
+
   return (
-    <div className="max-w-md mx-auto space-y-4">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5" />
-              Mutabaah Tracker
-            </CardTitle>
-            <div className="flex gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" title="More options">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setShowSettings(true)}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowWeeklyResults}>
-                    <TrendingUp className="h-4 w-4 mr-2" />
-                    Weekly Results
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowWeeklySummaries}>
-                    <BarChart3 className="h-4 w-4 mr-2" />
-                    Weekly Summary
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleShowMonthlyResults}>
-                    <CalendarDays className="h-4 w-4 mr-2" />
-                    Monthly Results
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+    <div className="mx-auto max-w-md space-y-4">
+      <section className="rounded-3xl bg-brand px-5 pb-5 pt-4 text-primary-foreground shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="text-5xl font-bold leading-none tracking-tight">
+              {weekdayLabel}
+            </span>
+            <div className="min-w-0">
+              <p className="font-semibold">{dateLabel}</p>
+              <p className="truncate text-sm text-primary-foreground/70">{hijriDateLabel}</p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-2">Date</label>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPreviousDay}
-                className="px-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              
-              <input
-                type="date"
-                value={currentDate}
-                onChange={(e) => setCurrentDate(e.target.value)}
-                className="flex-1 p-2 border rounded-md"
-              />
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextDay}
-                className="px-2"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              💡 Use arrow buttons to navigate days quickly
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Today's Progress</h3>
-            <Badge variant={getTodayCompletionCount() === activities.length ? "default" : "secondary"}>
-              {getTodayCompletionCount()}/{activities.length}
-            </Badge>
-          </div>
-
-          <div className="space-y-3">
-            {activities.map(activity => {
-              const isCompleted = isActivityCompleted(activity.id)
-              
-              return (
-                <div 
-                  key={activity.id}
-                  className="flex items-start space-x-3 p-3 rounded-lg border hover:bg-gray-50"
+          <div className="flex shrink-0 items-center gap-1">
+            <input
+              ref={datePickerRef}
+              type="date"
+              value={currentDate}
+              onChange={(event) => event.target.value && setCurrentDate(event.target.value)}
+              aria-label="Choose a date"
+              className="sr-only"
+              tabIndex={-1}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+              aria-label="Choose date"
+              onClick={() => {
+                const picker = datePickerRef.current
+                if (picker?.showPicker) {
+                  picker.showPicker()
+                } else {
+                  picker?.click()
+                }
+              }}
+            >
+              <CalendarDays className="size-6" />
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+                  aria-label="Mutabaah settings and reports"
                 >
-                  <Checkbox
-                    checked={isCompleted}
-                    onCheckedChange={(checked) => {
-                      console.log('Checkbox changed:', activity.id, checked)
-                      handleToggleActivity(activity.id, checked)
-                    }}
-                    className="mt-1"
-                  />
-                  <div className="flex-1">
-                    <h4 className={`font-medium ${isCompleted ? 'line-through text-gray-500' : ''}`}>
-                      {activity.name}
-                    </h4>
-                  </div>
-                </div>
+                  <Settings className="size-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setShowSettings(true)}>
+                  <Settings className="mr-2 size-4" />
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShowWeeklyResults}>
+                  <TrendingUp className="mr-2 size-4" />
+                  Weekly Results
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShowWeeklySummaries}>
+                  <BarChart3 className="mr-2 size-4" />
+                  Weekly Summary
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShowMonthlyResults}>
+                  <CalendarDays className="mr-2 size-4" />
+                  Monthly Results
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </section>
+
+      <Card className="gap-3 py-4">
+        <CardContent className="space-y-3 px-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-card-title">This week</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={goToPreviousWeek}
+                aria-label="Previous week"
+              >
+                <ChevronLeft className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-8"
+                onClick={goToNextWeek}
+                aria-label="Next week"
+              >
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-7 gap-1">
+            {weekDays.map((date) => {
+              const dateValue = toDateInputValue(date)
+              const isSelected = dateValue === currentDate
+              const isToday = dateValue === toDateInputValue(new Date())
+              return (
+                <button
+                  key={dateValue}
+                  type="button"
+                  onClick={() => setCurrentDate(dateValue)}
+                  aria-pressed={isSelected}
+                  className={`flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 transition-colors ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  <span className={`text-lg font-semibold ${isSelected ? "" : "text-foreground"}`}>
+                    {date.getDate()}
+                  </span>
+                  <span className="text-[10px] font-medium uppercase">
+                    {new Intl.DateTimeFormat("en-MY", { weekday: "short" }).format(date)}
+                  </span>
+                  {isToday && (
+                    <span className={`size-1 rounded-full ${isSelected ? "bg-primary-foreground" : "bg-primary"}`} />
+                  )}
+                </button>
               )
             })}
           </div>
+        </CardContent>
+      </Card>
 
-          {getTodayCompletionCount() === activities.length && (
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <p className="text-green-800 font-medium">🎉 All activities completed!</p>
-              <p className="text-green-600 text-sm">May Allah accept your efforts</p>
+      <Card className="gap-3 py-4">
+        <CardContent className="space-y-3 px-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-card-title">Daily performance</h2>
+              <p className="text-sm text-muted-foreground">
+                {completionCount} of {activities.length} amal completed
+              </p>
+            </div>
+            <span className="text-2xl font-bold text-primary">{completionPercentage}%</span>
+          </div>
+          <Progress value={completionPercentage} aria-label={`${completionPercentage}% completed`} />
+        </CardContent>
+      </Card>
+
+      <Card className="gap-3 py-4">
+        <CardHeader className="px-4 pb-0">
+          <CardTitle className="text-base">Amal checklist</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-1 px-4">
+          {activities.map((activity) => {
+            const isCompleted = isActivityCompleted(activity.id)
+            return (
+              <label
+                key={activity.id}
+                className="flex cursor-pointer items-center gap-3 rounded-xl px-2 py-3 transition-colors hover:bg-muted/70"
+              >
+                <Checkbox
+                  checked={isCompleted}
+                  onCheckedChange={(checked) => handleToggleActivity(activity.id, checked)}
+                  aria-label={`Mark ${activity.name} as ${isCompleted ? "incomplete" : "complete"}`}
+                />
+                <span className={`flex-1 text-sm font-medium ${isCompleted ? "text-muted-foreground line-through" : ""}`}>
+                  {activity.name}
+                </span>
+              </label>
+            )
+          })}
+          {activities.length > 0 && completionCount === activities.length && (
+            <div className="rounded-xl bg-primary/10 p-3 text-center text-sm text-primary">
+              All activities completed. May Allah accept your efforts.
             </div>
           )}
         </CardContent>

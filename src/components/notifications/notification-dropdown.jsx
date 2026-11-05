@@ -16,6 +16,7 @@ import { useNotifications } from "@/providers/notification-provider";
 import { fetchUserNotifications, markAsRead } from "@/server/actions/notification-actions";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function NotificationDropdown() {
     const { unreadCount, refreshUnreadCount } = useNotifications();
@@ -107,8 +108,16 @@ export function NotificationDropdown() {
 
                 <ScrollArea className="max-h-[400px]">
                     {loading ? (
-                        <div className="p-4 text-center text-sm text-muted-foreground">
-                            Loading messages...
+                        <div role="status" aria-label="Loading notifications" className="space-y-3 p-4">
+                            {[1, 2, 3].map((item) => (
+                                <div key={item} className="flex items-center gap-3">
+                                    <Skeleton className="size-8 rounded-full" />
+                                    <div className="flex-1 space-y-2">
+                                        <Skeleton className="h-3 w-2/3" />
+                                        <Skeleton className="h-3 w-full" />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : notifications.length === 0 ? (
                         <div className="p-4 text-center text-sm text-muted-foreground">

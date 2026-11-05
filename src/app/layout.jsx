@@ -1,19 +1,19 @@
-import { Manrope } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/providers";
 import { OfflineIndicator } from "@/components/offline-indicator";
 // import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-});
-
 export const metadata = {
   title: "Kita Daie",
   description: "Kita Daie Application",
   manifest: "/manifest.json",
-  themeColor: "#000000",
+  icons: {
+    icon: [
+      { url: "/icons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/icons/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -26,19 +26,17 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
+  themeColor: "#1E40AF",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body
-        className={`${manrope.variable} antialiased`}
-      >
+      <body className="font-sans antialiased">
         <Providers>
           {children}
           <OfflineIndicator />

@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -154,11 +155,7 @@ export function NotificationDetail({ notificationId }) {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (!notification) {

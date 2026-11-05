@@ -1,11 +1,13 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
+import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, ArrowLeft } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { getStudentAssignments, getClassDetails } from '@/app/api/tprog-api'
 import { Badge } from '@/components/ui/badge'
@@ -53,16 +55,17 @@ export default function StudentClassDetails({ studentId, classId }) {
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <h1 className="text-2xl font-bold tracking-tight">
-                        {isLoading ? 'Loading...' : `Student Assignments - ${classDetails?.name || 'Class'}`}
+                        {isLoading ? (
+                            <Skeleton className="h-7 w-56" />
+                        ) : (
+                            `Student Assignments - ${classDetails?.name || 'Class'}`
+                        )}
                     </h1>
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="text-center py-10">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2">Loading assignments...</p>
-                </div>
+                <AppLoadingSkeleton />
             ) : (
                 <div className="flex flex-col gap-4">
                     {assignments && assignments.length > 0 ? (

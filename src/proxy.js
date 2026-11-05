@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function proxy(request) {
   // Check if the path is exactly the root path
   if (request.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/home", request.url));
+    return NextResponse.redirect(new URL("/mutabaah", request.url));
   }
 
   const cookieHeader = request.headers.get("cookie");
@@ -27,11 +27,11 @@ export async function proxy(request) {
   }
 
   if (sessionCookie && signInPath) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    return NextResponse.redirect(new URL("/mutabaah", request.url));
   }
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/dashboard/:path*", "/home/:path*", "/sign-in"],
+  matcher: ["/", "/dashboard/:path*", "/home/:path*", "/mutabaah/:path*", "/sign-in"],
 };

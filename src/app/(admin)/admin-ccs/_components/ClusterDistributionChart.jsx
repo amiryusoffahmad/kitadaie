@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   PieChart,
   Pie,
@@ -113,9 +114,7 @@ export function ClusterDistributionChart() {
               <CardTitle className="text-xl font-bold">
                 Cluster Distribution
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Loading...
-              </CardDescription>
+              <Skeleton className="mt-2 h-4 w-32" />
             </div>
             <div className="p-3 rounded-full bg-accent text-accent-foreground shadow">
               <PieChartIcon className="h-5 w-5" />
@@ -123,10 +122,8 @@ export function ClusterDistributionChart() {
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
-          <div className="h-[350px] flex items-center justify-center">
-            <div className="animate-pulse text-muted-foreground">
-              Loading chart...
-            </div>
+          <div className="flex h-87.5 items-center justify-center">
+            <Skeleton className="size-56 rounded-full" />
           </div>
         </CardContent>
       </Card>
@@ -155,7 +152,7 @@ export function ClusterDistributionChart() {
         </div>
       </CardHeader>
       <CardContent className="relative z-10">
-        <div className="h-[350px]">
+        <div className="h-87.5">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

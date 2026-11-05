@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { getUserOrganizationalTasks } from "@/server/actions/task-actions";
 import { useRouter } from "next/navigation";
@@ -77,7 +78,7 @@ export function UserTasksList() {
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading your tasks...</div>;
+    return <AppLoadingSkeleton />;
   }
 
   return (

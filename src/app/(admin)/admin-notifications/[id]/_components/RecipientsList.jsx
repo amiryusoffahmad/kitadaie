@@ -1,5 +1,6 @@
 "use client";
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -37,16 +38,7 @@ export function RecipientsList({ notificationId }) {
   };
 
   if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Recipients</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">Loading recipients...</p>
-        </CardContent>
-      </Card>
-    );
+    return <AppLoadingSkeleton />;
   }
 
   if (recipients.length === 0) {

@@ -18,7 +18,7 @@ import Link from "next/link"
 const AppButton = () => {
     return (
         <Button asChild className="gap-2">
-            <Link href="/home">
+            <Link href="/mutabaah">
                 <Smartphone className="h-4 w-4" />
                 <span className="text-sm">Go to App</span>
             </Link>

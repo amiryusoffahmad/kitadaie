@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -80,20 +81,7 @@ export default function AssignmentReviewDetails({ studentId, assignmentId }) {
     }
 
     if (isLoading) {
-        return (
-            <div className="container mx-auto py-6 space-y-6">
-                <div className="flex items-center gap-2">
-                    <Button variant="outline" size="icon" onClick={() => router.back()}>
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <h1 className="text-2xl font-bold tracking-tight">Loading assignment details...</h1>
-                </div>
-                <div className="text-center py-10">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    <p className="mt-2">Loading assignment details...</p>
-                </div>
-            </div>
-        )
+        return <AppLoadingSkeleton />;
     }
 
     if (!assignment) {

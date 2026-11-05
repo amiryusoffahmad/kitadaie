@@ -1,8 +1,8 @@
 "use client";
 
-import { Separator } from "@/components/ui/separator";
 import { MenuItem } from "./MenuItem";
-import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 export function ProfileSection({ section, completion }) {
     if (!section || !section.title || !Array.isArray(section.items)) {
@@ -11,10 +11,12 @@ export function ProfileSection({ section, completion }) {
     }
 
     return (
-        <div className="space-y-2 pb-6">
-            <h2 className="text-lg font-semibold">{section.title}</h2>
-            <Separator />
-            <div className="space-y-[18px] pt-4">
+        <Card className="gap-0 overflow-hidden rounded-2xl border-slate-100 py-0 shadow-none">
+            <CardHeader className="px-4 py-4">
+                <CardTitle className="text-sm font-medium text-slate-500">{section.title}</CardTitle>
+            </CardHeader>
+            <Separator className="bg-slate-100" />
+            <CardContent className="px-4 py-1">
                 {section.items.map((item) => (
                     <MenuItem
                         key={item.title}
@@ -22,7 +24,7 @@ export function ProfileSection({ section, completion }) {
                         completion={completion}
                     />
                 ))}
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 }

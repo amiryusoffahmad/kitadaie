@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   BarChart,
   Bar,
@@ -90,9 +91,7 @@ export function BranchDistributionChart() {
               <CardTitle className="text-xl font-bold">
                 Branch Distribution
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Loading...
-              </CardDescription>
+              <Skeleton className="mt-2 h-4 w-32" />
             </div>
             <div className="p-3 rounded-full bg-accent text-accent-foreground shadow">
               <Building2 className="h-5 w-5" />
@@ -100,10 +99,14 @@ export function BranchDistributionChart() {
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
-          <div className="h-[350px] flex items-center justify-center">
-            <div className="animate-pulse text-muted-foreground">
-              Loading chart...
-            </div>
+          <div className="flex h-[350px] items-end justify-around gap-3 px-8 pb-4">
+            {[45, 70, 55, 85, 60, 75].map((height, index) => (
+              <Skeleton
+                key={index}
+                className="w-full max-w-12 rounded-t-md rounded-b-none"
+                style={{ height: `${height}%` }}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>

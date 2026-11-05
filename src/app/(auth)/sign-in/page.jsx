@@ -26,11 +26,15 @@ export default async function Page({ searchParams }) {
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
             <div className='flex w-full max-w-sm flex-col gap-6 p-6 rounded-lg shadow-md bg-card'>
-                <a href='#' className='flex items-center gap-2 self-center font-medium'>
-                    <div className='flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground'>
-                        <GalleryVerticalEnd className='size-4' />
-                    </div>
-                    Kita Daie
+                <a href='#' className='flex items-center gap-2 self-center rounded-md bg-white px-2 py-1 font-medium'>
+                    <Image
+                        src="/branding/kitadaie-header-logo.png"
+                        alt="Kita Daie"
+                        width={2172}
+                        height={724}
+                        priority
+                        className="h-10 w-auto object-contain"
+                    />
                 </a>
                 <FormSignIn error={currSearchParams.error} />
             </div>

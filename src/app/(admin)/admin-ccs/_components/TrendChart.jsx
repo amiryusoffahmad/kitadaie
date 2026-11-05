@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -106,17 +107,19 @@ export function TrendChart() {
               <CardTitle className="text-xl font-bold">
                 Mufaraqah Trend
               </CardTitle>
-              <CardDescription className="text-muted-foreground">
-                Loading...
-              </CardDescription>
+              <Skeleton className="mt-2 h-4 w-32" />
             </div>
           </div>
         </CardHeader>
         <CardContent className="relative z-10">
-          <div className="h-75 flex items-center justify-center">
-            <div className="animate-pulse text-muted-foreground">
-              Loading chart...
-            </div>
+          <div className="flex h-75 items-end gap-3 px-6 pb-4">
+            {[55, 75, 45, 90, 65, 80, 50, 70].map((height, index) => (
+              <Skeleton
+                key={index}
+                className="w-full rounded-t-md rounded-b-none"
+                style={{ height: `${height}%` }}
+              />
+            ))}
           </div>
         </CardContent>
       </Card>

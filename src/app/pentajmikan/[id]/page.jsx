@@ -1,5 +1,6 @@
 'use client'
 
+import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetPentajmikanById, useDeletePentajmikan } from '@/app/api/pentajmikan-api'
@@ -47,12 +48,7 @@ export default function ProgramDetailsPage() {
     }
 
     if (isLoading) {
-        return (
-            <div className="container mx-auto py-12 flex justify-center items-center">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <span className="ml-2">Loading program details...</span>
-            </div>
-        )
+        return <AppLoadingSkeleton />;
     }
 
     if (error || !program) {

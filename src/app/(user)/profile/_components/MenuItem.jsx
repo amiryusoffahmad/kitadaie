@@ -47,42 +47,41 @@ export function MenuItem({ item, completion }) {
         <div>
             <Button
                 variant="ghost"
-                className="w-full items-start h-[38px] px-0 py-0 gap-[18px] hover:text-accent hover:bg-transparent"
+                className="h-auto min-h-14 w-full justify-start rounded-none px-0 py-3 text-left hover:bg-accent/50"
                 onClick={handleClick}
             >
-                <div className="flex">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
                     {item.icon && React.createElement(item.icon, {
-                        width: 18,
-                        height: 18,
-                        style: { minWidth: '18px', minHeight: '18px' }
+                        width: 20,
+                        height: 20,
                     })}
                 </div>
-                <div className="w-full">
-                    <div className="w-full flex flex-row justify-between pb-[18px]">
-                        <span className="text-[15px]">{item.title}</span>
-                        <div className="flex items-center gap-2">
-                            {/* Completion indicator */}
-                            {completion && completionKey && (
-                                <div className="flex items-center gap-1.5">
-                                    {isComplete ? (
-                                        <CheckCircle2 className="w-4 h-4 text-green-600" />
-                                    ) : (
-                                        <div className="flex items-center gap-1">
-                                            <span className="text-xs text-muted-foreground">{percentage}%</span>
-                                            <div className={cn(
-                                                "w-1.5 h-1.5 rounded-full",
-                                                getBadgeColor(percentage)
-                                            )} />
-                                        </div>
-                                    )}
+                <div className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{item.title}</span>
+                    {item.description && (
+                        <span className="block truncate text-xs text-muted-foreground">{item.description}</span>
+                    )}
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                    {completion && completionKey && (
+                        <div className="flex items-center gap-1.5">
+                            {isComplete ? (
+                                <CheckCircle2 className="size-4 text-green-600" />
+                            ) : (
+                                <div className="flex items-center gap-1">
+                                    <span className="text-xs text-muted-foreground">{percentage}%</span>
+                                    <div className={cn(
+                                        "size-1.5 rounded-full",
+                                        getBadgeColor(percentage)
+                                    )} />
                                 </div>
                             )}
-                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
                         </div>
-                    </div>
-                    <Separator />
+                    )}
+                    <ChevronRight className="size-4 text-muted-foreground" />
                 </div>
             </Button>
+            <Separator />
         </div>
     );
 }

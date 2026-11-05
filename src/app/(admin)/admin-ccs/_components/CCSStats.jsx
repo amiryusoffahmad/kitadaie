@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Users, TrendingUp, User } from "lucide-react";
 import { getCCSStats } from "@/server/actions/ccs-analytics-actions";
 
@@ -32,10 +33,10 @@ export function CCSStats() {
         {[1, 2, 3, 4].map((i) => (
           <Card key={i}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Loading...</CardTitle>
+              <Skeleton className="h-4 w-28" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold animate-pulse">--</div>
+              <Skeleton className="h-8 w-20" />
             </CardContent>
           </Card>
         ))}
