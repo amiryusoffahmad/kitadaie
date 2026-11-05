@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { fetchUnreadCount, fetchUserNotifications } from "@/server/actions/notification-actions";
+import { useSession } from "@/lib/auth-client";
 import {
     ensureNotificationPermission,
     showNotificationFromData,
@@ -24,6 +25,7 @@ export function useNotifications() {
 }
 
 export function NotificationProvider({ children }) {
+    const { data: session } = useSession();
     const [unreadCount, setUnreadCount] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -139,6 +141,11 @@ export function NotificationProvider({ children }) {
 
     // Initialize and set up polling
     useEffect(() => {
+        if (!session?.user) {
+            setUnreadCount(0);
+            return;
+        }
+
         // Check if browser supports notifications
         if (isNotificationSupported()) {
             // Check current permission status
@@ -215,7 +222,7 @@ export function NotificationProvider({ children }) {
             clearInterval(unreadInterval);
             clearInterval(notificationInterval);
         };
-    }, [notificationsEnabled]);
+    }, [notificationsEnabled, session?.user?.id]);
 
     // Create context value
     const value = {

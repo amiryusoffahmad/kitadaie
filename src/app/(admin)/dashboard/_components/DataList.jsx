@@ -276,7 +276,7 @@ const DataList = () => {
         <div className='flex flex-1 flex-col gap-8 p-6 pt-0'>
             {/* Dashboard Header */}
             <div className="mb-2">
-                <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard Overview</h1>
+                <h1 className="text-page-title mb-2">Dashboard Overview</h1>
                 <p className="text-muted-foreground">Real-time insights and analytics for organizational management</p>
             </div>
 
@@ -317,7 +317,7 @@ const DataList = () => {
                     </h2>
                     <Card className="border shadow-md bg-card/10">
                         <CardHeader className="pb-6">
-                            <CardTitle className="text-2xl font-bold">TDPRO Analytics</CardTitle>
+                            <CardTitle className="text-card-title">TDPRO Analytics</CardTitle>
                             <CardDescription>
                                 Comprehensive overview of training and development programs
                             </CardDescription>

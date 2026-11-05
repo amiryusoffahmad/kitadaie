@@ -1118,7 +1118,7 @@ export default function MutabaahTracker() {
 
   return (
     <div className="mx-auto max-w-md space-y-4">
-      <section className="rounded-3xl bg-primary px-5 pb-5 pt-4 text-primary-foreground shadow-sm">
+      <section className="rounded-3xl bg-brand px-5 pb-5 pt-4 text-primary-foreground shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex min-w-0 items-center gap-3">
             <span className="text-5xl font-bold leading-none tracking-tight">
@@ -1192,7 +1192,7 @@ export default function MutabaahTracker() {
       <Card className="gap-3 py-4">
         <CardContent className="space-y-3 px-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold">This week</h2>
+            <h2 className="text-card-title">This week</h2>
             <div className="flex items-center gap-1">
               <Button
                 variant="ghost"
@@ -1251,7 +1251,7 @@ export default function MutabaahTracker() {
         <CardContent className="space-y-3 px-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="font-semibold">Daily performance</h2>
+              <h2 className="text-card-title">Daily performance</h2>
               <p className="text-sm text-muted-foreground">
                 {completionCount} of {activities.length} amal completed
               </p>
