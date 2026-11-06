@@ -15,6 +15,8 @@ import {
   getMutabaahEntries, 
   toggleMutabaahEntry,
   getMutabaahSettings,
+  getMutabaahMamnuStatus,
+  toggleMutabaahMamnu,
   updateMutabaahSettings,
   getWeeklyMutabaahResults,
   getMonthlyMutabaahResults,
@@ -43,7 +45,8 @@ const toDateInputValue = (date) => {
 export default function MutabaahTracker() {
   const [activities, setActivities] = useState([])
   const [entries, setEntries] = useState([])
-  const [settings, setSettings] = useState({ end_of_week: 0 })
+  const [settings, setSettings] = useState({ end_of_week: 0, is_female: false })
+  const [isMamnu, setIsMamnu] = useState(false)
   const [currentDate, setCurrentDate] = useState(() => toDateInputValue(new Date()))
   const [loading, setLoading] = useState(true)
   const [showSettings, setShowSettings] = useState(false)
@@ -70,6 +73,7 @@ export default function MutabaahTracker() {
 
   useEffect(() => {
     loadEntriesForDate(currentDate)
+    loadMamnuStatus(currentDate)
   }, [currentDate])
 
   useEffect(() => {
@@ -267,6 +271,7 @@ export default function MutabaahTracker() {
       }
 
       await loadEntriesForDate(currentDate)
+      await loadMamnuStatus(currentDate)
     } catch (error) {
       console.error("Failed to load initial data:", error)
     } finally {
@@ -285,6 +290,18 @@ export default function MutabaahTracker() {
     }
   }
 
+  const loadMamnuStatus = async (date) => {
+    try {
+      const result = await getMutabaahMamnuStatus(date)
+      if (result.success) {
+        setIsMamnu(result.isMamnu)
+        setSettings((current) => ({ ...current, is_female: result.isFemale }))
+      }
+    } catch (error) {
+      console.error("Failed to load mamnu status:", error)
+    }
+  }
+
   const handleToggleActivity = async (activityId, completed) => {
     try {
       const result = await toggleMutabaahEntry(activityId, currentDate, completed)
@@ -295,6 +312,21 @@ export default function MutabaahTracker() {
       }
     } catch (error) {
       console.error("Failed to toggle activity:", error)
+    }
+  }
+
+  const handleToggleMamnu = async (checked) => {
+    try {
+      const result = await toggleMutabaahMamnu(currentDate, checked)
+      if (result.success) {
+        setIsMamnu(checked)
+      } else {
+        console.error("Failed to update mamnu status:", result.error)
+        window.alert(result.error || "Failed to update Mamnu’ status. Please run the database migration.")
+      }
+    } catch (error) {
+      console.error("Failed to update mamnu status:", error)
+      window.alert("Failed to update Mamnu’ status. Please run the database migration.")
     }
   }
 
@@ -388,6 +420,7 @@ export default function MutabaahTracker() {
             status: result.isPassed ? 1 : 0,
             passedDays: result.passedDays,
             totalDays: result.totalDays,
+            mamnuDays: result.mamnuDays || 0,
             statusText: result.status,
             completionPercentage: completionPercentage,
             passThreshold: result.passThreshold || Math.ceil(result.totalDays * 0.7)
@@ -401,6 +434,7 @@ export default function MutabaahTracker() {
             status: 0, // Assume fail if data fetch fails
             passedDays: 0,
             totalDays: 0,
+            mamnuDays: 0,
             statusText: "ERROR",
             completionPercentage: 0,
             passThreshold: 0
@@ -422,9 +456,37 @@ export default function MutabaahTracker() {
     setShowMonthlyResults(false)
 
     try {
-      const result = await getWeeklySummaries()
+      const today = new Date()
+      const currentDay = today.getDay()
+      const daysSinceHalaqahDay = (currentDay - settings.end_of_week + 7) % 7 || 7
+      const lastCompletedWeekEnd = new Date(today)
+      lastCompletedWeekEnd.setDate(today.getDate() - daysSinceHalaqahDay)
+      const lastCompletedWeekRange = getWeekRange(
+        toDateInputValue(lastCompletedWeekEnd),
+        settings.end_of_week
+      )
+      const result = await getWeeklyMutabaahResults(
+        lastCompletedWeekRange.start,
+        lastCompletedWeekRange.end
+      )
       if (result.success) {
-        setWeeklySummaries(result)
+        const passedActivities = Object.values(result.activityResults).filter((activity) => activity.isPassed).length
+        const totalActivities = Object.values(result.activityResults).length
+        const summaryText = result.isPassed
+          ? `🎉 Excellent week! All ${totalActivities} activities passed.`
+          : `⚠️ ${passedActivities}/${totalActivities} activities passed.`
+
+        setWeeklySummaries({
+          cycleStart: lastCompletedWeekRange.start,
+          cycleEnd: lastCompletedWeekRange.end,
+          week1: {
+            ...result,
+            startDate: lastCompletedWeekRange.start,
+            endDate: lastCompletedWeekRange.end,
+            summaryText
+          },
+          week2: null
+        })
       } else {
         console.error("Failed to get weekly summaries:", result.error)
       }
@@ -692,6 +754,11 @@ export default function MutabaahTracker() {
               <p className="text-gray-600">
                 Weekly evaluation based on individual activities
               </p>
+              {weeklyResults.mamnuDays > 0 && (
+                <p className="text-sm font-medium text-pink-600 mt-1">
+                  Mamnu’: {weeklyResults.mamnuDays} day{weeklyResults.mamnuDays === 1 ? "" : "s"}
+                </p>
+              )}
               {weeklyResults.weekRange && (
                 <p className="text-sm text-blue-600 font-medium mt-1">
                   📅 {new Date(weeklyResults.weekRange.start).toLocaleDateString('en-GB')} - {new Date(weeklyResults.weekRange.end).toLocaleDateString('en-GB')}
@@ -713,7 +780,7 @@ export default function MutabaahTracker() {
                     <span className={`text-sm font-medium ${
                       result.isPassed ? 'text-green-600' : 'text-red-600'
                     }`}>
-                      {result.completedDays}/7
+                      {result.completedDays}/{result.totalDays || 7}
                     </span>
                     <Badge 
                       variant={result.isPassed ? "default" : "destructive"} 
@@ -832,6 +899,9 @@ export default function MutabaahTracker() {
               <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
                 {weeklySummaries.week1.summaryText}
               </p>
+              {weeklySummaries.week1.mamnuDays > 0 && (
+                <p className="text-sm font-medium text-pink-600">Mamnu’: {weeklySummaries.week1.mamnuDays} day{weeklySummaries.week1.mamnuDays === 1 ? "" : "s"}</p>
+              )}
               
               <div className="space-y-2">
                 {Object.entries(weeklySummaries.week1.activityResults).map(([activityId, result]) => (
@@ -841,7 +911,7 @@ export default function MutabaahTracker() {
                       <span className={`text-sm font-medium ${
                         result.isPassed ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {result.completedDays}/7
+                        {result.completedDays}/{result.totalDays || 7}
                       </span>
                       <Badge 
                         variant={result.isPassed ? "default" : "destructive"} 
@@ -856,7 +926,7 @@ export default function MutabaahTracker() {
             </div>
 
             {/* Week 2 Summary */}
-            <div className="space-y-3">
+            {weeklySummaries.week2 && <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium text-gray-800 flex items-center gap-2">
                   📊 Week 2 Summary
@@ -876,6 +946,9 @@ export default function MutabaahTracker() {
               <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
                 {weeklySummaries.week2.summaryText}
               </p>
+              {weeklySummaries.week2.mamnuDays > 0 && (
+                <p className="text-sm font-medium text-pink-600">Mamnu’: {weeklySummaries.week2.mamnuDays} day{weeklySummaries.week2.mamnuDays === 1 ? "" : "s"}</p>
+              )}
               
               <div className="space-y-2">
                 {Object.entries(weeklySummaries.week2.activityResults).map(([activityId, result]) => (
@@ -885,7 +958,7 @@ export default function MutabaahTracker() {
                       <span className={`text-sm font-medium ${
                         result.isPassed ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {result.completedDays}/7
+                        {result.completedDays}/{result.totalDays || 7}
                       </span>
                       <Badge 
                         variant={result.isPassed ? "default" : "destructive"} 
@@ -897,7 +970,7 @@ export default function MutabaahTracker() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
             
             {/* Motivation message */}
             <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
@@ -1001,6 +1074,11 @@ export default function MutabaahTracker() {
                   <span>Fail (&lt;70%)</span>
                 </div>
               </div>
+              {monthlyResults.some((month) => month.mamnuDays > 0) && (
+                <p className="text-center text-sm font-medium text-pink-600">
+                  Mamnu’ days are shown in each month below.
+                </p>
+              )}
               
               {/* Monthly breakdown */}
               <div className="max-h-32 overflow-y-auto space-y-1">
@@ -1009,6 +1087,7 @@ export default function MutabaahTracker() {
                     <span className="font-medium">{month.name}</span>
                     <div className="flex items-center gap-2">
                       <span>{month.passedDays}/{month.totalDays} days</span>
+                      {month.mamnuDays > 0 && <span className="text-pink-600">({month.mamnuDays} Mamnu’)</span>}
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         month.status === 1 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                       }`}>
@@ -1099,8 +1178,12 @@ export default function MutabaahTracker() {
     return date
   })
   const completionCount = getTodayCompletionCount()
-  const completionPercentage = activities.length
-    ? Math.round((completionCount / activities.length) * 100)
+  const visibleActivities = settings.is_female && isMamnu
+    ? activities.filter((activity) => /mathurat|istighfar/i.test(activity.name))
+    : activities
+  const visibleCompletionCount = visibleActivities.filter((activity) => isActivityCompleted(activity.id)).length
+  const completionPercentage = visibleActivities.length
+    ? Math.round((visibleCompletionCount / visibleActivities.length) * 100)
     : 0
   const dateLabel = new Intl.DateTimeFormat("en-MY", {
     month: "short",
@@ -1253,7 +1336,7 @@ export default function MutabaahTracker() {
             <div>
               <h2 className="text-card-title">Daily performance</h2>
               <p className="text-sm text-muted-foreground">
-                {completionCount} of {activities.length} amal completed
+                {visibleCompletionCount} of {visibleActivities.length} amal completed
               </p>
             </div>
             <span className="text-2xl font-bold text-primary">{completionPercentage}%</span>
@@ -1263,11 +1346,23 @@ export default function MutabaahTracker() {
       </Card>
 
       <Card className="gap-3 py-4">
-        <CardHeader className="px-4 pb-0">
+        <CardHeader className="flex w-full flex-row items-center justify-between px-4 pb-0">
           <CardTitle className="text-base">Amal checklist</CardTitle>
+          {settings.is_female && (
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isMamnu}
+              onClick={() => handleToggleMamnu(!isMamnu)}
+              className={`ml-auto inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${isMamnu ? "bg-pink-600 text-white" : "bg-muted text-muted-foreground"}`}
+            >
+              <span className={`size-2 rounded-full ${isMamnu ? "bg-white" : "bg-muted-foreground"}`} />
+              Mamnu’
+            </button>
+          )}
         </CardHeader>
         <CardContent className="space-y-1 px-4">
-          {activities.map((activity) => {
+          {visibleActivities.map((activity) => {
             const isCompleted = isActivityCompleted(activity.id)
             return (
               <label
@@ -1285,7 +1380,7 @@ export default function MutabaahTracker() {
               </label>
             )
           })}
-          {activities.length > 0 && completionCount === activities.length && (
+          {visibleActivities.length > 0 && visibleCompletionCount === visibleActivities.length && (
             <div className="rounded-xl bg-primary/10 p-3 text-center text-sm text-primary">
               All activities completed. May Allah accept your efforts.
             </div>

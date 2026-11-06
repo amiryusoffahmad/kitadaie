@@ -13,6 +13,8 @@ const MUTABAAH_ACTIVITY_NAMES = [
   "1 Juz Quran Recitation",
 ]
 
+const isMamnuExemptActivity = (activity) => /mathurat|istighfar/i.test(activity.name)
+
 const toDateKey = (date) => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, "0")
@@ -130,11 +132,73 @@ export async function getMutabaahSettings() {
       .where("user_id", session.user.id)
       .first()
 
-    return { success: true, settings: settings || { end_of_week: 0 } }
+    const profile = await db("users_profile")
+      .select("gender")
+      .where("id", session.user.id)
+      .first()
+
+    return {
+      success: true,
+      settings: {
+        ...(settings || { end_of_week: 0 }),
+        is_female: ["female", "perempuan", "akhwat", "wanita"].includes((profile?.gender || "").toLowerCase())
+      }
+    }
   } catch (error) {
     console.error("Failed to get mutabaah settings:", error)
     return { success: false, error: "Failed to get settings" }
   }
+}
+
+export async function getMutabaahMamnuStatus(date) {
+  try {
+    const headersList = await headers()
+    const session = await auth.api.getSession({ headers: headersList })
+    if (!session?.user) return { success: false, error: "Not authenticated" }
+
+    const profile = await db("users_profile").select("gender").where("id", session.user.id).first()
+    const isFemale = ["female", "perempuan", "akhwat", "wanita"].includes((profile?.gender || "").toLowerCase())
+    if (!isFemale) return { success: true, isFemale: false, isMamnu: false }
+
+    const record = await db("mutabaah_mamnu_days")
+      .where({ user_id: session.user.id, date })
+      .first()
+    return { success: true, isFemale: true, isMamnu: Boolean(record) }
+  } catch (error) {
+    console.error("Failed to get mamnu status:", error)
+    return { success: false, error: "Failed to get mamnu status" }
+  }
+}
+
+export async function toggleMutabaahMamnu(date, isMamnu) {
+  try {
+    const headersList = await headers()
+    const session = await auth.api.getSession({ headers: headersList })
+    if (!session?.user) return { success: false, error: "Not authenticated" }
+
+    const profile = await db("users_profile").select("gender").where("id", session.user.id).first()
+    const isFemale = ["female", "perempuan", "akhwat", "wanita"].includes((profile?.gender || "").toLowerCase())
+    if (!isFemale) return { success: false, error: "Mamnu is only available for female users" }
+
+    if (isMamnu) {
+      await db("mutabaah_mamnu_days").insert({ user_id: session.user.id, date }).onConflict(["user_id", "date"]).ignore()
+    } else {
+      await db("mutabaah_mamnu_days").where({ user_id: session.user.id, date }).delete()
+    }
+    return { success: true, isMamnu }
+  } catch (error) {
+    console.error("Failed to toggle mamnu:", error)
+    return { success: false, error: "Failed to update mamnu status" }
+  }
+}
+
+async function getMamnuDays(userId, startDate, endDate) {
+  const rows = await db("mutabaah_mamnu_days")
+    .select("date")
+    .where("user_id", userId)
+    .where("date", ">=", startDate)
+    .where("date", "<=", endDate)
+  return rows.map((row) => typeof row.date === "string" ? row.date.slice(0, 10) : toDateKey(new Date(row.date)))
 }
 
 export async function updateMutabaahSettings(endOfWeek) {
@@ -177,7 +241,7 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       return { success: false, error: "Not authenticated" }
     }
 
-    const [entries, activities] = await Promise.all([
+    const [entries, activities, mamnuDays] = await Promise.all([
       db("mutabaah_entries")
         .select(
           db.raw("DATE_FORMAT(??, '%Y-%m-%d') as date", ["mutabaah_entries.date"]),
@@ -193,6 +257,7 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
         .where("mutabaah_entries.date", "<=", endDate)
         .orderBy("date"),
       getTrackedMutabaahActivities(),
+      getMamnuDays(session.user.id, startDate, endDate),
     ])
 
     const weekData = {}
@@ -212,17 +277,18 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
 
     const activityResults = {}
     activities.forEach(activity => {
+      const totalDays = isMamnuExemptActivity(activity) ? 7 : 7 - mamnuDays.length
       activityResults[activity.id] = {
         name: activity.name,
         completedDays: 0,
-        totalDays: 7,
+        totalDays,
         isPassed: false
       }
     })
 
     Object.keys(weekData).forEach(date => {
       activities.forEach(activity => {
-        if (weekData[date][activity.id]) {
+        if ((!mamnuDays.includes(date) || isMamnuExemptActivity(activity)) && weekData[date][activity.id]) {
           activityResults[activity.id].completedDays++
         }
       })
@@ -230,7 +296,9 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
 
     let allActivitiesPassed = true
     activities.forEach(activity => {
-      activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
+      const result = activityResults[activity.id]
+      const threshold = mamnuDays.length > 0 && !isMamnuExemptActivity(activity) ? result.totalDays : 5
+      result.isPassed = result.totalDays === 0 || result.completedDays >= threshold
       if (!activityResults[activity.id].isPassed) {
         allActivitiesPassed = false
       }
@@ -243,7 +311,8 @@ export async function getWeeklyMutabaahResults(startDate, endDate) {
       activityResults,
       isPassed: allActivitiesPassed,
       result: allActivitiesPassed ? "PASS" : "FAIL",
-      totalDays: 7
+      totalDays: 7,
+      mamnuDays: mamnuDays.length
     }
   } catch (error) {
     console.error("Failed to get weekly mutabaah results:", error)
@@ -432,7 +501,7 @@ export async function getWeeklySummaries() {
 }
 
 async function getWeekData(userId, startDate, endDate) {
-  const [entries, activities] = await Promise.all([
+  const [entries, activities, mamnuDays] = await Promise.all([
     db("mutabaah_entries")
       .select(
         db.raw("DATE_FORMAT(??, '%Y-%m-%d') as date", ["mutabaah_entries.date"]),
@@ -443,6 +512,7 @@ async function getWeekData(userId, startDate, endDate) {
       .where("mutabaah_entries.date", "<=", endDate)
       .orderBy("date"),
     getTrackedMutabaahActivities(),
+    getMamnuDays(userId, startDate, endDate),
   ])
 
   const weekData = {}
@@ -462,17 +532,18 @@ async function getWeekData(userId, startDate, endDate) {
 
   const activityResults = {}
   activities.forEach(activity => {
+    const totalDays = isMamnuExemptActivity(activity) ? 7 : 7 - mamnuDays.length
     activityResults[activity.id] = {
       name: activity.name,
       completedDays: 0,
-      totalDays: 7,
+      totalDays,
       isPassed: false
     }
   })
 
   Object.keys(weekData).forEach(date => {
     activities.forEach(activity => {
-      if (weekData[date][activity.id]) {
+      if ((!mamnuDays.includes(date) || isMamnuExemptActivity(activity)) && weekData[date][activity.id]) {
         activityResults[activity.id].completedDays++
       }
     })
@@ -480,7 +551,9 @@ async function getWeekData(userId, startDate, endDate) {
 
   let allActivitiesPassed = true
   activities.forEach(activity => {
-    activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= 5
+    const result = activityResults[activity.id]
+    const threshold = mamnuDays.length > 0 && !isMamnuExemptActivity(activity) ? result.totalDays : 5
+    result.isPassed = result.totalDays === 0 || result.completedDays >= threshold
     if (!activityResults[activity.id].isPassed) {
       allActivitiesPassed = false
     }
@@ -511,7 +584,8 @@ async function getWeekData(userId, startDate, endDate) {
     totalDays: 7,
     summaryText,
     passedActivities: passedActivities.length,
-    totalActivities: activities.length
+    totalActivities: activities.length,
+    mamnuDays: mamnuDays.length
   }
 }
 
@@ -527,7 +601,7 @@ export async function getMonthlyMutabaahResults(year, month) {
     const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
     const endStr = `${year}-${String(month).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`
 
-    const [entries, activities] = await Promise.all([
+    const [entries, activities, mamnuDays] = await Promise.all([
       db("mutabaah_entries")
         .select(
           db.raw("DATE_FORMAT(??, '%Y-%m-%d') as date", ["mutabaah_entries.date"]),
@@ -538,6 +612,7 @@ export async function getMonthlyMutabaahResults(year, month) {
         .where("mutabaah_entries.date", "<=", endStr)
         .orderBy("date"),
       getTrackedMutabaahActivities(),
+      getMamnuDays(session.user.id, startStr, endStr),
     ])
 
     const monthlyData = {}
@@ -557,17 +632,18 @@ export async function getMonthlyMutabaahResults(year, month) {
 
     const activityResults = {}
     activities.forEach(activity => {
+      const totalDays = isMamnuExemptActivity(activity) ? Object.keys(monthlyData).length : Object.keys(monthlyData).length - mamnuDays.length
       activityResults[activity.id] = {
         name: activity.name,
         completedDays: 0,
-        totalDays: Object.keys(monthlyData).length,
+        totalDays,
         isPassed: false
       }
     })
 
     Object.keys(monthlyData).forEach(date => {
       activities.forEach(activity => {
-        if (monthlyData[date][activity.id]) {
+        if ((!mamnuDays.includes(date) || isMamnuExemptActivity(activity)) && monthlyData[date][activity.id]) {
           activityResults[activity.id].completedDays++
         }
       })
@@ -578,7 +654,9 @@ export async function getMonthlyMutabaahResults(year, month) {
     const passThreshold = Math.ceil(totalDaysInMonth * 0.7)
 
     activities.forEach(activity => {
-      activityResults[activity.id].isPassed = activityResults[activity.id].completedDays >= passThreshold
+      const result = activityResults[activity.id]
+      const threshold = mamnuDays.length > 0 && !isMamnuExemptActivity(activity) ? result.totalDays : passThreshold
+      result.isPassed = result.totalDays === 0 || result.completedDays >= threshold
       if (!activityResults[activity.id].isPassed) {
         allActivitiesPassed = false
       }
@@ -606,7 +684,8 @@ export async function getMonthlyMutabaahResults(year, month) {
       passThreshold,
       isPassed: allActivitiesPassed,
       status: allActivitiesPassed ? "PASS" : "FAIL",
-      activityResults
+      activityResults,
+      mamnuDays: mamnuDays.length
     }
   } catch (error) {
     console.error("Failed to get monthly mutabaah results:", error)
