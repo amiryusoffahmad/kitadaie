@@ -3,6 +3,7 @@ import { GalleryVerticalEnd } from 'lucide-react'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
+import Image from 'next/image';
 
 export default async function Page({ searchParams }) {
     const currSearchParams = await searchParams
