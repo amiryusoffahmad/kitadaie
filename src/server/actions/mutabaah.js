@@ -564,11 +564,11 @@ async function getWeekData(userId, startDate, endDate) {
 
   let summaryText = ""
   if (allActivitiesPassed) {
-    summaryText = `🎉 Excellent week! All ${activities.length} activities passed. `
+    summaryText = `Excellent week! All ${activities.length} activities passed. `
   } else if (passedActivities.length > failedActivities.length) {
-    summaryText = `✅ Good progress! ${passedActivities.length}/${activities.length} activities passed. `
+    summaryText = `Good progress! ${passedActivities.length}/${activities.length} activities passed. `
   } else {
-    summaryText = `⚠️ Needs improvement. Only ${passedActivities.length}/${activities.length} activities passed. `
+    summaryText = `Needs improvement. Only ${passedActivities.length}/${activities.length} activities passed. `
   }
 
   if (failedActivities.length > 0) {

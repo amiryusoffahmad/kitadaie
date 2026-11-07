@@ -4,7 +4,7 @@ import { useSession } from '@/lib/auth-client'
 import { usePersonalData } from '@/app/api/profile/user-api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert'
-import { Terminal, LogOut, ScrollText, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle, Info, BookOpen, CheckSquare, FolderOpen, Network } from 'lucide-react'
+import { Terminal, LogOut, ScrollText, UserCircle, GraduationCap, Users, Award, Calendar, Download, AlertCircle, Info, BookOpen, CheckSquare, FolderOpen, Network, Hand } from 'lucide-react'
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
@@ -39,7 +39,7 @@ export default function DataList() {
                 {isLoading ? (
                     <Skeleton className="h-8 w-40" />
                 ) : first_name ? (
-                    <>Ahlan, {first_name}👋</>
+                    <span className="inline-flex items-center gap-2">Ahlan, {first_name}<Hand className="h-5 w-5 text-primary" aria-hidden="true" /></span>
                 ) : (
                     'Ahlan!'
                 )}

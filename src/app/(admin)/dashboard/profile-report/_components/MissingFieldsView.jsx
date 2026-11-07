@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle2 } from 'lucide-react'
 
 export default function MissingFieldsView({ user }) {
   const { breakdown, missingFields } = user
@@ -89,7 +89,7 @@ export default function MissingFieldsView({ user }) {
 
       {missingFields && missingFields.length === 0 && (
         <div className='p-4 text-center text-green-600 bg-green-50 rounded-lg border border-green-200'>
-          <p className='font-medium'>✓ Profile is 100% complete!</p>
+          <p className='flex items-center gap-2 font-medium'><CheckCircle2 className='h-4 w-4 text-success' aria-hidden='true' />Profile is 100% complete!</p>
         </div>
       )}
     </div>

@@ -7,7 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { CalendarDays, Settings, TrendingUp, ChevronLeft, ChevronRight, BarChart3, BookOpen, FileText, Volume2, PlayCircle, PauseCircle, Zap } from "lucide-react"
+import { CalendarDays, Settings, TrendingUp, ChevronLeft, ChevronRight, BarChart3, BookOpen, FileText, Volume2, PlayCircle, PauseCircle, Zap, Lightbulb, ClipboardList } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import AppLoadingSkeleton from "@/components/app-loading-skeleton"
 import { 
@@ -473,8 +473,8 @@ export default function MutabaahTracker() {
         const passedActivities = Object.values(result.activityResults).filter((activity) => activity.isPassed).length
         const totalActivities = Object.values(result.activityResults).length
         const summaryText = result.isPassed
-          ? `🎉 Excellent week! All ${totalActivities} activities passed.`
-          : `⚠️ ${passedActivities}/${totalActivities} activities passed.`
+          ? `Excellent week! All ${totalActivities} activities passed.`
+          : `${passedActivities}/${totalActivities} activities passed.`
 
         setWeeklySummaries({
           cycleStart: lastCompletedWeekRange.start,
@@ -523,40 +523,40 @@ export default function MutabaahTracker() {
     const activityLower = activityName.toLowerCase()
     
     if (percentage >= 85) {
-      return { type: "excellent", message: "🎉 Excellent! Keep up this amazing consistency!" }
+      return { type: "excellent", message: "Excellent! Keep up this amazing consistency!" }
     } else if (percentage >= 70) {
-      return { type: "good", message: "✅ Good progress! You're on track to pass." }
+      return { type: "good", message: "Good progress! You're on track to pass." }
     } else if (percentage >= 50) {
       if (activityLower.includes('tahajud')) {
-        return { type: "warning", message: "🌙 Try setting a gentle alarm 15 minutes earlier. Even 2 rakat counts!" }
+        return { type: "warning", message: "Try setting a gentle alarm 15 minutes earlier. Even 2 rakat counts!" }
       } else if (activityLower.includes('dhuha')) {
-        return { type: "warning", message: "☀️ Link Dhuha to your morning routine - maybe after breakfast?" }
+        return { type: "warning", message: "Link Dhuha to your morning routine - maybe after breakfast?" }
       } else if (activityLower.includes('istighfar')) {
-        return { type: "warning", message: "🤲 Set phone reminders throughout the day. Count while commuting!" }
+        return { type: "warning", message: "Set phone reminders throughout the day. Count while commuting!" }
       } else if (activityLower.includes('mathurat')) {
-        return { type: "warning", message: "📖 Try doing it right after Fajr and Maghrib prayers." }
+        return { type: "warning", message: "Try doing it right after Fajr and Maghrib prayers." }
       } else if (activityLower.includes('tilawah')) {
-        return { type: "warning", message: "📚 Start with just 1 page after each prayer. Build the habit first!" }
+        return { type: "warning", message: "Start with just 1 page after each prayer. Build the habit first!" }
       } else if (activityLower.includes('subuh')) {
-        return { type: "warning", message: "🕌 Sleep earlier to wake up easier. Ask Allah for help in making this consistent." }
+        return { type: "warning", message: "Sleep earlier to wake up easier. Ask Allah for help in making this consistent." }
       } else {
-        return { type: "warning", message: "💪 You can improve! Try linking this to an existing daily habit." }
+        return { type: "warning", message: "You can improve! Try linking this to an existing daily habit." }
       }
     } else {
       if (activityLower.includes('tahajud')) {
-        return { type: "critical", message: "🚨 Tahajud is concerning. Start with just 10 minutes before Fajr. Make du'a for strength!" }
+        return { type: "critical", message: "Tahajud is concerning. Start with just 10 minutes before Fajr. Make du'a for strength!" }
       } else if (activityLower.includes('dhuha')) {
-        return { type: "critical", message: "🚨 Dhuha needs attention. Just 2 rakat after sunrise - set it as your morning goal!" }
+        return { type: "critical", message: "Dhuha needs attention. Just 2 rakat after sunrise - set it as your morning goal!" }
       } else if (activityLower.includes('istighfar')) {
-        return { type: "critical", message: "🚨 Istighfar is low. Use a tasbih or counter app. Do 25 four times a day!" }
+        return { type: "critical", message: "Istighfar is low. Use a tasbih or counter app. Do 25 four times a day!" }
       } else if (activityLower.includes('mathurat')) {
-        return { type: "critical", message: "🚨 Mathurat is concerning. Download an app with audio to follow along!" }
+        return { type: "critical", message: "Mathurat is concerning. Download an app with audio to follow along!" }
       } else if (activityLower.includes('tilawah')) {
-        return { type: "critical", message: "🚨 Tilawah needs urgent attention. Start with 5 minutes daily - consistency over quantity!" }
+        return { type: "critical", message: "Tilawah needs urgent attention. Start with 5 minutes daily - consistency over quantity!" }
       } else if (activityLower.includes('subuh')) {
-        return { type: "critical", message: "🚨 Subuh is concerning. This is priority #1 - ask someone to call you daily!" }
+        return { type: "critical", message: "Subuh is concerning. This is priority #1 - ask someone to call you daily!" }
       } else {
-        return { type: "critical", message: "🚨 This needs immediate attention. Break it into smaller, easier steps!" }
+        return { type: "critical", message: "This needs immediate attention. Break it into smaller, easier steps!" }
       }
     }
   }
@@ -589,7 +589,7 @@ export default function MutabaahTracker() {
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                 <div className="flex items-center gap-2 mb-2">
                   <BookOpen className="h-5 w-5 text-green-600" />
-                  <h3 className="font-medium text-green-800">📚 Daily Mathurat</h3>
+                  <h3 className="font-medium text-green-800">Daily Mathurat</h3>
                 </div>
                 <p className="text-sm text-green-700">
                   Read your daily du'a and dhikr from the Mathurat collection. Best recited after Fajr and Maghrib prayers.
@@ -640,7 +640,7 @@ export default function MutabaahTracker() {
                   <div className="p-4 bg-gray-50 rounded-lg border space-y-3">
                     <div className="text-center">
                       <p className="text-sm font-medium text-gray-700">
-                        {(isPlaying === 'pagi' || (isPaused && currentAudio?.src.includes('Pagi'))) ? '🌅 Mathurat Pagi' : '🌆 Mathurat Petang'}
+                        {(isPlaying === 'pagi' || (isPaused && currentAudio?.src.includes('Pagi'))) ? 'Mathurat Pagi' : 'Mathurat Petang'}
                         {isPaused && <span className="ml-2 text-xs text-gray-500">(Paused)</span>}
                       </p>
                     </div>
@@ -705,12 +705,12 @@ export default function MutabaahTracker() {
                 )}
                 
                 <p className="text-xs text-gray-600">
-                  💡 Tip: Save this to your device for offline reading
+                  <Lightbulb className="mr-1 inline h-4 w-4" aria-hidden="true" />Tip: Save this to your device for offline reading
                 </p>
               </div>
               
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 text-left">
-                <h4 className="font-medium text-blue-800 mb-2">📖 How to use Mathurat:</h4>
+                <h4 className="flex items-center gap-2 font-medium text-blue-800 mb-2"><BookOpen className="h-4 w-4" aria-hidden="true" />How to use Mathurat:</h4>
                 <ul className="text-sm text-blue-700 space-y-1">
                   <li>• Morning: Read after Fajr prayer</li>
                   <li>• Evening: Read after Maghrib prayer</li>
@@ -761,7 +761,7 @@ export default function MutabaahTracker() {
               )}
               {weeklyResults.weekRange && (
                 <p className="text-sm text-blue-600 font-medium mt-1">
-                  📅 {new Date(weeklyResults.weekRange.start).toLocaleDateString('en-GB')} - {new Date(weeklyResults.weekRange.end).toLocaleDateString('en-GB')}
+                  <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />{new Date(weeklyResults.weekRange.start).toLocaleDateString('en-GB')} - {new Date(weeklyResults.weekRange.end).toLocaleDateString('en-GB')}
                 </p>
               )}
               <p className="text-sm text-gray-500 mt-1">
@@ -795,7 +795,7 @@ export default function MutabaahTracker() {
 
             {/* Weekly Summary */}
             <div className="space-y-3 mt-4 pt-4 border-t">
-              <h4 className="font-medium">📝 Week Summary:</h4>
+              <h4 className="flex items-center gap-2 font-medium"><ClipboardList className="h-4 w-4" aria-hidden="true" />Week Summary:</h4>
               <div className="bg-gray-50 p-3 rounded-lg">
                 <p className="text-sm text-gray-700">
                   {(() => {
@@ -805,11 +805,11 @@ export default function MutabaahTracker() {
                     
                     let summaryText = ""
                     if (weeklyResults.isPassed) {
-                      summaryText = `🎉 Excellent week! All ${totalActivities} activities passed. `
+                      summaryText = `Excellent week! All ${totalActivities} activities passed. `
                     } else if (passedActivities.length > failedActivities.length) {
-                      summaryText = `✅ Good progress! ${passedActivities.length}/${totalActivities} activities passed. `
+                      summaryText = `Good progress! ${passedActivities.length}/${totalActivities} activities passed. `
                     } else {
-                      summaryText = `⚠️ Needs improvement. Only ${passedActivities.length}/${totalActivities} activities passed. `
+                      summaryText = `Needs improvement. Only ${passedActivities.length}/${totalActivities} activities passed. `
                     }
 
                     if (failedActivities.length > 0) {
@@ -831,8 +831,8 @@ export default function MutabaahTracker() {
                   weeklyResults.isPassed ? 'text-green-800' : 'text-blue-800'
                 }`}>
                   {weeklyResults.isPassed 
-                    ? "🎉 MashaAllah! Keep this momentum going into next week!"
-                    : "💪 Don't give up! Use this week's lessons to improve next week. Small steps lead to big changes."
+                    ? "MashaAllah! Keep this momentum going into next week!"
+                    : "Don't give up! Use this week's lessons to improve next week. Small steps lead to big changes."
                   }
                 </p>
                 <p className={`text-xs mt-1 ${
@@ -871,7 +871,7 @@ export default function MutabaahTracker() {
             {/* Cycle info */}
             <div className="text-center pb-2">
               <p className="text-sm text-blue-600 font-medium">
-                📅 {new Date(weeklySummaries.cycleStart).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.cycleEnd).toLocaleDateString('en-GB')}
+                <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />{new Date(weeklySummaries.cycleStart).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.cycleEnd).toLocaleDateString('en-GB')}
               </p>
               <p className="text-xs text-gray-500 mt-1">
                 2-week cycle • Resets automatically every 2 weeks
@@ -882,7 +882,7 @@ export default function MutabaahTracker() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium text-gray-800 flex items-center gap-2">
-                  📊 Week 1 Summary
+                  <BarChart3 className="h-4 w-4" aria-hidden="true" />Week 1 Summary
                   <Badge 
                     variant={weeklySummaries.week1.isPassed ? "default" : "destructive"}
                     className={weeklySummaries.week1.isPassed ? "bg-green-100 text-green-800" : ""}
@@ -893,7 +893,7 @@ export default function MutabaahTracker() {
               </div>
               
               <p className="text-sm text-blue-600">
-                📅 {new Date(weeklySummaries.week1.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week1.endDate).toLocaleDateString('en-GB')}
+                <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />{new Date(weeklySummaries.week1.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week1.endDate).toLocaleDateString('en-GB')}
               </p>
               
               <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
@@ -929,7 +929,7 @@ export default function MutabaahTracker() {
             {weeklySummaries.week2 && <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium text-gray-800 flex items-center gap-2">
-                  📊 Week 2 Summary
+                  <BarChart3 className="h-4 w-4" aria-hidden="true" />Week 2 Summary
                   <Badge 
                     variant={weeklySummaries.week2.isPassed ? "default" : "destructive"}
                     className={weeklySummaries.week2.isPassed ? "bg-green-100 text-green-800" : ""}
@@ -940,7 +940,7 @@ export default function MutabaahTracker() {
               </div>
               
               <p className="text-sm text-blue-600">
-                📅 {new Date(weeklySummaries.week2.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week2.endDate).toLocaleDateString('en-GB')}
+                <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />{new Date(weeklySummaries.week2.startDate).toLocaleDateString('en-GB')} - {new Date(weeklySummaries.week2.endDate).toLocaleDateString('en-GB')}
               </p>
               
               <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-lg">
@@ -975,7 +975,7 @@ export default function MutabaahTracker() {
             {/* Motivation message */}
             <div className="p-3 rounded-lg bg-blue-50 border border-blue-200">
               <p className="text-sm font-medium text-blue-800">
-                💡 Track your progress week by week for better consistency!
+                <Lightbulb className="mr-1 inline h-4 w-4" aria-hidden="true" />Track your progress week by week for better consistency!
               </p>
               <p className="text-xs mt-1 text-blue-600">
                 Each activity needs ≥5 days out of 7 to pass • Summary resets every 2 weeks
@@ -1011,7 +1011,7 @@ export default function MutabaahTracker() {
             {monthlyResults.length > 0 && (
               <div className="text-center">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">
-                  📅 {monthlyResults[monthlyResults.length - 1]?.year} - {monthlyResults[0]?.year}
+                  <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />{monthlyResults[monthlyResults.length - 1]?.year} - {monthlyResults[0]?.year}
                 </h3>
               </div>
             )}
@@ -1127,7 +1127,7 @@ export default function MutabaahTracker() {
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200 mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <h3 className="font-medium text-blue-900">📚 Important Setup Required!</h3>
+                <h3 className="flex items-center gap-2 font-medium text-blue-900"><BookOpen className="h-4 w-4" aria-hidden="true" />Important Setup Required!</h3>
               </div>
               <p className="text-sm text-blue-800 leading-relaxed">
                 <strong>Please set your Halaqah day below!</strong> This determines when your weekly mutabaah cycle ends. 
@@ -1137,7 +1137,7 @@ export default function MutabaahTracker() {
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                🗓️ My Halaqah Day
+                <CalendarDays className="mr-1 inline h-4 w-4" aria-hidden="true" />My Halaqah Day
               </label>
               <Select 
                 value={settings.end_of_week.toString()} 
@@ -1147,8 +1147,8 @@ export default function MutabaahTracker() {
                 }}
               >
                 <SelectTrigger className="border-2 border-blue-200 focus:border-blue-500">
-                  <SelectValue placeholder="⚠️ Please select your halaqah day">
-                    {DAYS_OF_WEEK.find(day => day.value === settings.end_of_week)?.label || "⚠️ Please select your halaqah day"}
+                  <SelectValue placeholder="Please select your halaqah day">
+                    {DAYS_OF_WEEK.find(day => day.value === settings.end_of_week)?.label || "Please select your halaqah day"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
@@ -1160,7 +1160,7 @@ export default function MutabaahTracker() {
                 </SelectContent>
               </Select>
               <p className="text-xs text-gray-600 mt-2 flex items-center gap-1">
-                <span>💡</span>
+                <Lightbulb className="h-4 w-4" aria-hidden="true" />
                 <span>This sets when your weekly tracking cycle resets for pass/fail calculation.</span>
               </p>
             </div>

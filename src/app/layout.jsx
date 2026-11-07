@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Providers } from "@/providers";
 import { OfflineIndicator } from "@/components/offline-indicator";
+import { SiteHeader } from "@/components/site-header";
 // import { PWAInstallPrompt } from "@/components/pwa-install-prompt";
 
 export const metadata = {
@@ -36,9 +37,12 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
-      <body className="font-sans antialiased">
+      <body className="flex min-h-svh flex-col font-sans antialiased">
         <Providers>
-          {children}
+          <SiteHeader />
+          <div className="min-h-0 flex-1">
+            {children}
+          </div>
           <OfflineIndicator />
           {/* Uncomment this to enable PWA Install Prompt */}
           {/* <PWAInstallPrompt /> */}

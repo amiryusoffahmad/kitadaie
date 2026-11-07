@@ -131,7 +131,7 @@ export function formatTaskNotification(task) {
   const deepLinkBase = process.env.NEXT_PUBLIC_APP_DEEP_LINK_BASE || process.env.NEXT_PUBLIC_APP_URL || "https://kitadaie.com";
   const taskUrl = `${deepLinkBase}/tasks/${taskId}`;
 
-  let message = `📅 <b>Reminder: ${title}</b>\n`;
+  let message = `<b>Reminder: ${title}</b>\n`;
   message += `\n`;
   message += `<b>Target Date:</b> ${monthName} ${targetYear}\n`;
 
@@ -146,14 +146,14 @@ export function formatTaskNotification(task) {
   if (status) {
     const statusEmoji = {
       pending: "⏳",
-      in_progress: "🔄",
-      completed: "✅",
+      in_progress: "In progress",
+      completed: "Completed",
     };
     message += `<b>Status:</b> ${statusEmoji[status] || ""} ${status.replace("_", " ").toUpperCase()}\n`;
   }
 
   message += `\n`;
-  message += `📱 <a href="${taskUrl}">View details in app</a>`;
+  message += `<a href="${taskUrl}">View details in app</a>`;
 
   return message;
 }
@@ -189,7 +189,7 @@ export function formatShortTaskNotification(task) {
   const deepLinkBase = process.env.NEXT_PUBLIC_APP_DEEP_LINK_BASE || process.env.NEXT_PUBLIC_APP_URL || "https://kitadaie.com";
   const taskUrl = `${deepLinkBase}/tasks/${taskId}`;
 
-  return `📅 <b>${title}</b> - ${monthName} ${targetYear}\n📱 <a href="${taskUrl}">View details</a>`;
+  return `<b>${title}</b> - ${monthName} ${targetYear}\n<a href="${taskUrl}">View details</a>`;
 }
 
 /**

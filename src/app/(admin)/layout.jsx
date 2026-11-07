@@ -44,7 +44,7 @@ export default async function Layout({ children }) {
     }
 
     return (
-        <SidebarProvider>
+        <SidebarProvider className="h-full min-h-0">
             <AppSidebar />
             <SidebarInset>
                 <header

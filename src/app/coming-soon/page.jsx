@@ -8,7 +8,7 @@ export default function ComingSoonPage() {
     const router = useRouter()
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
+        <div className="flex min-h-full flex-col items-center justify-center px-4 text-center">
             <div className="p-6 bg-blue-100 rounded-full mb-6">
                 <Construction className="h-16 w-16 text-blue-600" />
             </div>
@@ -24,4 +24,4 @@ export default function ComingSoonPage() {
             </Button>
         </div>
     )
-} 
+}

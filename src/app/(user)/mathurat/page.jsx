@@ -47,7 +47,7 @@ export default function MathuratPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white pb-24">
+    <div className="min-h-full bg-white pb-24">
       {/* Hidden Audio Engine */}
       <audio 
         ref={audioRef} 

@@ -12,13 +12,13 @@ export const assignUserRole = async (userId, role = "member") => {
 
       if (!existingRole) {
         await trx("user_roles").insert({ user_id: userId, role });
-        console.log(`✅ Role "${role}" assigned to user ${userId}`);
+        console.log(`Role "${role}" assigned to user ${userId}`);
       } else {
         console.log(`ℹ️ User ${userId} already has a role.`);
       }
     });
   } catch (error) {
-    console.error("❌ Error assigning role:", error);
+    console.error("Error assigning role:", error);
     throw new Error("Failed to assign user role");
   }
 };
@@ -46,11 +46,11 @@ export const assignUsername = async (userId) => {
         updatedAt: new Date(),
       });
 
-      console.log(`✅ Assigned username ${nextUsername} to user ${userId}`);
+      console.log(`Assigned username ${nextUsername} to user ${userId}`);
       return nextUsername.toString();
     });
   } catch (error) {
-    console.error("❌ Error assigning username:", error);
+    console.error("Error assigning username:", error);
     throw new Error("Failed to assign username");
   }
 };
